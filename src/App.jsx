@@ -3,7 +3,9 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { Box, Typography, Button, AppBar, Toolbar } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import GradientButton from "./components/GradientButton";
+import HeroBanner from "./components/HeroBanner/HeroBanner";
 import lightTheme from "./styles/themeLight";
+import Layout from "./components/common/Layout";
 import "./styles/global.css";
 
 function App() {
@@ -26,36 +28,40 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={lightTheme}>
-      <CssBaseline />
-      {/* 상단 AppBar */}
-      <AppBar position="static" color="background">
-        <Toolbar sx={styles.toolbar}>
-          <Typography variant="h6" fontWeight={700}>
-            🍭
+    <Layout>
+      <ThemeProvider theme={lightTheme}>
+        <CssBaseline />
+        {/* 상단 AppBar */}
+        <AppBar position="sticky" color="background" elevation={0}>
+          <Toolbar sx={styles.toolbar}>
+            <Typography variant="h6" fontWeight={700}>
+              🍭
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        {/* 메인 컨텐츠 */}
+        <Box sx={styles.container}>
+          <Typography variant="h3" fontWeight={700}>
+            MEN:TOSS
           </Typography>
-        </Toolbar>
-      </AppBar>
 
-      {/* 메인 컨텐츠 */}
-      <Box sx={styles.container}>
-        <Typography variant="h3" fontWeight={700}>
-          MEN:TOSS
-        </Typography>
+          <Typography variant="h6" fontWeight={500} color="grey.500">
+            Mentor의 재능을 TOSS하다
+          </Typography>
 
-        <Typography variant="h6" fontWeight={500} color="grey.500">
-          Mentor의 재능을 TOSS하다
-        </Typography>
+          <HeroBanner />
 
-        <GradientButton
-          size="xs"
-          startIcon={<Search />}
-          onClick={() => alert("TESTING...")}
-        >
-          탐색하기
-        </GradientButton>
-      </Box>
-    </ThemeProvider>
+          <GradientButton
+            size="xs"
+            startIcon={<Search />}
+            onClick={() => alert("TESTING...")}
+          >
+            탐색하기
+          </GradientButton>
+        </Box>
+      </ThemeProvider>
+    </Layout>
   );
 }
 
