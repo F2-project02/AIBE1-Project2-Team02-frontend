@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Box, Typography, Button, AppBar, Toolbar } from "@mui/material";
+import { Search } from "@mui/icons-material";
 import GradientButton from "./components/GradientButton";
 import lightTheme from "./styles/themeLight";
 import "./styles/global.css";
@@ -46,7 +47,11 @@ function App() {
           Mentor의 재능을 TOSS하다
         </Typography>
 
-        <GradientButton size="md" onClick={() => alert("테스트중")}>
+        <GradientButton
+          size="xs"
+          startIcon={<Search />}
+          onClick={() => alert("TESTING...")}
+        >
           탐색하기
         </GradientButton>
       </Box>
