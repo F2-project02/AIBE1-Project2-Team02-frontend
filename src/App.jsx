@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { Box, Typography, Button, AppBar, Toolbar } from "@mui/material";
+import GradientButton from "./components/GradientButton";
+import lightTheme from "./styles/themeLight";
+import "./styles/global.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const styles = {
+    container: {
+      minHeight: "100vh",
+      backgroundColor: "background.default",
+      color: "text.primary",
+      padding: 4,
+      display: "flex",
+      flexDirection: "column",
+      gap: 4,
+      alignItems: "center",
+      justifyContent: "flex-start",
+    },
+    toolbar: {
+      width: "100%",
+      justifyContent: "space-between",
+    },
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider theme={lightTheme}>
+      <CssBaseline />
+      {/* 상단 AppBar */}
+      <AppBar position="static" color="background">
+        <Toolbar sx={styles.toolbar}>
+          <Typography variant="h6" fontWeight={700}>
+            🍭
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* 메인 컨텐츠 */}
+      <Box sx={styles.container}>
+        <Typography variant="h3" fontWeight={700}>
+          MEN:TOSS
+        </Typography>
+
+        <Typography variant="h6" fontWeight={500} color="grey.500">
+          Mentor의 재능을 TOSS하다
+        </Typography>
+
+        <GradientButton size="md" onClick={() => alert("테스트중")}>
+          탐색하기
+        </GradientButton>
+      </Box>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
