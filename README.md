@@ -6,7 +6,7 @@
 ### 1. 레포지토리 클론
 
 ```bash
-git clone https://github.com/1000hyehyang/mentos-frontend.git
+git clone https://github.com/1000hyehyang/mentoss-frontend.git
 cd your-repo-name
 ```
 
