@@ -4,6 +4,7 @@ import { Box, Typography, Button, AppBar, Toolbar } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import GradientButton from "./components/GradientButton";
 import HeroBanner from "./components/HeroBanner/HeroBanner";
+import TiptapEditor from "./components/TiptapEditor/TiptapEditor";
 import lightTheme from "./styles/themeLight";
 import Layout from "./components/common/Layout";
 import "./styles/global.css";
@@ -51,6 +52,9 @@ function App() {
           </Typography>
 
           <HeroBanner />
+
+          
+          <TiptapEditor />
 
           <GradientButton
             size="xs"
