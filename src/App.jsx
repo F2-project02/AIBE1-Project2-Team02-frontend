@@ -33,7 +33,7 @@ function App() {
       <ThemeProvider theme={lightTheme}>
         <CssBaseline />
         {/* 상단 AppBar */}
-        <AppBar position="sticky" color="background" elevation={0}>
+        <AppBar position="static" color="background" elevation={0} sx={{ zIndex: 1000 }}>
           <Toolbar sx={styles.toolbar}>
             <Typography variant="h6" fontWeight={700}>
               🍭
