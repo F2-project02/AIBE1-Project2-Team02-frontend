@@ -1,0 +1,98 @@
+/* 기본 전역 설정 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* 에디터 전체 컨테이너 */
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 80px);
+  padding: clamp(0.5rem, 2vw, 2rem) 0;
+  box-sizing: border-box;
+}
+
+/* 에디터 내부 텍스트 영역 */
+.tiptap {
+  flex: 1;
+  min-height: 50vh;
+  border: none;
+  outline: none;
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(0.9rem, 1vw, 1.125rem);
+  line-height: 1.6;
+  padding: 0 clamp(1rem, 3vw, 3rem);
+}
+
+/* 툴바 스타일 */
+.toolbar {
+  position: sticky;
+  top: 0; /* 상단에서 떨어진 거리 */
+  background-color: #FFFEFB; /* 배경색 설정 필수 */
+  z-index: 10; /* 다른 요소 위로 올라오게 */
+  display: flex;
+  
+  flex-wrap: wrap;
+  gap: clamp(0.25rem, 1vw, 0.75rem);
+  justify-content: flex-start;
+  border-bottom: 1px solid #CCCBC8;
+  padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1rem, 2vw, 2rem);
+  margin-bottom: clamp(1rem, 2vw, 2.5rem);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* editor.css 내 추가 또는 덮어쓰기 */
+.toolbar .MuiIconButton-root {
+  font-size: clamp(1rem, 4vw, 1.5rem); /* 아이콘 크기 */
+  padding: clamp(0.2rem, 1.5vw, 0.6rem); /* 버튼 패딩 */
+}
+
+/* 드롭존 */
+.dropzone {
+  border: 2px dashed #d0d0d0;
+  border-radius: 1.25rem;
+  padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 3vw, 2rem);
+  text-align: center;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border 0.2s ease-in-out;
+  margin-top: clamp(1rem, 2vw, 2rem);
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dropzone:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* 업로드 아이콘 이미지 */
+.dropzone-img {
+  width: clamp(36px, 5vw, 56px);
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto clamp(0.5rem, 1vw, 1rem);
+  display: block;
+}
+
+/* 링크 텍스트 스타일 */
+.dropzone-link {
+  color: #5B8DEF;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: clamp(0.85rem, 1vw, 1rem);
+}
+
+/* 본문 & 이미지 스타일 */
+.tiptap p {
+  margin: 0 0 1em;
+}
+
+.tiptap img {
+  max-width: 100%;
+  margin: clamp(0.75rem, 2vw, 1.5rem) 0;
+  border-radius: 0.25rem;
+}
