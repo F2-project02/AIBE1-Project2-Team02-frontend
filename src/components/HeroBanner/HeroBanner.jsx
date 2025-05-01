@@ -12,17 +12,29 @@ export default function HeroBanner() {
         position: "relative",
         overflow: "hidden",
         borderRadius: {
-          xs: "12px", // 모바일
-          sm: "16px", // 태블릿
-          md: "24px", // 데스크탑
+          xs: "12px",
+          sm: "16px",
+          md: "24px",
         },
         display: "flex",
+        flexDirection: { xs: "column", sm: "row" },
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: {
+          xs: "center",
+          sm: "space-between",
+        },
         px: {
           xs: 2,
           sm: 4,
           md: 6,
+        },
+        py: {
+          xs: 6, // 모바일에서 수직 여백 추가
+          sm: 0,
+        },
+        textAlign: {
+          xs: "center",
+          sm: "left",
         },
       }}
     >
@@ -31,8 +43,8 @@ export default function HeroBanner() {
         sx={{
           position: "relative",
           zIndex: 1,
-          textAlign: "left",
-          maxWidth: { xs: "55%", sm: "50%", md: "45%" },
+          maxWidth: { xs: "100%", sm: "50%", md: "45%" },
+          px: { xs: 1, sm: 0 }, // 모바일 내부 여백 조정
         }}
       >
         <Typography
@@ -40,13 +52,13 @@ export default function HeroBanner() {
           component="h1"
           sx={{
             fontSize: {
-              xs: "0.5rem", // 모바일
-              sm: "1.25rem", // 태블릿
-              md: "1.5rem",  // 데스크탑
+              xs: "1rem",
+              sm: "1.25rem",
+              md: "1.5rem",
             },
             color: "#FFFEFB",
             fontWeight: 600,
-            lineHeight: 1.4,
+            lineHeight: 1.5,
           }}
         >
           MEN:TOSS
@@ -55,21 +67,20 @@ export default function HeroBanner() {
         </Typography>
       </Box>
 
-      {/* 도넛 이미지 */}
+      {/* 이미지 - 모바일에서는 숨김 */}
       <Box
         component="img"
         src="/images/mentos.svg"
         alt="멘토스"
         sx={{
+          display: { xs: "none", sm: "block" },
           width: {
-            xs: "35%",  // 모바일
-            sm: "30%",  // 태블릿
-            md: "30%",  // 데스크탑
+            sm: "30%",
+            md: "30%",
           },
           height: "auto",
           objectFit: "contain",
           transform: {
-            xs: "translate(-20%, 0%)",
             sm: "translate(-30%, 0%)",
             md: "translate(-40%, 0%)",
           },
