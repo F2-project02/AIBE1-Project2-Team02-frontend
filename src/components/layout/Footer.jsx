@@ -52,7 +52,7 @@ export default function Footer() {
           고객센터
         </Typography>
 
-        <a href="mailto:mentoss@gmail.com" style={{ textDecoration: "none" }}>
+        <a href="mailto:mentoss.hwa2@gmail.com" style={{ textDecoration: "none" }}>
         <Button
           aria-label="이메일로 문의하기"
           startIcon={<EmailIcon />}
@@ -80,7 +80,7 @@ export default function Footer() {
           멘토스 고객센터는 이메일로 운영 중입니다.
         </Typography>
         <Typography variant="body2" mb={2}>
-          평일(월~금) : 10:00 ~ 17:00 / 주말(토요일) : 13:00 ~ 17:00 (일요일, 공휴일 제외) | mentoss@gmail.com
+          평일(월~금) : 10:00 ~ 17:00 / 주말(토요일) : 13:00 ~ 17:00 (일요일, 공휴일 제외) |  mentoss.hwa2@gmail.com
         </Typography>
 
         <Divider sx={{ my: 2 }} />
