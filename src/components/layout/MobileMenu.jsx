@@ -1,16 +1,43 @@
 // src/components/layout/MobileMenu.jsx
 
 import { Box, Button, Divider, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../store/useUserStore";
 import { useLoginModalStore } from "../../store/useLoginModalStore";
+import menuItems from "./menuItems";
 
 export default function MobileMenu({ onClose }) {
   const { isLoggedIn, profileImage } = useUserStore();
   const { open } = useLoginModalStore();
+  const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    onClose(); // 드로어 닫기
-    open();    // 로그인 모달 열기
+    onClose();
+    open();
+  };
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    onClose();
+  };
+
+  const menuButtonStyle = {
+    variant: "text",
+    fullWidth: true,
+    disableRipple: true,
+    sx: {
+      textTransform: "none",
+      fontWeight: 500,
+      justifyContent: "flex-start",
+      px: 1.5,
+      py: 1,
+      borderRadius: 1,
+      color: "var(--text-100)",
+      transition: "background-color 0.2s ease",
+      "&:active": {
+        backgroundColor: "var(--bg-200)",
+      },
+    },
   };
 
   return (
@@ -22,18 +49,7 @@ export default function MobileMenu({ onClose }) {
       <Divider sx={{ mb: 2 }} />
 
       {!isLoggedIn ? (
-        <Button
-          variant="text"
-          fullWidth
-          onClick={handleLoginClick}
-          sx={{
-            textTransform: "none",
-            fontWeight: 500,
-            color: "var(--text-100)",
-            justifyContent: "flex-start",
-            px: 0,
-          }}
-        >
+        <Button onClick={handleLoginClick} {...menuButtonStyle}>
           로그인/회원가입
         </Button>
       ) : (
@@ -49,24 +65,32 @@ export default function MobileMenu({ onClose }) {
             </Typography>
           </Box>
           <Button
-            variant="text"
-            fullWidth
             onClick={() => {
               alert("로그아웃 로직 필요!");
               onClose();
             }}
+            {...menuButtonStyle}
             sx={{
-              textTransform: "none",
-              fontWeight: 500,
+              ...menuButtonStyle.sx,
               color: "var(--text-300)",
-              justifyContent: "flex-start",
-              px: 0,
             }}
           >
             로그아웃
           </Button>
         </Box>
       )}
+
+      <Divider sx={{ my: 2 }} />
+
+      {menuItems.map(({ label, path }) => (
+        <Button
+          key={path}
+          onClick={() => handleNavigate(path)}
+          {...menuButtonStyle}
+        >
+          {label}
+        </Button>
+      ))}
     </Box>
   );
 }
