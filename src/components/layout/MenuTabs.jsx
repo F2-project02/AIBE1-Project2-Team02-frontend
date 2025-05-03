@@ -24,12 +24,25 @@ export default function MenuTabs() {
           key={path}
           to={path}
           style={({ isActive }) => ({
-            color: isActive ? "var(--text-100)" : "var(--text-300)",
-            fontWeight: isActive ? 700 : 400,
             textDecoration: "none",
           })}
         >
-          <Typography variant="body2">{label}</Typography>
+          {({ isActive }) => (
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? "var(--text-100)" : "var(--text-300)",
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  color: "var(--text-200)",
+                  fontWeight: 600,
+                },
+              }}
+            >
+              {label}
+            </Typography>
+          )}
         </NavLink>
       ))}
     </Box>
