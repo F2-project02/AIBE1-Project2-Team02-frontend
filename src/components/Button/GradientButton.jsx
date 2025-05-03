@@ -1,7 +1,6 @@
-// src/components/GradientButton.jsx
+// src/components/Button/GradientButton.jsx
 
 import { Button, Box } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 
 export default function GradientButton({
   children,
@@ -12,8 +11,6 @@ export default function GradientButton({
   endIcon = null,
   sx = {},
 }) {
-  const theme = useTheme();
-
   const sizeStyles = {
     xs: {
       paddingX: { xs: 2, sm: 3, md: 4 },
@@ -25,7 +22,7 @@ export default function GradientButton({
       paddingX: { xs: 3, sm: 4, md: 6 },
       paddingY: { xs: 1, sm: 1.2, md: 1.5 },
       fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-      borderRadius: { xs: "14px", sm: "16px", md: "20px" }, 
+      borderRadius: { xs: "14px", sm: "16px", md: "20px" },
     },
   };
 
@@ -35,8 +32,8 @@ export default function GradientButton({
       fullWidth={fullWidth}
       variant="contained"
       sx={{
-        background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, #FFBAD0 100%)`,
-        color: theme.palette.primary.contrastText,
+        background: "var(--primary-gradient)",
+        color: "var(--bg-100)",
         fontWeight: 500,
         boxShadow: "0px 4px 12px rgba(91, 141, 239, 0.3)",
         textTransform: "none",
@@ -48,8 +45,8 @@ export default function GradientButton({
         transition: "all 0.3s ease",
         borderRadius: sizeStyles[size].borderRadius,
         "&:hover": {
-          background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, #FFBAD0 100%)`, 
-          filter: "brightness(1.03)", // 대신 살짝 밝게
+          background: "var(--gradient-primary)",
+          filter: "brightness(1.03)",
         },
         ...sizeStyles[size],
         ...sx,

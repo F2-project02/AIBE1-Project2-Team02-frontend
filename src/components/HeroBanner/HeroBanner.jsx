@@ -8,7 +8,7 @@ export default function HeroBanner() {
       sx={{
         width: "100%",
         aspectRatio: "104/17",
-        background: "linear-gradient(90deg, #FFBAD0 0%, #5B8DEF 100%)",
+        background: "var(--primary-gradient)",
         position: "relative",
         overflow: "hidden",
         borderRadius: {
@@ -19,32 +19,19 @@ export default function HeroBanner() {
         display: "flex",
         flexDirection: { xs: "column", sm: "row" },
         alignItems: "center",
-        justifyContent: {
-          xs: "center",
-          sm: "space-between",
-        },
-        px: {
-          xs: 2,
-          sm: 4,
-          md: 6,
-        },
-        py: {
-          xs: 6, // 모바일에서 수직 여백 추가
-          sm: 0,
-        },
-        textAlign: {
-          xs: "center",
-          sm: "left",
-        },
+        justifyContent: { xs: "center", sm: "space-between" },
+        px: { xs: 2, sm: 4, md: 6 },
+        py: { xs: 6, sm: 0 },
+        textAlign: { xs: "center", sm: "left" },
       }}
     >
-      {/* 텍스트 */}
+      {/* 텍스트 영역 */}
       <Box
         sx={{
           position: "relative",
           zIndex: 1,
           maxWidth: { xs: "100%", sm: "50%", md: "45%" },
-          px: { xs: 1, sm: 0 }, // 모바일 내부 여백 조정
+          px: { xs: 1, sm: 0 },
         }}
       >
         <Typography
@@ -56,9 +43,9 @@ export default function HeroBanner() {
               sm: "1.25rem",
               md: "1.5rem",
             },
-            color: "#FFFEFB",
             fontWeight: 600,
             lineHeight: 1.5,
+            color: "var(--bg-100)",
           }}
         >
           MEN:TOSS
@@ -67,17 +54,14 @@ export default function HeroBanner() {
         </Typography>
       </Box>
 
-      {/* 이미지 - 모바일에서는 숨김 */}
+      {/* 이미지 */}
       <Box
         component="img"
-        src="/images/mentos.svg"
+        src="/images/mentoss.svg"
         alt="멘토스"
         sx={{
           display: { xs: "none", sm: "block" },
-          width: {
-            sm: "30%",
-            md: "30%",
-          },
+          width: { sm: "30%", md: "30%" },
           height: "auto",
           objectFit: "contain",
           transform: {
