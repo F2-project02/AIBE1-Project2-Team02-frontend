@@ -1,8 +1,10 @@
-// src/main.jsx
+// src/main.jsx – 최상단 라우터 & 테마 적용
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+
 import './styles/variables.css';
 import './styles/fonts.css';
 
@@ -12,9 +14,11 @@ import lightTheme from './styles/themeLight';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ThemeProvider theme={lightTheme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={lightTheme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </BrowserRouter>
   </React.StrictMode>
 );
