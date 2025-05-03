@@ -1,6 +1,7 @@
 // src/components/HeroBanner/HeroBanner.jsx
 
 import { Box, Typography, keyframes } from "@mui/material";
+import bannerImage from "../../../assets/mentoss.svg";
 
 // 텍스트 애니메이션: 왼쪽에서 서서히 등장
 const textFadeSlide = keyframes`
@@ -87,7 +88,7 @@ export default function HeroBanner() {
       {/* 이미지 */}
       <Box
         component="img"
-        src="/images/mentoss.svg"
+        src={bannerImage}
         alt="멘토스"
         sx={{
           display: { xs: "none", sm: "block" },
