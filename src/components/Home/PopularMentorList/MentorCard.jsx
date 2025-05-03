@@ -22,13 +22,19 @@ export default function MentorCard({
         px: 2,
         py: 3,
         borderRadius: 1,
-        backgroundColor: '#fefefe',
+        backgroundColor: "#fefefe",
         boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
         display: "flex",
         flexDirection: "column",
         flex: 1,
         alignItems: "center",
         flexShrink: 0,
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          cursor: "pointer",
+          transform: "translateY(-4px)",
+          boxShadow: "0px 6px 16px rgba(0, 0, 0, 0.1)",
+        },
       }}
     >
       <Avatar
