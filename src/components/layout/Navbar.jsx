@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Box, IconButton, Typography, Avatar, Drawer } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuTabs from "./MenuTabs";
 
 import logo from "../../assets/navbar-logo.svg";
 import { useUserStore } from "../../store/useUserStore";
@@ -90,6 +91,9 @@ export default function Navbar() {
           </Box>
         </Box>
       </Box>
+
+      {/* 하단 탭 메뉴 */}
+      <MenuTabs />
 
       {/* 모바일 드로어 메뉴 */}
       <Drawer
