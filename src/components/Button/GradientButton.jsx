@@ -13,16 +13,16 @@ export default function GradientButton({
 }) {
   const sizeStyles = {
     xs: {
-      paddingX: { xs: 2, sm: 3, md: 4 },
-      paddingY: { xs: 0.8, sm: 1, md: 1.2 },
-      fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
-      borderRadius: { xs: "12px", sm: "14px", md: "16px" },
+      paddingX: { xs: 2, sm: 2.5 },
+      paddingY: { xs: 0.8, sm: 1 },
+      fontSize: { xs: "0.75rem", sm: "0.85rem" },
+      borderRadius: { xs: "12px", sm: "14px" },
     },
     md: {
-      paddingX: { xs: 3, sm: 4, md: 6 },
-      paddingY: { xs: 1, sm: 1.2, md: 1.5 },
-      fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
-      borderRadius: { xs: "14px", sm: "16px", md: "20px" },
+      paddingX: { xs: 3, sm: 4 },
+      paddingY: { xs: 1, sm: 1.2 },
+      fontSize: { xs: "0.9rem", sm: "1rem" },
+      borderRadius: { xs: "14px", sm: "16px" },
     },
   };
 
@@ -31,11 +31,11 @@ export default function GradientButton({
       onClick={onClick}
       fullWidth={fullWidth}
       variant="contained"
+      disableElevation
       sx={{
-        background: "var(--primary-gradient)",
-        color: "var(--bg-100)",
-        fontWeight: 500,
-        boxShadow: "0px 4px 12px rgba(91, 141, 239, 0.3)",
+        background: "var(--primary-gradient)", 
+        color: "#fff",
+        fontWeight: 600,
         textTransform: "none",
         whiteSpace: "nowrap",
         display: "flex",
@@ -45,8 +45,8 @@ export default function GradientButton({
         transition: "all 0.3s ease",
         borderRadius: sizeStyles[size].borderRadius,
         "&:hover": {
-          background: "var(--gradient-primary)",
-          filter: "brightness(1.03)",
+          background: "var(--primary-gradient)",
+          filter: "brightness(0.95)",
         },
         ...sizeStyles[size],
         ...sx,
