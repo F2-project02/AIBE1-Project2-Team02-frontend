@@ -1,0 +1,28 @@
+/* src/styles/variables.css */
+
+:root {
+    /* 색상 시스템 */
+    --primary-100: rgba(91, 141, 239, 1);
+    --primary-200: rgba(53, 114, 208, 1);
+    --primary-300: rgba(30, 95, 192, 1);
+
+    --primary-gradient: linear-gradient(90deg, #FFBAD0 0%, var(--primary-100) 100%);
+  
+    --bg-100: rgba(255, 254, 251, 1);
+    --bg-200: rgba(245, 244, 241, 1);
+    --bg-300: rgba(204, 203, 200, 1);
+  
+    --text-100: rgba(29, 28, 28, 1);
+    --text-200: rgba(37, 37, 37, 1);
+    --text-300: rgba(85, 85, 85, 1);
+    --text-400: rgba(170, 170, 170, 1);
+  
+    --action-green-bg: rgba(108, 219, 217, 0.2);
+    --action-green: rgba(97, 213, 210, 1);
+    --action-primary-bg: rgba(91, 141, 239, 0.2);
+    --action-red-bg: rgba(204, 105, 105, 0.2);
+    --action-red: rgba(204, 105, 105, 1);
+    --action-yellow-bg: rgba(251, 220, 142, 0.5);
+    --action-yellow: rgba(188, 157, 79, 1);
+  }
+  
