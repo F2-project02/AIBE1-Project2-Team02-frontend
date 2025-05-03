@@ -1,0 +1,6 @@
+@import './styles/variables.css';
+
+/* 기존 reset / global 스타일… */
+body {
+  margin: 0;
+}
