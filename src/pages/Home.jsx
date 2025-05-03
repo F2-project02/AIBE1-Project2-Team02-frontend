@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 
 import { Box, Typography } from "@mui/material";
-import HeroBanner from "../components/HeroBanner/HeroBanner";
+import HeroBanner from "../components/Home/HeroBanner/HeroBanner";
 
 export default function Home() {
   return (
