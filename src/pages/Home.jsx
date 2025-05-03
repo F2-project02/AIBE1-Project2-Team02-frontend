@@ -3,6 +3,7 @@
 import { Box, Stack } from "@mui/material";
 import HeroBanner from "../components/Home/HeroBanner/HeroBanner";
 import SearchBar from "../components/Home/SearchBar";
+import PopularMentorList from "../components/Home/PopularMentorList/PopularMentorList";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <Stack spacing={{ xs: 3, sm: 4, md: 5 }} alignItems="center">
         <HeroBanner />
         <SearchBar />
+        <PopularMentorList />
       </Stack>
     </Box>
   );
