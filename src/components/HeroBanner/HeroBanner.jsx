@@ -1,6 +1,30 @@
 // src/components/HeroBanner/HeroBanner.jsx
 
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, keyframes } from "@mui/material";
+
+// 텍스트 애니메이션: 왼쪽에서 서서히 등장
+const textFadeSlide = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
+
+// 이미지 애니메이션: 오른쪽에서 서서히 등장
+const imageFadeSlide = keyframes`
+  0% {
+    opacity: 0;
+    transform: translate(30%, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+`;
 
 export default function HeroBanner() {
   return (
@@ -22,6 +46,7 @@ export default function HeroBanner() {
         justifyContent: { xs: "center", sm: "space-between" },
         px: { xs: 2, sm: 4, md: 6 },
         py: { xs: 6, sm: 0 },
+        minHeight: { sm: 128 },
         textAlign: { xs: "center", sm: "left" },
       }}
     >
@@ -32,6 +57,7 @@ export default function HeroBanner() {
           zIndex: 1,
           maxWidth: { xs: "100%", sm: "50%", md: "45%" },
           px: { xs: 1, sm: 0 },
+          animation: `${textFadeSlide} 0.8s ease-out forwards`,
         }}
       >
         <Typography
@@ -42,6 +68,10 @@ export default function HeroBanner() {
               xs: "1rem",
               sm: "1.25rem",
               md: "1.5rem",
+            },
+            whiteSpace: {
+              xs: "normal",
+              sm: "nowrap",
             },
             fontWeight: 600,
             lineHeight: 1.5,
@@ -68,6 +98,7 @@ export default function HeroBanner() {
             sm: "translate(-30%, 0%)",
             md: "translate(-40%, 0%)",
           },
+          animation: `${imageFadeSlide} 0.9s ease-out forwards`,
         }}
       />
     </Box>
