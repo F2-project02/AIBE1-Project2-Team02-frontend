@@ -20,6 +20,12 @@ export default function MentorCtaCard() {
           "linear-gradient(225deg, rgba(91, 141, 239, 0.10) 0%, rgba(91, 141, 239, 0.02) 100%)",
         boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.05)",
         borderRadius: 1,
+        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+        "&:hover": {
+          cursor: "pointer",
+          transform: "translateY(-4px)",
+          boxShadow: "0px 6px 16px rgba(0, 0, 0, 0.1)",
+        },
       }}
     >
       <Box

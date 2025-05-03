@@ -35,7 +35,7 @@ export default function PopularMentorList() {
   return (
     <Box sx={{ mt: 6, width: "100%" }}>
       {/* 섹션 제목 */}
-      <Typography variant="h6" fontWeight={700} mb={2}>
+      <Typography variant="h6" fontWeight={600} mb={4}>
         지금 인기 있는 멘토
       </Typography>
 
