@@ -24,7 +24,7 @@ export default function CourseTabs() {
     setSelectedCategory(selected);
     setLoading(true);
 
-    // ✨ API 요청 시뮬레이션 (1000ms 후 결과)
+    // API 요청 시뮬레이션 (1000ms 후 결과)
     setTimeout(() => {
       const allCourses = dummyCoursesByCategory[selected] || [];
       const limitedCourses = allCourses.slice(0, 3); // 최대 3개

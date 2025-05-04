@@ -1,6 +1,6 @@
 // src/components/Home/PopularMentorList/MentorCard.jsx
 
-import { Box, Avatar, Typography, Chip, Card } from "@mui/material";
+import { Box, Avatar, Typography, Chip, Card, Tooltip } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
 
@@ -71,7 +71,7 @@ export default function MentorCard({
       </Typography>
 
       <Box mt={1.5} display="flex" flexWrap="wrap" gap={0.5}>
-        {topCategories.slice(0, 3).map((cat) => (
+        {topCategories.slice(0, 2).map((cat) => (
           <Chip
             key={cat}
             label={cat}
@@ -81,9 +81,30 @@ export default function MentorCard({
               color: "var(--primary-200)",
               fontWeight: 500,
               borderRadius: "8px",
+              fontSize: 12,
             }}
           />
         ))}
+
+        {topCategories.length > 2 && (
+          <Tooltip
+            title={topCategories.slice(2).join(", ")}
+            arrow
+            placement="top"
+          >
+            <Chip
+              label={`+${topCategories.length - 2}`}
+              size="small"
+              sx={{
+                backgroundColor: "var(--bg-200)",
+                color: "var(--text-300)",
+                fontWeight: 500,
+                borderRadius: "8px",
+                fontSize: 12,
+              }}
+            />
+          </Tooltip>
+        )}
       </Box>
     </Card>
   );
