@@ -27,7 +27,9 @@ export default function ReviewSection() {
       <Box
         sx={{
           width: "100%",
-          overflow: "visible",
+          overflowX: "clip",
+          overflowY: "visible",
+          position: "relative",
         }}
       >
         <Box
