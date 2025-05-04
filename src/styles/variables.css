@@ -50,3 +50,13 @@
   cursor: pointer;
   background-color: rgba(91, 141, 239, 0.5);
 }
+
+/* 롤링 애니메이션 (왼쪽으로 무한 이동) */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
