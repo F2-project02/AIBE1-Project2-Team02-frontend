@@ -5,6 +5,7 @@ import HeroBanner from "../components/Home/HeroBanner/HeroBanner";
 import SearchBar from "../components/Home/SearchBar";
 import PopularMentorList from "../components/Home/PopularMentorList/PopularMentorList";
 import TestCors from "../components/TestCors";
+import CourseSection from "../components/CourseSection/CourseSection";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
         <HeroBanner />
         <SearchBar />
         <PopularMentorList />
+        <CourseSection />
         <TestCors />
       </Stack>
     </Box>
