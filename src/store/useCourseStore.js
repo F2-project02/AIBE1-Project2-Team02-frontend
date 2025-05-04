@@ -4,7 +4,7 @@ import { create } from "zustand";
 
 export const useCourseStore = create((set) => ({
   // 현재 선택된 카테고리
-  selectedCategory: "IT/개발",
+  selectedCategory: "교육/입시",
   setSelectedCategory: (category) => set({ selectedCategory: category }),
 
   // 강의 목록 상태
