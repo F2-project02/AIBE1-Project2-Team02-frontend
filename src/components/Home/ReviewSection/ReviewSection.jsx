@@ -18,7 +18,7 @@ export default function ReviewSection() {
   }, []);
 
   return (
-    <Box sx={{ width: "100%", mt: 8 }}>
+    <Box sx={{ width: "100%", mt: 8, position: "relative" }}>
       <Typography variant="h6" fontWeight={600} mb={4}>
         멘티들의 생생한 후기
       </Typography>
@@ -26,21 +26,22 @@ export default function ReviewSection() {
       {/* 롤링 박스 */}
       <Box
         sx={{
-          overflow: "hidden",
-          whiteSpace: "nowrap",
           width: "100%",
-          position: "relative",
-          "&:hover .marquee-track": {
-            animationPlayState: "paused",
-          },
+          overflow: "visible",
         }}
       >
         <Box
           className="marquee-track"
           sx={{
-            display: "inline-flex",
-            animation: "marquee 40s linear infinite",
+            display: "flex",
+            flexWrap: "nowrap",
+            animation: loading ? "none" : "marquee 30s linear infinite",
             gap: 2,
+            width: "fit-content",
+            minWidth: loading ? "auto" : "200%",
+            "& > *": {
+              flexShrink: 0,
+            },
           }}
         >
           {loading

@@ -47,7 +47,7 @@ export default function ReviewCardSkeleton() {
           </Box>
         </Box>
         <Skeleton
-          variant="rectangular"
+          variant="text"
           width={80}
           height={20}
           animation="wave"
