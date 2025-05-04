@@ -32,7 +32,7 @@ export const dummyMentors = [
       rating: 5.0,
       education: "서울대",
       major: "시각디자인과",
-      topCategories: ["피그마", "블렌더"],
+      topCategories: ["피그마", "블렌더", "디자인", '회화'],
     },
   ];
   
