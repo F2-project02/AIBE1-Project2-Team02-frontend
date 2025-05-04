@@ -1,0 +1,57 @@
+// src/components/Home/ReviewSection/ReviewSection.jsx
+
+import { Box, Typography } from "@mui/material";
+import ReviewCard from "./ReviewCard";
+import ReviewCardSkeleton from "./ReviewCardSkeleton";
+import { dummyReviews } from "../../../constants/mock/dummyReviews";
+import { useEffect, useState } from "react";
+
+export default function ReviewSection() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 1초 후 더미 데이터 로딩 완료 시뮬레이션
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <Box sx={{ width: "100%", mt: 8 }}>
+      <Typography variant="h6" fontWeight={600} mb={4}>
+        멘티들의 생생한 후기
+      </Typography>
+
+      {/* 롤링 박스 */}
+      <Box
+        sx={{
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          width: "100%",
+          position: "relative",
+          "&:hover .marquee-track": {
+            animationPlayState: "paused",
+          },
+        }}
+      >
+        <Box
+          className="marquee-track"
+          sx={{
+            display: "inline-flex",
+            animation: "marquee 40s linear infinite",
+            gap: 2,
+          }}
+        >
+          {loading
+            ? Array.from({ length: 5 }).map((_, idx) => (
+                <ReviewCardSkeleton key={idx} />
+              ))
+            : [...dummyReviews, ...dummyReviews].map((review, idx) => (
+                <ReviewCard data={review} key={idx} />
+              ))}
+        </Box>
+      </Box>
+    </Box>
+  );
+}
