@@ -18,11 +18,11 @@ export default function ReviewCard({ data }) {
   return (
     <Card
       sx={{
-        width: 419,
-        height: 220,
+        width: 420,
+        height: 230,
         backgroundColor: "#FEFEFE",
         borderRadius: "16px",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.05)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
         outline: "1px solid var(--bg-200)",
         overflow: "hidden",
         display: "flex",
