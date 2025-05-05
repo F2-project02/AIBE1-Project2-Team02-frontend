@@ -4,7 +4,11 @@ import { Box, Avatar, Typography, Chip, Card, Tooltip } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
 
+import { useProfileModalStore } from "../../../store/useProfileModalStore";
+import { getUserProfile } from "../../../lib/getUserProfile";
+
 export default function MentorCard({
+  userId,
   nickname,
   isCertified,
   profileImage,
@@ -14,8 +18,15 @@ export default function MentorCard({
   major,
   topCategories,
 }) {
+  const { openModal } = useProfileModalStore();
+
+  const handleClick = async () => {
+    const profile = await getUserProfile(userId);
+    openModal(profile);
+  };
   return (
     <Card
+      onClick={handleClick}
       sx={{
         minWidth: 220,
         height: "100%",
