@@ -18,7 +18,7 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useProfileModalStore } from "../../store/useProfileModalStore";
 
-export default function MentorProfileModal() {
+export default function UserProfileModal() {
   const { isOpen, profileData, closeModal } = useProfileModalStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
