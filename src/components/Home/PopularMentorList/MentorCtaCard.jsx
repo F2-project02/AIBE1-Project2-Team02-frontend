@@ -64,6 +64,7 @@ export default function MentorCtaCard() {
       <Box>
         <GradientButton
           size="xs"
+          fullWidth={true}
           sx={{
             borderRadius: "8px",
             px: 2,

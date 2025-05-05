@@ -4,6 +4,7 @@ import { Box, Stack } from "@mui/material";
 import HeroBanner from "../components/Home/HeroBanner/HeroBanner";
 import SearchBar from "../components/Home/SearchBar";
 import PopularMentorList from "../components/Home/PopularMentorList/PopularMentorList";
+import UserProfileModal from "../components/ProfileModal/UserProfileModal";
 import CourseSection from "../components/CourseSection/CourseSection";
 import ReviewSection from "../components/Home/ReviewSection/ReviewSection";
 
@@ -15,6 +16,8 @@ export default function Home() {
         <HeroBanner />
         <SearchBar />
       </Stack>
+
+      <UserProfileModal />
 
       {/* 메인 콘텐츠 영역 */}
       <Stack spacing={{ xs: 8, sm: 10, md: 12 }} sx={{ mt: { xs: 10, sm: 12, md: 16 } }}>

@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 export default function PopularMentorList() {
   // 상태 정의
   const [loading, setLoading] = useState(true); // 로딩 상태
-  const [mentors, setMentors] = useState([]);   // 멘토 데이터 상태
+  const [mentors, setMentors] = useState([]); // 멘토 데이터 상태
 
   // 마운트 시 1초 후 더미 데이터 세팅
   useEffect(() => {
@@ -51,7 +51,9 @@ export default function PopularMentorList() {
       >
         {/* 멘토 카드 목록 */}
         {(loading ? Array(3).fill(null) : mentors).map((mentor, idx) =>
-          renderCardItem(MentorCard, MentorCardSkeleton, mentor, idx)
+          loading
+            ? renderCardItem(MentorCard, MentorCardSkeleton, {}, idx)
+            : renderCardItem(MentorCard, MentorCardSkeleton, { ...mentor }, idx)
         )}
 
         {/* 마지막에 CTA 카드 추가 */}
