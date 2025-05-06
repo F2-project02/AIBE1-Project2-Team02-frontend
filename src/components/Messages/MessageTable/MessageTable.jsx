@@ -17,6 +17,7 @@ import MessageRow from "./MessageRow";
 import TablePagination from "./TablePagination";
 import MessageModal from "../MessageModal";
 import { useState, useEffect, useCallback } from "react";
+import MessageSkeletonRow from "./MessageSkeletonRow";
 
 export default function MessageTable({ messages = [], loading, tab }) {
   const [page, setPage] = useState(0);
@@ -106,15 +107,9 @@ export default function MessageTable({ messages = [], loading, tab }) {
           />
           <TableBody>
             {loading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={isMobile ? 3 : 5}
-                  align="center"
-                  sx={{ py: 4 }}
-                >
-                  로딩 중...
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 10 }).map((_, i) => (
+                <MessageSkeletonRow key={i} />
+              ))
             ) : displayedMessages.length > 0 ? (
               displayedMessages.map((msg, i) => (
                 <MessageRow
@@ -135,12 +130,11 @@ export default function MessageTable({ messages = [], loading, tab }) {
                   align="center"
                   sx={{
                     height: 300,
-                    borderBottom: "none", // ✅ 하단 테두리 제거
-                    px: 0, // ✅ 좌우 패딩 제거
-                    py: 0, // ✅ 위아래 패딩 제거
+                    borderBottom: "none",
+                    px: 0,
+                    py: 0,
                   }}
                 >
-                  {/* ✅ 박스를 이용해 완전 정중앙 정렬 */}
                   <Box
                     display="flex"
                     justifyContent="center"

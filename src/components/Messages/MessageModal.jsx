@@ -12,6 +12,7 @@ import { dummyReceivedMessages } from "../../constants/mock/dummyReceivedMessage
 import { dummySentMessages } from "../../constants/mock/dummySentMessages";
 import GradientButton from "../Button/GradientButton";
 import MessageReplyModal from "./MessageReplyModal";
+import MessageModalSkeleton from "./MessageModalSkeleton";
 
 export default function MessageModal({ messageId, tab, onClose }) {
   const [message, setMessage] = useState(null);
@@ -30,7 +31,13 @@ export default function MessageModal({ messageId, tab, onClose }) {
     setMessage(found || null);
   }, [messageId, tab]);
 
-  if (!message) return null;
+  if (!message) {
+    return (
+      <Modal open onClose={onClose}>
+        <MessageModalSkeleton />
+      </Modal>
+    );
+  }
 
   const { nickname, content, createdAt } = message;
   const isReceived = tab === 0;

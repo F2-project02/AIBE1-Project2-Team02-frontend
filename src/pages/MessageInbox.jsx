@@ -7,28 +7,20 @@ import MessageSearchFilter from "../components/Messages/MessageSearchFilter";
 import MessageTable from "../components/Messages/MessageTable/MessageTable";
 import { dummyReceivedMessages } from "../constants/mock/dummyReceivedMessages";
 import { dummySentMessages } from "../constants/mock/dummySentMessages";
+import { useMessageStore } from "../store/useMessageStore";
 
 export default function MessageInbox() {
-  const [tab, setTab] = useState(0);
-  const [messages, setMessages] = useState([]);
+  const { tab, setTab, filter, setFilter, page, setPage } = useMessageStore();
+  const messages = tab === 0 ? dummyReceivedMessages : dummySentMessages;
 
-  useEffect(() => {
-    if (tab === 0) {
-      // 받은 쪽지함
-      setMessages(dummyReceivedMessages);
-    } else {
-      // 보낸 쪽지함
-      setMessages(dummySentMessages);
-    }
-  }, [tab]);
-
-  const handleTabChange = (e, newValue) => {
+  const handleTabChange = (_, newValue) => {
     setTab(newValue);
+    setPage(0);
   };
 
   const handleSearch = ({ filterBy, keyword }) => {
-    console.log("검색 조건:", filterBy, keyword);
-    // 👉 여기서 필터링 쿼리 or 리스트 필터링 처리
+    setFilter({ filterBy, keyword });
+    setPage(0);
   };
 
   return (
