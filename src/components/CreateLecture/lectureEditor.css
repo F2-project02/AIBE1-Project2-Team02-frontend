@@ -1,0 +1,118 @@
+/* src/components/CreateLecture/lectureEditor.css */
+
+/* 에디터 컨테이너 기본 설정 */
+.lecture-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* 툴바 스타일 */
+.lecture-editor-toolbar {
+  box-sizing: border-box;
+}
+
+/* 에디터 내부 텍스트 영역 */
+.lecture-editor-content .ProseMirror {
+  flex: 1;
+  min-height: 150px;
+  padding: 16px;
+  border: none;
+  outline: none;
+  font-family: "Pretendard", sans-serif;
+  font-size: clamp(0.9rem, 1vw, 1.125rem);
+  line-height: 1.6;
+  color: var(--text-100);
+}
+
+.lecture-editor-content .ProseMirror:focus {
+  outline: none;
+}
+
+/* 문단 스타일 */
+.lecture-editor-content .ProseMirror p {
+  margin: 0 0 1em;
+}
+
+/* 리스트 스타일 */
+.lecture-editor-content .ProseMirror ul,
+.lecture-editor-content .ProseMirror ol {
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+.lecture-editor-content .ProseMirror li {
+  margin: 4px 0;
+}
+
+/* 강조 스타일 */
+.lecture-editor-content .ProseMirror strong {
+  font-weight: 600;
+}
+
+/* 밑줄 스타일 */
+.lecture-editor-content .ProseMirror u {
+  text-decoration: underline;
+}
+
+/* 하이라이트 스타일 */
+.lecture-editor-content .ProseMirror mark {
+  padding: 0.1em 0.2em;
+  border-radius: 0.25rem;
+}
+
+/* 정렬 스타일 */
+.lecture-editor-content .ProseMirror p[style*="text-align: left"] {
+  text-align: left;
+}
+
+.lecture-editor-content .ProseMirror p[style*="text-align: center"] {
+  text-align: center;
+}
+
+.lecture-editor-content .ProseMirror p[style*="text-align: right"] {
+  text-align: right;
+}
+
+.lecture-editor-content .ProseMirror p[style*="text-align: justify"] {
+  text-align: justify;
+}
+
+/* 플레이스홀더 스타일 */
+.lecture-editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--text-400);
+  pointer-events: none;
+  height: 0;
+}
+
+/* 제목 스타일 */
+.lecture-editor-content .ProseMirror h1,
+.lecture-editor-content .ProseMirror h2,
+.lecture-editor-content .ProseMirror h3,
+.lecture-editor-content .ProseMirror h4 {
+  font-weight: 600;
+  margin: 1em 0 0.5em;
+}
+
+.lecture-editor-content .ProseMirror h1:first-child,
+.lecture-editor-content .ProseMirror h2:first-child,
+.lecture-editor-content .ProseMirror h3:first-child,
+.lecture-editor-content .ProseMirror h4:first-child {
+  margin-top: 0;
+}
+
+/* 이미지 스타일 */
+.lecture-editor-content .ProseMirror img {
+  max-width: 100%;
+  margin: clamp(0.75rem, 2vw, 1.5rem) 0;
+  border-radius: 0.25rem;
+  cursor: move;
+}
+
+.lecture-editor-content .ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid var(--primary-200);
+  outline-offset: 2px;
+}
