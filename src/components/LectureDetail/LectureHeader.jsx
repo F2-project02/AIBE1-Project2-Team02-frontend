@@ -144,6 +144,7 @@ export default function LectureHeader({ lecture }) {
           </Stack>
           <Typography variant="body2" color="var(--text-400)">
             {lecture.mentor.education}
+            {lecture.mentor.major ? ` ${lecture.mentor.major}` : ""}
           </Typography>
         </Box>
 

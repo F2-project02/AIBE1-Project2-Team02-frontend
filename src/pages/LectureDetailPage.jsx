@@ -2,11 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Stack, CircularProgress } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { getLectureDetail } from "../lib/api/lecture";
+
+// 실제 컴포넌트
 import LectureHeader from "../components/LectureDetail/LectureHeader";
 import LectureTabs from "../components/LectureDetail/LectureTabs";
 import LectureInfoBox from "../components/LectureDetail/LectureInfoBox";
+
+// 스켈레톤 컴포넌트
+import LectureHeaderSkeleton from "../components/LectureDetail/skeleton/LectureHeaderSkeleton";
+import LectureInfoBoxSkeleton from "../components/LectureDetail/skeleton/LectureInfoBoxSkeleton";
 
 export default function LectureDetailPage() {
   const { lectureId } = useParams();
@@ -15,21 +21,22 @@ export default function LectureDetailPage() {
 
   useEffect(() => {
     (async () => {
-      const data = await getLectureDetail(lectureId);
-      setLecture(data);
-      setLoading(false);
+      try {
+        const data = await getLectureDetail(lectureId);
+        setLecture(data);
+      } catch (e) {
+        console.error("강의 데이터를 불러오는 중 오류 발생:", e);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [lectureId]);
 
-  if (loading) {
+  if (!lecture && !loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-        <CircularProgress />
-      </Box>
+      <Box sx={{ textAlign: "center", mt: 10 }}>강의를 찾을 수 없습니다.</Box>
     );
   }
-
-  if (!lecture) return <div>강의를 찾을 수 없습니다.</div>;
 
   return (
     <Box sx={{ mt: 8, mb: 10 }}>
@@ -38,12 +45,32 @@ export default function LectureDetailPage() {
         spacing={6}
         justifyContent="space-between"
       >
+        {/* 좌측 섹션 */}
         <Box flex={1}>
-          <LectureHeader lecture={lecture} />
-          <LectureTabs lecture={lecture} />
+          {loading ? (
+            <>
+              <LectureHeaderSkeleton />
+              <Box mt={6}>
+                <LectureTabs loading={true} />
+              </Box>
+            </>
+          ) : (
+            <>
+              <LectureHeader lecture={lecture} />
+              <Box mt={6}>
+                <LectureTabs lecture={lecture} loading={false} />
+              </Box>
+            </>
+          )}
         </Box>
+
+        {/* 우측 정보 박스 */}
         <Box sx={{ width: { xs: "100%", md: 300 } }}>
-          <LectureInfoBox lecture={lecture} />
+          {loading ? (
+            <LectureInfoBoxSkeleton />
+          ) : (
+            <LectureInfoBox lecture={lecture} />
+          )}
         </Box>
       </Stack>
     </Box>

@@ -20,7 +20,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 export default function MentorProfile({ mentor }) {
   return (
     <Box>
-      <Typography variant="h6" fontWeight={700} gutterBottom>
+      <Typography variant="h6" fontWeight={600} gutterBottom>
         멘토 정보
       </Typography>
 
@@ -34,7 +34,7 @@ export default function MentorProfile({ mentor }) {
 
       {/* 닉네임 + 인증 */}
       <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
-        <Typography fontWeight={700} fontSize="1rem" color="var(--text-100)">
+        <Typography fontWeight={600} fontSize="1rem" color="var(--text-100)">
           {mentor.nickname}
         </Typography>
         {mentor.isCertified && (
@@ -75,7 +75,7 @@ export default function MentorProfile({ mentor }) {
         mt={1}
         color="var(--text-300)"
       >
-        {mentor.education} {mentor.major && `· ${mentor.major}`}
+        {mentor.education} {mentor.major && `${mentor.major}`}
       </Typography>
 
       {/* 지역 */}
