@@ -13,9 +13,92 @@ import { useLoginModalStore } from "../../store/useLoginModalStore";
 import logo from "../../assets/navbar-logo.svg";
 import kakaoIcon from "../../assets/kakao-icon.svg";
 import googleIcon from "../../assets/google-icon.svg";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function LoginModal() {
   const { isOpen, close } = useLoginModalStore();
+
+  const handleSocialLogin = (provider) => {
+      const base =
+          import.meta.env.VITE_BACKEND_TARGET === "local"
+              ? import.meta.env.VITE_LOCAL_API_URL
+              : import.meta.env.VITE_PROD_API_URL;
+
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+
+      const loginWindow = window.open(
+          `${base}/oauth2/authorization/${provider}`,
+          "_blank",
+          `width=${width}, height=${height}, left=${left}, top=${top}`
+      );
+
+      const receiveToken = (event) => {
+          // 백엔드 서버의 origin 허용
+          const allowedOrigins = [
+              window.location.origin,
+              "http://localhost:8081"
+          ];
+
+          console.log("수신된 origin:", event.origin);
+          console.log("수신된 데이터:", event.data); // 데이터 확인용
+
+          if (!allowedOrigins.includes(event.origin)) {
+              console.warn("허용하지 않은 origin: ", event.origin);
+              return;
+          }
+
+          const { token } = event.data;
+          if (token) {
+              localStorage.setItem("token", token);
+              console.log("토큰 저장 완료");
+
+              fetchUserInfo(token);
+
+              loginWindow.close();
+              window.removeEventListener("message", receiveToken);
+              close();
+          }
+      };
+
+      window.addEventListener("message", receiveToken);
+  };
+
+  const fetchUserInfo = async (token) => {
+      try {
+          const base = import.meta.env.VITE_BACKEND_TARGET === "local"
+              ? import.meta.env.VITE_LOCAL_API_URL
+              : import.meta.env.VITE_PROD_API_URL;
+
+          const response = await fetch(
+              `${base}/api/account/profile`, {
+              headers: {
+                  Authorization: `Bearer ${token}`
+              }
+          });
+
+          if (response.ok) {
+              const result = await response.json();
+              console.log("사용자 정보:", result);
+
+              if (result.success && result.data) {
+                  useUserStore.getState().login({
+                      userId: result.data.userId,
+                      nickname: result.data.nickname,
+                      profileImage: result.data.profileImage,
+                      role: result.data.role || "MENTEE",
+                      myLectureIds: []
+                  });
+              }
+          } else {
+              console.error("사용자 정보 가져오기 실패", response.status);
+          }
+      } catch (error) {
+          console.error("사용자 정보 가져오기 오류: ", error);
+      }
+  };
 
   return (
     <Modal open={isOpen} onClose={close}>
@@ -110,6 +193,7 @@ export default function LoginModal() {
           {/* 카카오 로그인 */}
           <Button
             fullWidth
+            onClick={() => handleSocialLogin("kakao")}
             startIcon={
               <Box component="img" src={kakaoIcon} alt="카카오 아이콘" sx={{ width: 20, height: 20 }} />
             }
@@ -138,6 +222,7 @@ export default function LoginModal() {
           {/* 구글 로그인 */}
           <Button
             fullWidth
+            onClick={() => handleSocialLogin("google")}
             variant="outlined"
             startIcon={
               <Box component="img" src={googleIcon} alt="구글 아이콘" sx={{ width: 20, height: 20 }} />
