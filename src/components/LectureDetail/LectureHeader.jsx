@@ -27,7 +27,7 @@ export default function LectureHeader({ lecture }) {
   return (
     <Box sx={{ mb: 6 }}>
       {/* 상단 태그 + 토글 */}
-      <Stack direction="row" alignItems="center" spacing={2} mb={1}>
+      <Stack direction="row" alignItems="center" spacing={2} mb={1.5}>
         <Stack direction="row" spacing={1}>
           <Chip
             label={lecture.category?.sub}
