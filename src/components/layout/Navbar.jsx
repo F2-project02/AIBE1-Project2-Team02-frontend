@@ -1,6 +1,7 @@
 // src/components/layout/Navbar.jsx
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Box, IconButton, Typography, Avatar, Drawer } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -43,15 +44,18 @@ export default function Navbar() {
         }}
       >
         {/* 왼쪽 로고 */}
-        <Box
-          component="img"
-          src={logo}
-          alt="MEN:TOSS"
-          sx={{
-            height: { xs: 24, sm: 28, md: 32 },
-            transition: "height 0.3s ease",
-          }}
-        />
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <Box
+            component="img"
+            src={logo}
+            alt="MEN:TOSS"
+            sx={{
+              height: { xs: 24, sm: 28, md: 32 },
+              transition: "height 0.3s ease",
+              cursor: "pointer", // 클릭 가능 표시
+            }}
+          />
+        </Link>
 
         {/* 오른쪽 영역 */}
         <Box display="flex" alignItems="center" gap={2}>

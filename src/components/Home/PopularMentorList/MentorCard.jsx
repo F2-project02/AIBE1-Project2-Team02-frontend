@@ -1,10 +1,14 @@
 // src/components/Home/PopularMentorList/MentorCard.jsx
 
-import { Box, Avatar, Typography, Chip, Card } from "@mui/material";
+import { Box, Avatar, Typography, Chip, Card, Tooltip } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
 
+import { useProfileModalStore } from "../../../store/useProfileModalStore";
+import { getUserProfile } from "../../../lib/getUserProfile";
+
 export default function MentorCard({
+  userId,
   nickname,
   isCertified,
   profileImage,
@@ -14,8 +18,15 @@ export default function MentorCard({
   major,
   topCategories,
 }) {
+  const { openModal } = useProfileModalStore();
+
+  const handleClick = async () => {
+    const profile = await getUserProfile(userId);
+    openModal(profile);
+  };
   return (
     <Card
+      onClick={handleClick}
       sx={{
         minWidth: 220,
         height: "100%",
@@ -71,7 +82,7 @@ export default function MentorCard({
       </Typography>
 
       <Box mt={1.5} display="flex" flexWrap="wrap" gap={0.5}>
-        {topCategories.slice(0, 3).map((cat) => (
+        {topCategories.slice(0, 2).map((cat) => (
           <Chip
             key={cat}
             label={cat}
@@ -81,9 +92,30 @@ export default function MentorCard({
               color: "var(--primary-200)",
               fontWeight: 500,
               borderRadius: "8px",
+              fontSize: 12,
             }}
           />
         ))}
+
+        {topCategories.length > 2 && (
+          <Tooltip
+            title={topCategories.slice(2).join(", ")}
+            arrow
+            placement="top"
+          >
+            <Chip
+              label={`+${topCategories.length - 2}`}
+              size="small"
+              sx={{
+                backgroundColor: "var(--bg-200)",
+                color: "var(--text-300)",
+                fontWeight: 500,
+                borderRadius: "8px",
+                fontSize: 12,
+              }}
+            />
+          </Tooltip>
+        )}
       </Box>
     </Card>
   );
