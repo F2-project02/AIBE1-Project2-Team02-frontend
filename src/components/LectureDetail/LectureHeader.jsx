@@ -30,7 +30,7 @@ export default function LectureHeader({ lecture }) {
       <Stack direction="row" alignItems="center" spacing={2} mb={1}>
         <Stack direction="row" spacing={1}>
           <Chip
-            label={lecture.category?.subcategory}
+            label={lecture.category?.sub}
             size="small"
             sx={{
               backgroundColor: "var(--action-primary-bg)",
@@ -96,26 +96,24 @@ export default function LectureHeader({ lecture }) {
 
       {/* 과외 제목 */}
       <Typography variant="h5" fontWeight={600} color="var(--text-100)" mb={1}>
-        {lecture.lectureTitle}
+        {lecture.title}
       </Typography>
 
       {/* 브레드크럼 */}
       <Breadcrumbs separator="›" sx={{ mb: 2 }}>
         <Link underline="hover" color="var(--text-300)">
-          {lecture.category?.parentCategory}
+          {lecture.category?.parent}
         </Link>
         <Link underline="hover" color="var(--text-300)">
-          {lecture.category?.middleCategory}
+          {lecture.category?.middle}
         </Link>
-        <Typography color="var(--text-100)">
-          {lecture.category?.subcategory}
-        </Typography>
+        <Typography color="var(--text-100)">{lecture.category?.sub}</Typography>
       </Breadcrumbs>
 
       {/* 멘토 정보 + 평점 */}
       <Stack direction="row" alignItems="center" spacing={2}>
         <Avatar
-          src="/images/default-profile.svg"
+          src={lecture.mentor.profileImage || "/images/default-profile.svg"}
           sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
         />
         <Box>

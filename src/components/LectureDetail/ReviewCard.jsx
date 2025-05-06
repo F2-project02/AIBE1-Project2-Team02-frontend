@@ -1,8 +1,12 @@
-import { Box, Typography, Avatar, Rating, Stack } from "@mui/material";
+import { Box, Typography, Avatar, Rating, Stack, Button } from "@mui/material";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function ReviewCard({ review }) {
+  const { userId: currentUserId } = useUserStore();
+  const isMyReview = review.writer.userId === currentUserId;
+
   const timeAgo = formatDistanceToNow(new Date(review.createdAt), {
     addSuffix: true,
     locale: ko,
@@ -25,7 +29,6 @@ export default function ReviewCard({ review }) {
         alignItems="center"
         mb={2}
       >
-        {/* 유저 정보 */}
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
             src={review.writer.profileImage}
@@ -45,7 +48,6 @@ export default function ReviewCard({ review }) {
           </Box>
         </Stack>
 
-        {/* 별점 */}
         <Rating
           value={review.rating}
           readOnly
@@ -65,6 +67,41 @@ export default function ReviewCard({ review }) {
       >
         {review.content}
       </Typography>
+
+      {/* 수정/삭제 버튼 - 본인 작성 시만 보이게 */}
+      {isMyReview && (
+        <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
+          <Button
+            variant="outlined"
+            sx={{
+              borderRadius: "8px",
+              fontWeight: 600,
+              color: "var(--text-400)",
+              borderColor: "var(--bg-300)",
+              px: 3,
+              ":hover": {
+                backgroundColor: "var(--bg-200)",
+              },
+            }}
+          >
+            수정하기
+          </Button>
+          <Button
+            variant="contained"
+            sx={{
+              borderRadius: "8px",
+              fontWeight: 600,
+              backgroundColor: "var(--primary-100)",
+              px: 3,
+              ":hover": {
+                backgroundColor: "var(--primary-200)",
+              },
+            }}
+          >
+            삭제하기
+          </Button>
+        </Stack>
+      )}
     </Box>
   );
 }

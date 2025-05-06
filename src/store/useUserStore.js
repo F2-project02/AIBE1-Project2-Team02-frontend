@@ -4,7 +4,7 @@ import { create } from "zustand";
 export const useUserStore = create((set) => ({
   // 테스트용 강제 로그인된 멘토 상태
   isLoggedIn: true,
-  userId: 1,
+  userId: 201,
   nickname: "가나다",
   profileImage: "/images/default-profile.svg",
   role: "MENTEE", // MENTOR

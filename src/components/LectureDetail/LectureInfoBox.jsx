@@ -14,6 +14,9 @@ import {
   
   export default function LectureInfoBox({ lecture }) {
     const { role, myLectureIds } = useUserStore();
+
+    if (!lecture) return null;
+    
     const isMentor = role === "MENTOR";
     const isOwner = myLectureIds.includes(lecture.lectureId);
   

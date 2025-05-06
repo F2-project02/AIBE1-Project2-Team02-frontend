@@ -1,5 +1,6 @@
 // 📄 src/components/CourseSection/CourseCard.jsx
 
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -14,7 +15,10 @@ import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 export default function CourseCard({ data }) {
+  const navigate = useNavigate();
+
   const {
+    lectureId,
     mentorName,
     profileImage,
     isCertified,
@@ -25,31 +29,24 @@ export default function CourseCard({ data }) {
     price,
   } = data;
 
-  // 1. 개별 정렬 후 결합 (카테고리 → 지역 순서 유지)
+  const handleClick = () => {
+    navigate(`/lectures/${lectureId}`);
+  };
+
   const sortedChips = [
-    ...subcategory
-      .sort((a, b) => a.localeCompare(b))
-      .map((label) => ({
-        label,
-        type: "category",
-      })),
-    ...region
-      .sort((a, b) => a.localeCompare(b))
-      .map((label) => ({
-        label,
-        type: "region",
-      })),
+    ...subcategory.sort().map((label) => ({ label, type: "category" })),
+    ...region.sort().map((label) => ({ label, type: "region" })),
   ];
+  const visibleChips = sortedChips.slice(0, 3);
+  const hiddenChips = sortedChips.slice(3);
 
   function formatPriceKRW(price) {
     return `${Math.floor(price / 10000)}만원`;
   }
 
-  const visibleChips = sortedChips.slice(0, 3);
-  const hiddenChips = sortedChips.slice(3);
-
   return (
     <Card
+      onClick={handleClick}
       sx={{
         width: 300,
         minHeight: 220,
@@ -69,7 +66,7 @@ export default function CourseCard({ data }) {
         },
       }}
     >
-      {/* 상단: 프로필 + 이름 + 인증 + 평점 */}
+      {/* 프로필 영역 */}
       <Stack direction="row" alignItems="center" spacing={1} mb={1}>
         <Avatar
           src={profileImage || "/images/default-profile.svg"}
@@ -87,7 +84,7 @@ export default function CourseCard({ data }) {
         </Typography>
       </Stack>
 
-      {/* 중단: 뱃지 */}
+      {/* 뱃지 */}
       <Box display="flex" gap={1} flexWrap="wrap" mb={1}>
         {visibleChips.map((chip, i) => (
           <Chip
@@ -145,7 +142,7 @@ export default function CourseCard({ data }) {
         )}
       </Box>
 
-      {/* 과외 제목 */}
+      {/* 제목 */}
       <Typography
         variant="body1"
         fontWeight={600}
@@ -162,7 +159,7 @@ export default function CourseCard({ data }) {
         {title}
       </Typography>
 
-      {/* 수업료 */}
+      {/* 가격 */}
       <Typography variant="body2" color="var(--text-300)">
         수업료 | 1회 {formatPriceKRW(price)}
       </Typography>

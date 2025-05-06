@@ -1,97 +1,68 @@
-// 📄 src/components/LectureDetail/LectureInfoBox.jsx
+// src/components/Button/GradientButton.jsx
 
-import { Box, Typography, Stack, Button } from "@mui/material";
-import EventIcon from "@mui/icons-material/Event";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import RoomIcon from "@mui/icons-material/Room";
-import { useUserStore } from "../../store/useUserStore";
-import GradientButton from "../Button/GradientButton";
+import { Button, Box } from "@mui/material";
 
-export default function LectureInfoBox({ lecture }) {
-  const { role, myLectureIds } = useUserStore();
-  const isMentor = role === "MENTOR";
-  const isOwner = myLectureIds.includes(lecture.lectureId);
+export default function GradientButton({
+  children,
+  onClick,
+  fullWidth = false,
+  size = "md",
+  startIcon = null,
+  endIcon = null,
+  sx = {},
+}) {
+  const sizeStyles = {
+    xs: {
+      paddingX: { xs: 2, sm: 2.5 },
+      paddingY: { xs: 0.8, sm: 1 },
+      fontSize: { xs: "0.75rem", sm: "0.85rem" },
+      borderRadius: { xs: "12px", sm: "14px" },
+    },
+    md: {
+      paddingX: { xs: 3, sm: 4 },
+      paddingY: { xs: 1, sm: 1.2 },
+      fontSize: { xs: "0.9rem", sm: "1rem" },
+      borderRadius: { xs: "14px", sm: "16px" },
+    },
+  };
 
   return (
-    <Box
+    <Button
+      onClick={onClick}
+      fullWidth={fullWidth}
+      variant="contained"
+      disableElevation
       sx={{
-        p: 3,
-        borderRadius: 1,
-        boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-        backgroundColor: "var(--bg-100)",
-        minWidth: 280,
-        width: "100%",
+        background: "var(--primary-gradient)", 
+        color: "#fff",
+        fontWeight: 600,
+        textTransform: "none",
+        whiteSpace: "nowrap",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 1,
+        transition: "all 0.3s ease",
+        borderRadius: sizeStyles[size].borderRadius,
+        "&:hover": {
+          background: "var(--primary-gradient)",
+          filter: "brightness(0.95)",
+        },
+        ...sizeStyles[size],
+        ...sx,
       }}
     >
-      {/* 가격 */}
-      <Typography variant="h6" fontWeight={700} color="var(--text-100)" mb={1}>
-        {lecture.price.toLocaleString()}원{" "}
-        <Typography component="span" variant="body2" color="var(--text-300)">
-          / 회
-        </Typography>
-      </Typography>
-
-      {/* 수업 요일 */}
-      <Stack direction="row" alignItems="center" spacing={1} mt={2}>
-        <EventIcon sx={{ color: "var(--primary-100)", fontSize: 20 }} />
-        <Typography variant="body2" color="var(--text-200)">
-          수업 요일
-        </Typography>
-      </Stack>
-      <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
-        {lecture.availableTimeSlots.map((slot) => slot.day).join(", ")}
-      </Typography>
-
-      {/* 수업 시간 */}
-      <Stack direction="row" alignItems="center" spacing={1} mt={2}>
-        <ScheduleIcon sx={{ color: "var(--primary-100)", fontSize: 20 }} />
-        <Typography variant="body2" color="var(--text-200)">
-          수업 시간
-        </Typography>
-      </Stack>
-      <Stack spacing={0.5} ml={3} mt={0.5}>
-        {lecture.availableTimeSlots.map((slot, i) => (
-          <Typography key={i} variant="body2" color="var(--text-100)">
-            {slot.day} | {slot.time}
-          </Typography>
-        ))}
-      </Stack>
-
-      {/* 지역 */}
-      <Stack direction="row" alignItems="center" spacing={1} mt={2}>
-        <RoomIcon sx={{ color: "var(--primary-100)", fontSize: 20 }} />
-        <Typography variant="body2" color="var(--text-200)">
-          과외 지역
-        </Typography>
-      </Stack>
-      <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
-        {lecture.regions.map((r) => `${r.sido} ${r.sigungu}`).join(", ")}
-      </Typography>
-
-      {/* 버튼 (멘토 본인이 아니어야 보임) */}
-      {!isMentor || !isOwner ? (
-        <Stack spacing={1.5} mt={4}>
-          <GradientButton fullWidth size="md">
-            수업 신청하기
-          </GradientButton>
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{
-              borderRadius: "12px",
-              color: "var(--text-300)",
-              borderColor: "var(--bg-300)",
-              fontWeight: 600,
-              py: 1.5,
-              ":hover": {
-                backgroundColor: "var(--bg-200)",
-              },
-            }}
-          >
-            찜하기
-          </Button>
-        </Stack>
-      ) : null}
-    </Box>
+      {startIcon && (
+        <Box component="span" sx={{ display: "flex", alignItems: "center" }}>
+          {startIcon}
+        </Box>
+      )}
+      {children}
+      {endIcon && (
+        <Box component="span" sx={{ display: "flex", alignItems: "center" }}>
+          {endIcon}
+        </Box>
+      )}
+    </Button>
   );
 }

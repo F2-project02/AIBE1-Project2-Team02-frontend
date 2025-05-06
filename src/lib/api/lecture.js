@@ -1,17 +1,16 @@
-import { dummyLecture } from "../../constants/mock/dummyLecture";
+// 📄 src/api/lecture.js
+import { dummyLectures } from "../../constants/mock/dummyLectures";
 
 /**
- * 강의 상세 정보 조회 (API mock 버전)
+ * 강의 상세 정보 조회 (lectureId 기준)
  * @param {number|string} lectureId
- * @returns {Promise<Object>} 강의 데이터 (모킹)
+ * @returns {Promise<Object|null>}
  */
 export const getLectureDetail = async (lectureId) => {
-  // 강제로 200~500ms 사이 딜레이 주기
-  await new Promise((resolve) => setTimeout(resolve, Math.random() * 300 + 200));
+  await new Promise((r) => setTimeout(r, Math.random() * 300 + 200));
 
-  // ID만 바꿔서 반환 (URL로 들어온 ID와 일치하도록)
-  return {
-    ...dummyLecture,
-    lectureId: Number(lectureId),
-  };
+  return (
+    dummyLectures.find((lecture) => lecture.lectureId === Number(lectureId)) ||
+    null
+  );
 };
