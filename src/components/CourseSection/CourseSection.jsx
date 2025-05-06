@@ -23,7 +23,7 @@ export default function CourseSection() {
         </Typography>
 
         <Box
-          onClick={() => navigate("/courses")}
+          onClick={() => navigate("/search")}
           sx={{
             display: "flex",
             alignItems: "center",
