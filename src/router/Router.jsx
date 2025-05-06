@@ -4,13 +4,16 @@ import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import LectureDetailPage from "../pages/LectureDetailPage";
 import CreateLecture from "../pages/CreateLecture";
+// import CreateLecture from "../pages/CreateLecture";
 
 export default function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/lectures/:lectureId" element={<LectureDetailPage />} />
       <Route path="/register" element={<CreateLecture />} />
+      <Route path="/lectures/:lectureId" element={<LectureDetailPage />} />
+
+      {/* <Route path="/register" element={<CreateLecture />} /> */}
     </Routes>
   );
 }
