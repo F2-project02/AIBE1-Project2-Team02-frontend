@@ -3,9 +3,10 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import LectureDetailPage from "../pages/LectureDetailPage";
-// import MessageInbox from "../pages/MessageInbox";
+import MessageInbox from "../pages/MessageInbox";
 import CreateLecture from "../pages/CreateLecture";
-// import SearchPage from "../pages/SearchPage";
+import SearchPage from "../pages/SearchPage";
+import MyPage from "../pages/MyPage";
 
 export default function AppRouter() {
   return (
@@ -13,8 +14,9 @@ export default function AppRouter() {
       <Route path="/" element={<Home />} />
       <Route path="/register" element={<CreateLecture />} />
       <Route path="/lectures/:lectureId" element={<LectureDetailPage />} />
-      {/* <Route path="/messages" element={<MessageInbox />} /> */}
-      {/* <Route path="/search" element={<SearchPage />} /> */}
+      <Route path="/messages" element={<MessageInbox />} />
+      <Route path="/search" element={<SearchPage />} />
+      <Route path="/mypage" element={<MyPage  />} />
     </Routes>
   );
 }

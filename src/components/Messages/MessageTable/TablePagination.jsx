@@ -1,11 +1,4 @@
-import {
-  Box,
-  IconButton,
-  Typography,
-  Select,
-  MenuItem,
-  FormControl,
-} from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import {
   KeyboardArrowLeft as KeyboardArrowLeftIcon,
   KeyboardArrowRight as KeyboardArrowRightIcon,
@@ -16,10 +9,8 @@ import {
 export default function TablePagination({
   page = 0,
   totalPages = 1,
-  rowsPerPage = 10,
   totalItems = 0,
   onPageChange,
-  onRowsPerPageChange,
 }) {
   // 페이지 변경 핸들러
   const handlePageChange = (newPage) => {
@@ -27,17 +18,6 @@ export default function TablePagination({
       onPageChange(newPage);
     }
   };
-
-  // 페이지당 행 수 변경 핸들러
-  const handleRowsPerPageChange = (event) => {
-    if (onRowsPerPageChange) {
-      onRowsPerPageChange(parseInt(event.target.value, 10));
-    }
-  };
-
-  // 현재 표시되는 아이템 범위 계산
-  const startItem = page * rowsPerPage + 1;
-  const endItem = Math.min((page + 1) * rowsPerPage, totalItems);
 
   return (
     <Box
@@ -53,9 +33,7 @@ export default function TablePagination({
     >
       {/* 현재 표시 중인 아이템 정보 */}
       <Typography variant="body2" color="text.secondary">
-        {totalItems > 0
-          ? `${startItem}-${endItem} / 총 ${totalItems}개`
-          : "0개 항목"}
+        {totalItems > 0 ? `${totalItems}개 중 ${page + 1}페이지` : "0개 항목"}
       </Typography>
 
       {/* 페이지 이동 버튼들 */}
