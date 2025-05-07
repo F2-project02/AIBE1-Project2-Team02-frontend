@@ -11,7 +11,6 @@ html, body, #root {
   flex-direction: column;
   height: 100%;
   min-height: calc(100vh - 80px);
-  padding: clamp(0.5rem, 2vw, 2rem) 0;
   box-sizing: border-box;
 }
 
@@ -24,21 +23,20 @@ html, body, #root {
   font-family: 'Pretendard', sans-serif;
   font-size: clamp(0.9rem, 1vw, 1.125rem);
   line-height: 1.6;
-  padding: 0 clamp(1rem, 3vw, 3rem);
+  padding: 0;
 }
 
 /* 툴바 스타일 */
 .toolbar {
-  position: sticky;
+  position: static;
   top: 0; /* 상단에서 떨어진 거리 */
-  background-color: #FFFEFB; /* 배경색 설정 */
-  z-index: 1000;
+  background-color: "var(--bg-100)"; /* 배경색 설정 */
   display: flex;
   flex-wrap: wrap;
   gap: clamp(0.25rem, 1vw, 0.75rem);
   justify-content: flex-start;
-  border-bottom: 1px solid #CCCBC8;
-  padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1rem, 2vw, 2rem);
+  border: "none";
+  padding: clamp(0.5rem, 1.5vw, 1rem) 0;
   margin-bottom: clamp(1rem, 2vw, 2.5rem);
   width: 100%;
   box-sizing: border-box;
@@ -53,6 +51,16 @@ html, body, #root {
 /* 본문 & 이미지 스타일 */
 .tiptap p {
   margin: 0 0 1em;
+  color: "var(--text-100)"
+}
+
+.tiptap p.is-empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-400);
+  pointer-events: none;
+  height: 0;
+  float: left;
+  white-space: pre-line;
 }
 
 .tiptap img {

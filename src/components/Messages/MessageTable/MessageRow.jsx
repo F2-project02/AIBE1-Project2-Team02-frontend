@@ -1,18 +1,15 @@
 // src/components/Messages/MessageRow.jsx
 
 import { TableRow, TableCell, Checkbox, Typography, Box } from "@mui/material";
-import PropTypes from "prop-types";
 import { useTheme } from "@mui/material/styles"; // theme 객체 사용
+import { formatDateFromArray } from "../../../utils/messageDate";
 
 export default function MessageRow({
   messageId,
-  senderId,
-  receiverId,
   nickname,
   content,
   isRead,
   createdAt,
-  mine,
   isLast = false,
   removeBorder = false,
   onClick,
@@ -29,17 +26,15 @@ export default function MessageRow({
     onSelect(messageId); // 선택 핸들러 호출
   };
 
-  // 마지막 행의 borderBottom 스타일 (1~9개 행일 때 얇고 회색, 10개 행일 때 제거)
   const lastRowBorderStyle =
     isLast && !removeBorder
-      ? { borderBottom: `1px solid ${theme.palette.divider}` } // 얇고 회색
+      ? { borderBottom: `1px solid ${theme.palette.divider}` }
       : removeBorder
       ? { borderBottom: "none" }
       : {}; // 기본 테두리 유지
 
   return (
     <TableRow
-      hover
       onClick={() => onClick?.(messageId)}
       role="checkbox" // 접근성 역할
       aria-checked={isSelected} // 접근성 상태
@@ -104,26 +99,12 @@ export default function MessageRow({
 
           {/* 날짜 */}
           <TableCell align="center" sx={cellStyle}>
-            <Typography variant="body2">{createdAt}</Typography>
+            <Typography variant="body2">
+              {createdAt ? formatDateFromArray(createdAt) : "-"}
+            </Typography>
           </TableCell>
         </>
       )}
     </TableRow>
   );
 }
-
-// MessageRow.propTypes = {
-//   content: PropTypes.string.isRequired,
-//   createdAt: PropTypes.string.isRequired,
-//   isLast: PropTypes.bool,
-//   isRead: PropTypes.bool.isRequired,
-//   isSelected: PropTypes.bool.isRequired,
-//   mine: PropTypes.bool.isRequired,
-//   messageId: PropTypes.string.isRequired,
-//   nickname: PropTypes.string.isRequired,
-//   onClick: PropTypes.func,
-//   onSelect: PropTypes.func.isRequired,
-//   receiverId: PropTypes.string.isRequired,
-//   removeBorder: PropTypes.bool,
-//   senderId: PropTypes.string.isRequired,
-// };

@@ -2,7 +2,6 @@ import {
   Box,
   MenuItem,
   Select,
-  InputLabel,
   FormControl,
   InputBase,
   Paper,
@@ -11,16 +10,22 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMessageStore } from "../../store/useMessageStore";
 
 export default function MessageSearchFilter({ onSearch }) {
-  const [filterBy, setFilterBy] = useState("nickname");
-  const [keyword, setKeyword] = useState("");
+  const { filter, setFilter } = useMessageStore();
+  const [localKeyword, setLocalKeyword] = useState(filter.keyword);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  useEffect(() => {
+    setLocalKeyword(filter.keyword);
+  }, [filter.keyword]);
+
   const handleSearch = () => {
-    onSearch({ filterBy, keyword });
+    onSearch({ filterBy: filter.filterBy, keyword: localKeyword });
   };
 
   return (
@@ -54,8 +59,8 @@ export default function MessageSearchFilter({ onSearch }) {
         }}
       >
         <Select
-          value={filterBy}
-          onChange={(e) => setFilterBy(e.target.value)}
+          value={filter.filterBy}
+          onChange={(e) => setFilter({ ...filter, filterBy: e.target.value })}
           MenuProps={{
             PaperProps: {
               sx: {
@@ -87,8 +92,8 @@ export default function MessageSearchFilter({ onSearch }) {
       >
         <InputBase
           placeholder="검색"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
+          value={localKeyword}
+          onChange={(e) => setLocalKeyword(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") handleSearch();
           }}

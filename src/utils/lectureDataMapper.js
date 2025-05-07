@@ -3,8 +3,8 @@
 export const mapLectureFormToApi = (formData) => {
   console.log("mapLectureFormToApi 입력:", formData);
 
-  // categoryId를 직접 사용 (이미 설정된 값)
-  const categoryId = formData.categoryId; // Number 변환 불필요, 이미 숫자로 저장됨
+  // categoryId를 직접 사용
+  const categoryId = formData.categoryId;
   console.log("categoryId:", categoryId);
   console.log("categoryId 타입:", typeof categoryId);
 
@@ -15,7 +15,7 @@ export const mapLectureFormToApi = (formData) => {
   const apiData = {
     lectureTitle: formData.title,
     description: formData.description,
-    categoryId: categoryId, // 이미 숫자로 저장된 값 사용
+    categoryId: categoryId,
     curriculum: formData.curriculum,
     price: Number(formData.price),
     regions: formData.regions.map((region) => ({

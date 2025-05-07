@@ -13,9 +13,11 @@ import { useLoginModalStore } from "../../store/useLoginModalStore";
 import logo from "../../assets/navbar-logo.svg";
 import kakaoIcon from "../../assets/kakao-icon.svg";
 import googleIcon from "../../assets/google-icon.svg";
+import useAuth from "../../hooks/useAuth";
 
 export default function LoginModal() {
   const { isOpen, close } = useLoginModalStore();
+  const { handleSocialLogin } = useAuth();
 
   return (
     <Modal open={isOpen} onClose={close}>
@@ -110,6 +112,7 @@ export default function LoginModal() {
           {/* 카카오 로그인 */}
           <Button
             fullWidth
+            onClick={() => handleSocialLogin("kakao")}
             startIcon={
               <Box component="img" src={kakaoIcon} alt="카카오 아이콘" sx={{ width: 20, height: 20 }} />
             }
@@ -138,6 +141,7 @@ export default function LoginModal() {
           {/* 구글 로그인 */}
           <Button
             fullWidth
+            onClick={() => handleSocialLogin("google")}
             variant="outlined"
             startIcon={
               <Box component="img" src={googleIcon} alt="구글 아이콘" sx={{ width: 20, height: 20 }} />

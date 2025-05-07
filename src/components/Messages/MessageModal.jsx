@@ -8,15 +8,15 @@ import {
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { dummyReceivedMessages } from "../../constants/mock/dummyReceivedMessages";
-import { dummySentMessages } from "../../constants/mock/dummySentMessages";
 import GradientButton from "../Button/GradientButton";
 import MessageReplyModal from "./MessageReplyModal";
 import MessageModalSkeleton from "./MessageModalSkeleton";
-
+import { getMessageById } from "../../lib/api/messageApi";
+import { formatDateFromArray } from "../../utils/messageDate";
 export default function MessageModal({ messageId, tab, onClose }) {
   const [message, setMessage] = useState(null);
   const [openReply, setOpenReply] = useState(false);
+  const [loading, setLoading] = useState(true);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -26,12 +26,23 @@ export default function MessageModal({ messageId, tab, onClose }) {
   };
 
   useEffect(() => {
-    const data = tab === 0 ? dummyReceivedMessages : dummySentMessages;
-    const found = data.find((msg) => msg.messageId === messageId);
-    setMessage(found || null);
-  }, [messageId, tab]);
+    const fetchMessage = async () => {
+      setLoading(true);
+      try {
+        const data = await getMessageById(messageId);
+        setMessage(data);
+      } catch (e) {
+        console.error("쪽지 조회 실패", e);
+        setMessage(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!message) {
+    if (messageId) fetchMessage();
+  }, [messageId]);
+
+  if (loading || !message) {
     return (
       <Modal open onClose={onClose}>
         <MessageModalSkeleton />
@@ -86,7 +97,9 @@ export default function MessageModal({ messageId, tab, onClose }) {
             </Stack>
             <Stack direction="row" spacing={2.5}>
               <Typography fontWeight={600}>보낸 시간</Typography>
-              <Typography fontWeight={500}>{createdAt}</Typography>
+              <Typography fontWeight={500}>
+                {createdAt ? formatDateFromArray(createdAt) : "-"}
+              </Typography>
             </Stack>
           </Stack>
           {/* 쪽지 내용 - 스크롤 적용 */}
@@ -181,7 +194,8 @@ export default function MessageModal({ messageId, tab, onClose }) {
       {/* 답장 모달 */}
       {openReply && (
         <MessageReplyModal
-          receiverNickname={nickname}
+          senderId={message.senderId}
+          senderNickname={nickname}
           onClose={() => setOpenReply(false)}
           onReplySent={handleReplySent}
           open={openReply}

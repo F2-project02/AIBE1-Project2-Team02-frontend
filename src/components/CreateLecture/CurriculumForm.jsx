@@ -1,8 +1,9 @@
 // src/components/CreateLecture/CurriculumForm.jsx
 
 import { Box, Typography } from "@mui/material";
-import LectureEditor from "./LectureEditor";
+import TiptapEditor from "../TiptapEditor/TiptapEditor";
 import GradientButton from "../Button/GradientButton";
+import FormFieldWrapper from "./FormFieldWrapper";
 import { useLectureStore } from "../../store/useLectureStore";
 
 export default function CurriculumForm({ onNext }) {
@@ -26,28 +27,30 @@ export default function CurriculumForm({ onNext }) {
         과외 커리큘럼을 자세히 설명해주세요.
       </Typography>
 
-      {/* 커리큘럼 입력 */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-          과외 커리큘럼 *
-        </Typography>
-        <LectureEditor
+      <FormFieldWrapper label="과외 커리큘럼" required>
+        <TiptapEditor
           value={formData.curriculum}
           onChange={(content) => setFormField("curriculum", content)}
           placeholder="과외 수업의 진행 계획과 내용을 정리해주세요."
         />
-      </Box>
+      </FormFieldWrapper>
 
-      <GradientButton
-        fullWidth
-        size="md"
-        onClick={handleNext}
-        sx={{
-          py: 1.5,
-        }}
-      >
-        다음으로
-      </GradientButton>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <GradientButton
+          fullWidth
+          size="md"
+          onClick={handleNext}
+          sx={{
+            py: 1.5,
+            width: {
+              xs: "100%",
+              md: "240px",
+            },
+          }}
+        >
+          다음으로
+        </GradientButton>
+      </Box>
     </Box>
   );
 }
