@@ -62,7 +62,7 @@ export default function BasicInfoForm({ onNext }) {
         categoryTree[formData.category].middle[formData.middleCategory]
       );
       setSubCategories(newSubCategories);
-  
+
       if (!newSubCategories.includes(formData.subCategory)) {
         setFormField("subCategory", "");
         setFormField("categoryId", null);
@@ -165,15 +165,23 @@ export default function BasicInfoForm({ onNext }) {
         />
       </FormFieldWrapper>
 
-      <GradientButton
-        fullWidth
-        size="md"
-        onClick={handleNext}
-        sx={{ py: 1.5 }}
-        disabled={loading}
-      >
-        다음으로
-      </GradientButton>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <GradientButton
+          fullWidth
+          size="md"
+          onClick={handleNext}
+          sx={{
+            py: 1.5,
+            width: {
+              xs: "100%",
+              md: "240px",
+            },
+          }}
+          disabled={loading}
+        >
+          다음으로
+        </GradientButton>
+      </Box>
     </Box>
   );
 }

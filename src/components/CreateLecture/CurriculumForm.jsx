@@ -35,14 +35,22 @@ export default function CurriculumForm({ onNext }) {
         />
       </FormFieldWrapper>
 
-      <GradientButton
-        fullWidth
-        size="md"
-        onClick={handleNext}
-        sx={{ py: 1.5 }}
-      >
-        다음으로
-      </GradientButton>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <GradientButton
+          fullWidth
+          size="md"
+          onClick={handleNext}
+          sx={{
+            py: 1.5,
+            width: {
+              xs: "100%",
+              md: "240px",
+            },
+          }}
+        >
+          다음으로
+        </GradientButton>
+      </Box>
     </Box>
   );
 }
