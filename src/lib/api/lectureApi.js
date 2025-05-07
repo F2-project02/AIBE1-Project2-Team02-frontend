@@ -7,10 +7,12 @@ import axiosInstance from "../axiosInstance";
  */
 export const createLecture = async (lectureData) => {
   try {
-    // 개발 환경에서는 dev 엔드포인트 사용
-    const endpoint = import.meta.env.DEV
-      ? "/api/lectures/dev"
-      : "/api/lectures";
+    const endpoint = "/api/lectures"; //개발용 ,로그인구현되면 배포용으로 갈아끼우기
+
+    // 개발 환경에서는 dev 엔드포인트 사용 (배포용)
+    // const endpoint = import.meta.env.DEV
+    //   ? "/api/lectures/dev"
+    //   : "/api/lectures";
     const response = await axiosInstance.post(endpoint, lectureData);
     return response.data;
   } catch (error) {

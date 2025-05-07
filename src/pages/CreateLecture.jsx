@@ -131,7 +131,14 @@ export default function CreateLecture() {
     <Box sx={{ mt: 4, mb: 4 }}>
       {/* 개발 모드 안내 */}
       {import.meta.env.DEV && (
-        <Box sx={{ mb: 3, p: 2, bgcolor: "var(--action-primary-bg)", borderRadius: "8px" }}>
+        <Box
+          sx={{
+            mb: 3,
+            p: 2,
+            bgcolor: "var(--action-primary-bg)",
+            borderRadius: "8px",
+          }}
+        >
           <Typography variant="body2" color="var(--primary-300)">
             ※ 현재 개발 모드입니다. 임시 토큰이 설정되었습니다.
           </Typography>
@@ -139,7 +146,13 @@ export default function CreateLecture() {
       )}
 
       {/* 상단 타이틀 */}
-      <Typography variant="h5" fontWeight={600} color="var(--text-100)" mt={4} mb={4}>
+      <Typography
+        variant="h5"
+        fontWeight={600}
+        color="var(--text-100)"
+        mt={4}
+        mb={4}
+      >
         새 과외 등록
       </Typography>
 
