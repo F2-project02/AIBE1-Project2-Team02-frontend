@@ -10,43 +10,41 @@ import {
   Drawer,
   Menu,
   MenuItem,
+  Snackbar,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuTabs from "./MenuTabs";
-
-import logo from "../../assets/navbar-logo.svg";
-import { useUserStore } from "../../store/useUserStore";
-import { useLoginModalStore } from "../../store/useLoginModalStore";
 import MobileMenu from "./MobileMenu";
 
+import logo from "../../assets/navbar-logo.svg";
+import byeGif from "../../assets/bye.gif";
+import LogoutConfirmDialog from "../common/LogoutConfirmDialog";
+import { useUserStore } from "../../store/useUserStore";
+import { useLoginModalStore } from "../../store/useLoginModalStore";
+
 export default function Navbar() {
-  const { isLoggedIn, profileImage } = useUserStore();
+  const { isLoggedIn, profileImage, logout } = useUserStore();
   const { open } = useLoginModalStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+
   const navigate = useNavigate();
 
   const handleToggleMenu = () => setMobileOpen((prev) => !prev);
-
-  const handleAvatarClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleGoToMypage = () => {
-    navigate("/mypage");
-    handleMenuClose();
-  };
+  const handleAvatarClick = (e) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
 
   const handleLogout = () => {
-    alert("로그아웃 로직 필요!");
+    logout();
     handleMenuClose();
+    setLogoutDialogOpen(false);
+    setToastOpen(true);
+    navigate("/");
   };
 
   return (
@@ -60,7 +58,6 @@ export default function Navbar() {
         zIndex: 1000,
       }}
     >
-      {/* 내부 너비 제한 + 중앙 정렬 컨테이너 */}
       <Box
         sx={{
           width: "100%",
@@ -73,7 +70,6 @@ export default function Navbar() {
           py: { xs: 2.5, sm: 4, md: 4.5 },
         }}
       >
-        {/* 왼쪽 로고 */}
         <Link to="/" style={{ textDecoration: "none" }}>
           <Box
             component="img"
@@ -87,16 +83,15 @@ export default function Navbar() {
           />
         </Link>
 
-        {/* 오른쪽 영역 */}
         <Box display="flex" alignItems="center" gap={2}>
-          {/* 모바일: 햄버거 메뉴 */}
+          {/* 모바일 메뉴 버튼 */}
           <Box display={{ xs: "block", sm: "none" }}>
             <IconButton onClick={handleToggleMenu}>
               <MenuIcon sx={{ color: "var(--text-100)" }} />
             </IconButton>
           </Box>
 
-          {/* 데스크탑: 로그인 or 알람/프로필 */}
+          {/* 데스크탑 로그인 or 메뉴 */}
           <Box display={{ xs: "none", sm: "flex" }} alignItems="center" gap={2}>
             {!isLoggedIn ? (
               <Typography
@@ -140,8 +135,23 @@ export default function Navbar() {
                     },
                   }}
                 >
-                  <MenuItem onClick={handleGoToMypage} sx={{color: "var(--text-100)"}}>마이페이지</MenuItem>
-                  <MenuItem onClick={handleLogout} sx={{color: "var(--action-red)"}}>로그아웃</MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      navigate("/mypage");
+                      handleMenuClose();
+                    }}
+                  >
+                    마이페이지
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleMenuClose();
+                      setLogoutDialogOpen(true);
+                    }}
+                    sx={{ color: "var(--action-red)" }}
+                  >
+                    로그아웃
+                  </MenuItem>
                 </Menu>
               </>
             )}
@@ -149,7 +159,6 @@ export default function Navbar() {
         </Box>
       </Box>
 
-      {/* 하단 탭 메뉴 */}
       <MenuTabs />
 
       {/* 모바일 드로어 메뉴 */}
@@ -169,8 +178,36 @@ export default function Navbar() {
           },
         }}
       >
-        <MobileMenu onClose={handleToggleMenu} />
+        <MobileMenu onClose={handleToggleMenu} onLogoutWithToast={() => setToastOpen(true)} />
       </Drawer>
+
+      {/* 로그아웃 확인 모달 */}
+      <LogoutConfirmDialog
+        open={logoutDialogOpen}
+        onClose={() => setLogoutDialogOpen(false)}
+        onConfirm={handleLogout}
+      />
+
+      {/* 토스트 알림 */}
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={3000}
+        onClose={() => setToastOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        message={
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <Box
+              component="img"
+              src={byeGif}
+              alt="bye"
+              sx={{ width: 30, height: 30 }}
+            />
+            <Typography fontSize="0.9rem" fontWeight={500}>
+              다음에 또 만나요! 안녕히가세요!
+            </Typography>
+          </Box>
+        }
+      />
     </Box>
   );
 }
