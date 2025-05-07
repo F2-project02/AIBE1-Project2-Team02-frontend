@@ -1,13 +1,16 @@
 // src/components/layout/MobileMenu.jsx
 
 import { Box, Button, Divider, Typography } from "@mui/material";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../store/useUserStore";
 import { useLoginModalStore } from "../../store/useLoginModalStore";
+import LogoutConfirmDialog from "../common/LogoutConfirmDialog";
 import menuItems from "./menuItems";
 
-export default function MobileMenu({ onClose }) {
-  const { isLoggedIn, profileImage } = useUserStore();
+export default function MobileMenu({ onClose, onLogoutWithToast }) {
+  const { isLoggedIn, profileImage, nickname, logout } = useUserStore();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { open } = useLoginModalStore();
   const navigate = useNavigate();
 
@@ -19,6 +22,13 @@ export default function MobileMenu({ onClose }) {
   const handleNavigate = (path) => {
     navigate(path);
     onClose();
+  };
+
+  const handleLogout = () => {
+    logout();
+    onLogoutWithToast?.(); // Toast 열기
+    onClose?.();
+    navigate("/");
   };
 
   const menuButtonStyle = {
@@ -54,29 +64,44 @@ export default function MobileMenu({ onClose }) {
         </Button>
       ) : (
         <Box display="flex" flexDirection="column" gap={2}>
-          <Box display="flex" alignItems="center" gap={1}>
+          {/* 프로필 섹션 */}
+          <Box display="flex" alignItems="center" gap={1.5}>
             <img
               src={profileImage}
               alt="프로필"
-              style={{ width: 36, height: 36, borderRadius: "50%" }}
+              style={{ width: 32, height: 32, borderRadius: "50%" }}
             />
-            <Typography variant="body1" fontWeight={500}>
-              프로필
+            <Typography variant="body2" fontWeight={500}>
+              {nickname}
             </Typography>
           </Box>
+
+          {/* 마이페이지 버튼 */}
           <Button
-            onClick={() => {
-              alert("로그아웃 로직 필요!");
-              onClose();
-            }}
+            onClick={() => handleNavigate("/mypage")}
+            {...menuButtonStyle}
+          >
+            마이페이지
+          </Button>
+
+          {/* 로그아웃 버튼 */}
+          <Button
+            onClick={() => setLogoutDialogOpen(true)}
             {...menuButtonStyle}
             sx={{
               ...menuButtonStyle.sx,
-              color: "var(--text-300)",
+              color: "var(--action-red)",
             }}
           >
             로그아웃
           </Button>
+
+          {/* 로그아웃 확인 다이얼로그 */}
+          <LogoutConfirmDialog
+            open={logoutDialogOpen}
+            onClose={() => setLogoutDialogOpen(false)}
+            onConfirm={handleLogout}
+          />
         </Box>
       )}
 
