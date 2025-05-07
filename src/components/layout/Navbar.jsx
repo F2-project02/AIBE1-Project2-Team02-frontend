@@ -1,8 +1,16 @@
 // src/components/layout/Navbar.jsx
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Box, IconButton, Typography, Avatar, Drawer } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Box,
+  IconButton,
+  Typography,
+  Avatar,
+  Drawer,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MenuTabs from "./MenuTabs";
@@ -17,7 +25,29 @@ export default function Navbar() {
   const { open } = useLoginModalStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+  const navigate = useNavigate();
+
   const handleToggleMenu = () => setMobileOpen((prev) => !prev);
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleGoToMypage = () => {
+    navigate("/mypage");
+    handleMenuClose();
+  };
+
+  const handleLogout = () => {
+    alert("로그아웃 로직 필요!");
+    handleMenuClose();
+  };
 
   return (
     <Box
@@ -39,8 +69,8 @@ export default function Navbar() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          px: { xs: 2, sm: 3, md: 4 }, // 좌우 여백: 16~32px
-          py: { xs: 2.5, sm: 4, md: 4.5 }, // 상하 여백: 20~36px
+          px: { xs: 2, sm: 3, md: 4 },
+          py: { xs: 2.5, sm: 4, md: 4.5 },
         }}
       >
         {/* 왼쪽 로고 */}
@@ -52,7 +82,7 @@ export default function Navbar() {
             sx={{
               height: { xs: 24, sm: 28, md: 32 },
               transition: "height 0.3s ease",
-              cursor: "pointer", // 클릭 가능 표시
+              cursor: "pointer",
             }}
           />
         </Link>
@@ -85,11 +115,34 @@ export default function Navbar() {
                 <IconButton>
                   <NotificationsIcon sx={{ color: "var(--text-100)" }} />
                 </IconButton>
-                <Avatar
-                  src={profileImage}
-                  alt="사용자 프로필"
-                  sx={{ width: 32, height: 32 }}
-                />
+
+                <IconButton onClick={handleAvatarClick}>
+                  <Avatar
+                    src={profileImage}
+                    alt="사용자 프로필"
+                    sx={{ width: 32, height: 32 }}
+                  />
+                </IconButton>
+
+                {/* 프로필 드롭다운 메뉴 */}
+                <Menu
+                  anchorEl={anchorEl}
+                  open={menuOpen}
+                  onClose={handleMenuClose}
+                  PaperProps={{
+                    elevation: 3,
+                    sx: {
+                      mt: 1,
+                      borderRadius: "8px",
+                      minWidth: 140,
+                      backgroundColor: "#fefefe",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                    },
+                  }}
+                >
+                  <MenuItem onClick={handleGoToMypage} sx={{color: "var(--text-100)"}}>마이페이지</MenuItem>
+                  <MenuItem onClick={handleLogout} sx={{color: "var(--action-red)"}}>로그아웃</MenuItem>
+                </Menu>
               </>
             )}
           </Box>
