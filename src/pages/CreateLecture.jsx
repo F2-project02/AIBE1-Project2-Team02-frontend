@@ -122,9 +122,9 @@ export default function CreateLecture() {
   const isMentor = true;
 
   // 테스트를 위해 항상 폼을 보여줌
-  // if (!isLoggedIn || !isMentor) {
-  //   return <UnauthorizedView />;
-  // }
+  if (!isLoggedIn || !isMentor) {
+    return <UnauthorizedView />;
+  }
 
   return (
     <Box sx={{ mt: 4 }}>
