@@ -9,7 +9,7 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import cryingFace from "../../assets/cryingFace.gif"
+import cryingFace from "../../assets/cryingface.gif"
 
 export default function LogoutConfirmDialog({ open, onClose, onConfirm }) {
   return (
