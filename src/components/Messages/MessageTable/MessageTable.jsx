@@ -18,20 +18,23 @@ import TablePagination from "./TablePagination";
 import MessageModal from "../MessageModal";
 import { useState, useEffect, useCallback } from "react";
 import MessageSkeletonRow from "./MessageSkeletonRow";
+import { useMessageStore } from "../../../store/useMessageStore";
 
-export default function MessageTable({ messages = [], loading, tab }) {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+export default function MessageTable({
+  messages = [],
+  loading,
+  tab,
+  totalItems,
+  totalPages,
+}) {
+  const { page, setPage } = useMessageStore();
   const [selectedMessageId, setSelectedMessageId] = useState(null);
   const [selectedAll, setSelectedAll] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const displayedMessages = messages.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
+  const displayedMessages = messages;
 
   const isPageFull = displayedMessages.length === 10;
 
@@ -76,7 +79,6 @@ export default function MessageTable({ messages = [], loading, tab }) {
   }, [displayedMessages.length, selectedMessages.length]);
 
   useEffect(() => {
-    setPage(0);
     setSelectedAll(false);
     setSelectedMessages([]);
   }, [messages.length]);
@@ -159,13 +161,9 @@ export default function MessageTable({ messages = [], loading, tab }) {
 
       <TablePagination
         page={page}
-        totalItems={messages.length}
-        rowsPerPage={rowsPerPage}
+        totalItems={totalItems}
+        totalPages={totalPages}
         onPageChange={setPage}
-        onRowsPerPageChange={(val) => {
-          setRowsPerPage(10);
-          setPage(0);
-        }}
       />
 
       {selectedMessageId && (

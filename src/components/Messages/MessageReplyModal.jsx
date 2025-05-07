@@ -10,9 +10,11 @@ import {
 } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import GradientButton from "../Button/GradientButton";
+import { sendMessage } from "../../lib/api/messageApi";
 
 export default function MessageReplyModal({
-  receiverNickname,
+  senderId,
+  senderNickname,
   onClose,
   onReplySent,
   open,
@@ -21,10 +23,16 @@ export default function MessageReplyModal({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const textFieldRef = useRef(null);
-  const handleSend = () => {
+
+  const handleSend = async () => {
     if (!content.trim()) return;
-    // 여기에서 서버에 메시지 전송 요청
-    onReplySent?.();
+    try {
+      await sendMessage({ receiverId: senderId, content });
+      onReplySent?.();
+    } catch (error) {
+      console.error("쪽지 전송 실패", error);
+      alert("쪽지 전송에 실패했습니다.");
+    }
   };
 
   useEffect(() => {
@@ -64,7 +72,7 @@ export default function MessageReplyModal({
         {/* 받는 사람 */}
         <Stack direction="row" spacing={2.5} mb={3}>
           <Typography fontWeight={600}>받는 사람</Typography>
-          <Typography fontWeight={500}>{receiverNickname}</Typography>
+          <Typography fontWeight={500}>{senderNickname}</Typography>
         </Stack>
 
         {/* 쪽지 내용 */}

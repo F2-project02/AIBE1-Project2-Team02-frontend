@@ -1,28 +1,51 @@
 // src/pages/MessageInbox.jsx
 
-import { Box, Typography, Paper } from "@mui/material";
+import { Box } from "@mui/material";
 import { useState, useEffect } from "react";
 import MessageTabs from "../components/Messages/MessageTabs";
 import MessageSearchFilter from "../components/Messages/MessageSearchFilter";
 import MessageTable from "../components/Messages/MessageTable/MessageTable";
-import { dummyReceivedMessages } from "../constants/mock/dummyReceivedMessages";
-import { dummySentMessages } from "../constants/mock/dummySentMessages";
 import { useMessageStore } from "../store/useMessageStore";
+import { getMessages } from "../lib/api/messageApi";
 
 export default function MessageInbox() {
   const { tab, setTab, filter, setFilter, page, setPage } = useMessageStore();
-  const messages = tab === 0 ? dummyReceivedMessages : dummySentMessages;
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const data = await getMessages({
+        tab,
+        page,
+        filterBy: filter.filterBy,
+        keyword: filter.keyword,
+      });
+      setMessages(data.content);
+      setTotalCount(data.totalCount);
+    } catch (e) {
+      console.error("메시지 불러오기 실패", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [tab, page, filter]);
 
   const handleTabChange = (_, newValue) => {
     setTab(newValue);
     setPage(0);
+    setFilter({ filterBy: "nickname", keyword: "" });
   };
 
   const handleSearch = ({ filterBy, keyword }) => {
-    setFilter({ filterBy, keyword });
     setPage(0);
+    setFilter({ filterBy, keyword });
   };
-
   return (
     <Box p={4} sx={{ backgroundColor: "#fff" }}>
       <MessageTabs value={tab} onChange={handleTabChange} />
@@ -34,7 +57,13 @@ export default function MessageInbox() {
 
       {/* 쪽지 리스트 */}
       <Box mt={2}>
-        <MessageTable messages={messages} loading={false} tab={tab} />
+        <MessageTable
+          messages={messages}
+          loading={loading}
+          tab={tab}
+          totalItems={totalCount} // ✅ 총 개수
+          totalPages={Math.ceil(totalCount / 10)} // ✅ 총 페이지 수
+        />
       </Box>
     </Box>
   );
