@@ -1,6 +1,7 @@
 // 📄 src/components/CreateLecturCategorySelector.jsx
 import CustomSelect from "../common/CustomSelect";
-import { Box, MenuItem, CircularProgress } from "@mui/material";
+import CategorySelectorSkeleton from "./CategorySelectorSkeleton";
+import { Box, MenuItem } from "@mui/material";
 
 export default function CategorySelector({
   categoryTree,
@@ -11,7 +12,7 @@ export default function CategorySelector({
   setFormField,
   loading,
 }) {
-  if (loading) return <CircularProgress size={24} />;
+  if (loading) return <CategorySelectorSkeleton />;
 
   return (
     <Box
