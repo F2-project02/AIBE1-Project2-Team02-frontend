@@ -1,13 +1,16 @@
 // src/components/layout/MobileMenu.jsx
 
 import { Box, Button, Divider, Typography } from "@mui/material";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../store/useUserStore";
 import { useLoginModalStore } from "../../store/useLoginModalStore";
+import LogoutConfirmDialog from "../common/LogoutConfirmDialog";
 import menuItems from "./menuItems";
 
-export default function MobileMenu({ onClose }) {
-  const { isLoggedIn, profileImage, nickname } = useUserStore();
+export default function MobileMenu({ onClose, onLogoutWithToast }) {
+  const { isLoggedIn, profileImage, nickname, logout } = useUserStore();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { open } = useLoginModalStore();
   const navigate = useNavigate();
 
@@ -22,8 +25,10 @@ export default function MobileMenu({ onClose }) {
   };
 
   const handleLogout = () => {
-    alert("로그아웃 로직 필요!");
-    onClose();
+    logout();
+    onLogoutWithToast?.(); // Toast 열기
+    onClose?.();
+    navigate("/");
   };
 
   const menuButtonStyle = {
@@ -81,7 +86,7 @@ export default function MobileMenu({ onClose }) {
 
           {/* 로그아웃 버튼 */}
           <Button
-            onClick={handleLogout}
+            onClick={() => setLogoutDialogOpen(true)}
             {...menuButtonStyle}
             sx={{
               ...menuButtonStyle.sx,
@@ -90,6 +95,13 @@ export default function MobileMenu({ onClose }) {
           >
             로그아웃
           </Button>
+
+          {/* 로그아웃 확인 다이얼로그 */}
+          <LogoutConfirmDialog
+            open={logoutDialogOpen}
+            onClose={() => setLogoutDialogOpen(false)}
+            onConfirm={handleLogout}
+          />
         </Box>
       )}
 
