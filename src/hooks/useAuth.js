@@ -54,6 +54,18 @@ export default function useAuth() {
     };
 
     const checkAuthStatus = async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('token');
+
+        // URL에 토큰이 있으면 저장하고 URL에서 제거
+        if (tokenFromUrl) {
+            localStorage.setItem('token', tokenFromUrl);
+            // 토큰 파라미터 제거 (브라우저 히스토리에 토큰이 남지 않도록)
+            window.history.replaceState({}, document.title, window.location.pathname);
+            // 사용자 정보 가져오기
+            await fetchUserInfo(tokenFromUrl);
+            return; // 토큰을 처리했으므로 여기서 종료
+        }
         const token = localStorage.getItem('token');
 
         if (!token) return;
