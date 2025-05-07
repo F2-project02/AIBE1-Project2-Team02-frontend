@@ -11,56 +11,9 @@ export default function useAuth() {
             import.meta.env.VITE_BACKEND_TARGET === "local"
                 ? import.meta.env.VITE_LOCAL_API_URL
                 : import.meta.env.VITE_PROD_API_URL;
-
-        const width = 500;
-        const height = 600;
-        const left = window.screenX + (window.outerWidth - width) / 2;
-        const top = window.screenY + (window.outerHeight - height) / 2;
-
-        const loginWindow = window.open(
-            `${base}/oauth2/authorization/${provider}`,
-            "_blank",
-            `width=${width}, height=${height}, left=${left}, top=${top}`
-        );
-
-        const receiveToken = (event) => {
-            const backendOrigin = new URL(
-                import.meta.env.VITE_BACKEND_TARGET === "local"
-                    ? import.meta.env.VITE_LOCAL_API_URL
-                    : import.meta.env.VITE_PROD_API_URL
-            ).origin;
-
-            const allowedOrigins = [
-                window.location.origin,
-                backendOrigin
-            ];
-
-            if (import.meta.env.DEV) {
-                console.log("토큰 수신됨");
-            }
-
-            if (!allowedOrigins.includes(event.origin)) {
-                console.warn("허용하지 않은 origin");
-                return;
-            }
-
-            const {token} = event.data;
-            if (token) {
-                localStorage.setItem("token", token);
-
-                if (import.meta.env.DEV) {
-                    console.log("토큰 저장 완료");
-                }
-
-                fetchUserInfo(token);
-
-                loginWindow.close();
-                window.removeEventListener("message", receiveToken);
-                close();
-            }
-        };
-
-        window.addEventListener("message", receiveToken);
+        console.log("로그인");
+        console.log(provider);
+        window.location.href = `${base}/oauth2/authorization/${provider}`;
     };
 
     const fetchUserInfo = async (token) => {
@@ -142,6 +95,7 @@ export default function useAuth() {
 
     return {
         handleSocialLogin,
-        checkAuthStatus
+        checkAuthStatus,
+        fetchUserInfo
     };
 }
