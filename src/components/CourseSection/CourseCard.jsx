@@ -31,6 +31,9 @@ export default function CourseCard({ data }) {
   } = data || {};
 
   const handleClick = () => {
+    // Store the lecture data in sessionStorage for access on the detail page
+    sessionStorage.setItem(`lecture_${lectureId}`, JSON.stringify(data));
+    // Navigate to the lecture detail page
     navigate(`/lectures/${lectureId}`);
   };
 

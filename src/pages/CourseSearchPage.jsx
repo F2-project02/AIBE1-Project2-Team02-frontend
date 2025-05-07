@@ -67,29 +67,27 @@ const CourseSearchPage = () => {
           size: 10,
         };
 
-        // 카테고리 처리 - 수정된 부분
+        // 카테고리 처리
         if (selectedCategory) {
-          // 카테고리가 계층 구조로 선택된 경우 (대분류 > 중분류 > 소분류)
           const categoryParts = selectedCategory.split(" > ");
-
-          // 마지막 부분(가장 구체적인 카테고리)을 category 매개변수로 사용
-          // 이는 서버에서 부모/중간/소분류 중 어느 것과도 매칭될 수 있도록 함
           const lastCategory = categoryParts[categoryParts.length - 1];
-
-          // 선택된 카테고리 중에서 가장 구체적인 것을 사용
           params.category = lastCategory;
-
-          console.log("검색에 사용되는 카테고리:", lastCategory);
         }
 
-        // 지역 처리
+        // 지역 처리 - 복수 지역 지원
         if (selectedRegions && selectedRegions.length > 0) {
-          // 지역 정보 처리 방식은 그대로 유지
-          params.region =
-            selectedRegions[0].displayName ||
-            `${selectedRegions[0].sido} ${selectedRegions[0].sigungu} ${
-              selectedRegions[0].dong || ""
-            }`.trim();
+          // 각 지역별로 가장 구체적인 단위를 사용 (동 > 시군구 > 시도 순)
+          params.regions = selectedRegions.map((region) => {
+            if (region.dong && region.dong.trim() !== "") {
+              return region.dong;
+            } else if (region.sigungu) {
+              return region.sigungu;
+            } else {
+              return region.sido || region.displayName;
+            }
+          });
+
+          console.log("검색에 사용되는 지역들:", params.regions);
         }
 
         // 가격 범위
@@ -147,21 +145,44 @@ const CourseSearchPage = () => {
     isCertified,
   ]);
 
-  // API 응답을 CourseCard 컴포넌트에 맞게 변환
   const mapApiResponseToCards = (lectures) => {
     if (!lectures || !Array.isArray(lectures)) return [];
 
-    return lectures.map((lecture) => ({
-      lectureId: lecture.lectureId,
-      title: lecture.lectureTitle,
-      price: lecture.price,
-      mentorName: lecture.mentorNickname,
-      profileImage: lecture.profileImage,
-      isCertified: lecture.isCertified,
-      rating: lecture.averageRating,
-      subcategory: [lecture.subcategory || ""],
-      region: [lecture.regions ? JSON.parse(lecture.regions)[0] : "서울"], // 지역 정보는 JSON 문자열로 받을 수 있음
-    }));
+    return lectures.map((lecture) => {
+      console.log("강의 원본 데이터:", lecture); // 디버깅용
+
+      let regionList = [];
+
+      // regions가 존재하는 경우 (null, undefined가 아닌 경우)
+      if (lecture.regions) {
+        // 이미 배열인 경우
+        if (Array.isArray(lecture.regions)) {
+          regionList = lecture.regions;
+        }
+        // JSON 문자열인 경우 파싱 시도
+        else if (typeof lecture.regions === "string") {
+          try {
+            const parsed = JSON.parse(lecture.regions);
+            regionList = Array.isArray(parsed) ? parsed : [parsed];
+          } catch (e) {
+            // 파싱 실패하면 원본 문자열 사용
+            regionList = [lecture.regions];
+          }
+        }
+      }
+
+      return {
+        lectureId: lecture.lectureId,
+        title: lecture.lectureTitle,
+        price: lecture.price,
+        mentorName: lecture.mentorNickname,
+        profileImage: lecture.profileImage || "/images/default-profile.svg",
+        isCertified: lecture.isCertified,
+        rating: lecture.averageRating,
+        subcategory: [lecture.subcategory || ""],
+        region: regionList.length > 0 ? regionList : ["지역 정보 없음"],
+      };
+    });
   };
 
   // Handle search submission

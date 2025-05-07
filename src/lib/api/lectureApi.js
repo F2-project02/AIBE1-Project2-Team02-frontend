@@ -26,7 +26,13 @@ export const createLecture = async (lectureData) => {
  */
 export const getLectures = async (params = {}) => {
   try {
-    const response = await axiosInstance.get("/api/lectures", { params });
+    // 배열 파라미터(regions)를 처리하기 위한 axios의 paramsSerializer 옵션을 설정
+    const response = await axiosInstance.get("/api/lectures", {
+      params,
+      paramsSerializer: {
+        indexes: null, // 이렇게 설정하면 배열 파라미터가 regions=item1&regions=item2 형식으로 전송됨
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("강의 목록 조회 에러:", error);
