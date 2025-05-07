@@ -28,8 +28,8 @@ export default function Footer() {
         <Box display="flex" gap={3} flexWrap="wrap" mb={2}>
           {[
             { label: "멘토스 소개", to: "/about" },
-            { label: "이용약관", to: "/terms" },
-            { label: "개인정보 처리방침", to: "/privacy" },
+            { label: "이용약관", to: "https://sedate-acapella-116.notion.site/MEN-TOSS-1ecf60ebaced80e5870ecbf1bfc39b62?pvs=74" },
+            { label: "개인정보 처리방침", to: "https://sedate-acapella-116.notion.site/MEN-TOSS-1ecf60ebaced8009a641c36cc735a77a?pvs=74" },
           ].map(({ label, to }) => (
             <NavLink
               key={to}
