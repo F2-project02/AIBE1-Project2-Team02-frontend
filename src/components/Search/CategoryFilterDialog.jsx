@@ -1,4 +1,4 @@
-// src/components/Search/CategoryFilterDialog.jsx
+// src/components/Search/CategoryFilterDialog.jsx - Fixed version
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import GradientButton from "../Button/GradientButton";
-import { categoryApi } from "../../lib/api/categoryApi";
+import { CategoryService } from "../../lib/api/categoryApi";
 
 export default function CategoryFilterDialog({
   open,
@@ -36,6 +36,11 @@ export default function CategoryFilterDialog({
   const [loadingMiddle, setLoadingMiddle] = useState(false);
   const [loadingSub, setLoadingSub] = useState(false);
 
+  // Error messages
+  const [parentError, setParentError] = useState(null);
+  const [middleError, setMiddleError] = useState(null);
+  const [subError, setSubError] = useState(null);
+
   // Reset selections when dialog opens/closes
   useEffect(() => {
     if (open && initialSelection) {
@@ -57,18 +62,16 @@ export default function CategoryFilterDialog({
 
       try {
         setLoadingParent(true);
+        setParentError(null);
 
-        // 실제 API 호출
-        const response = await categoryApi.getParentCategories();
+        // 강화된 카테고리 서비스 사용
+        const parentCats = await CategoryService.getParentCategories();
 
-        if (response && Array.isArray(response)) {
-          setParentCategories(response);
+        if (parentCats && parentCats.length > 0) {
+          setParentCategories(parentCats);
         } else {
-          console.error(
-            "Parent categories response is not an array:",
-            response
-          );
-          // 임시 대체 데이터
+          setParentError("카테고리를 불러오는데 실패했습니다.");
+          // 기본값으로 대체
           setParentCategories([
             "교육/입시",
             "IT/개발",
@@ -80,7 +83,8 @@ export default function CategoryFilterDialog({
         }
       } catch (error) {
         console.error("Failed to load parent categories:", error);
-        // API 호출 실패 시 임시 데이터
+        setParentError("카테고리를 불러오는데 실패했습니다.");
+        // 기본값으로 대체
         setParentCategories([
           "교육/입시",
           "IT/개발",
@@ -107,56 +111,54 @@ export default function CategoryFilterDialog({
 
       try {
         setLoadingMiddle(true);
+        setMiddleError(null);
 
-        // 실제 API 호출
-        const response = await categoryApi.getMiddleCategories(selectedParent);
+        // 강화된 카테고리 서비스 사용
+        const middleCats = await CategoryService.getMiddleCategories(
+          selectedParent
+        );
 
-        if (response && Array.isArray(response)) {
-          setMiddleCategories(response);
+        if (middleCats && middleCats.length > 0) {
+          setMiddleCategories(middleCats);
         } else {
-          console.error(
-            "Middle categories response is not an array:",
-            response
+          console.log(`중분류가 없거나 로드 실패: ${selectedParent}`);
+          setMiddleError(
+            `${selectedParent}의 중분류 카테고리를 불러오는데 실패했습니다.`
           );
-          // 임시 대체 데이터
-          let fallbackCategories = [];
 
+          // 백엔드 API가 작동하지 않는 경우를 위한 기본값
           if (selectedParent === "IT/개발") {
-            fallbackCategories = [
+            setMiddleCategories([
               "프론트엔드",
               "백엔드",
               "모바일",
               "데이터베이스",
               "AI/머신러닝",
-            ];
+            ]);
           } else if (selectedParent === "교육/입시") {
-            fallbackCategories = ["초등", "중등", "고등", "대학"];
+            setMiddleCategories(["초등", "중등", "고등"]);
           } else {
-            fallbackCategories = ["기초", "중급", "고급"];
+            setMiddleCategories([]);
           }
-
-          setMiddleCategories(fallbackCategories);
         }
       } catch (error) {
         console.error("Failed to load middle categories:", error);
-        // API 호출 실패 시 임시 데이터
-        let fallbackCategories = [];
+        setMiddleError("중분류 카테고리를 불러오는데 실패했습니다.");
 
+        // 백엔드 API가 작동하지 않는 경우를 위한 기본값
         if (selectedParent === "IT/개발") {
-          fallbackCategories = [
+          setMiddleCategories([
             "프론트엔드",
             "백엔드",
             "모바일",
             "데이터베이스",
             "AI/머신러닝",
-          ];
+          ]);
         } else if (selectedParent === "교육/입시") {
-          fallbackCategories = ["초등", "중등", "고등", "대학"];
+          setMiddleCategories(["초등", "중등", "고등"]);
         } else {
-          fallbackCategories = ["기초", "중급", "고급"];
+          setMiddleCategories([]);
         }
-
-        setMiddleCategories(fallbackCategories);
       } finally {
         setLoadingMiddle(false);
       }
@@ -175,48 +177,33 @@ export default function CategoryFilterDialog({
 
       try {
         setLoadingSub(true);
+        setSubError(null);
 
-        // 실제 API 호출
-        const response = await categoryApi.getSubcategories(
+        // 서버에서 소분류 데이터 로드 시도
+        let subCats = await CategoryService.getSubcategories(
           selectedParent,
           selectedMiddle
         );
 
-        if (response && Array.isArray(response)) {
-          setSubCategories(response);
-        } else {
-          console.error("Sub categories response is not an array:", response);
-          // 임시 대체 데이터
-          let fallbackCategories = [];
-
-          if (selectedMiddle === "프론트엔드") {
-            fallbackCategories = ["React", "Vue", "Angular", "JavaScript"];
-          } else if (selectedMiddle === "백엔드") {
-            fallbackCategories = ["Java", "Python", "Node.js", "Spring"];
-          } else if (selectedMiddle === "초등") {
-            fallbackCategories = ["국어", "수학", "영어", "과학", "사회"];
-          } else {
-            fallbackCategories = ["입문", "실전", "심화"];
+        // 응답이 CategoryResponse 객체 배열인지 확인하고 처리
+        if (subCats && Array.isArray(subCats)) {
+          // 객체 배열인 경우 subcategory 필드만 추출
+          if (subCats.length > 0 && typeof subCats[0] === "object") {
+            // 중요: 백엔드에서 CategoryResponse 객체를 반환하는 경우
+            subCats = subCats.map((cat) => cat.subcategory);
           }
 
-          setSubCategories(fallbackCategories);
+          setSubCategories(subCats);
+        } else {
+          console.log(
+            `소분류가 없거나 로드 실패: ${selectedParent} > ${selectedMiddle}`
+          );
+          setSubCategories([]);
         }
       } catch (error) {
         console.error("Failed to load sub categories:", error);
-        // API 호출 실패 시 임시 데이터
-        let fallbackCategories = [];
-
-        if (selectedMiddle === "프론트엔드") {
-          fallbackCategories = ["React", "Vue", "Angular", "JavaScript"];
-        } else if (selectedMiddle === "백엔드") {
-          fallbackCategories = ["Java", "Python", "Node.js", "Spring"];
-        } else if (selectedMiddle === "초등") {
-          fallbackCategories = ["국어", "수학", "영어", "과학", "사회"];
-        } else {
-          fallbackCategories = ["입문", "실전", "심화"];
-        }
-
-        setSubCategories(fallbackCategories);
+        setSubError("소분류 카테고리를 불러오는데 실패했습니다.");
+        setSubCategories([]);
       } finally {
         setLoadingSub(false);
       }
@@ -288,6 +275,10 @@ export default function CategoryFilterDialog({
           <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
             <CircularProgress size={24} />
           </Box>
+        ) : parentError ? (
+          <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+            {parentError}
+          </Typography>
         ) : (
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
             {parentCategories.map((category) => (
@@ -340,6 +331,14 @@ export default function CategoryFilterDialog({
             <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
               <CircularProgress size={24} />
             </Box>
+          ) : middleError ? (
+            <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+              {middleError}
+            </Typography>
+          ) : middleCategories.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>
+              중분류 카테고리가 없습니다.
+            </Typography>
           ) : (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {middleCategories.map((category) => (
@@ -392,11 +391,19 @@ export default function CategoryFilterDialog({
             <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
               <CircularProgress size={24} />
             </Box>
+          ) : subError ? (
+            <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+              {subError}
+            </Typography>
+          ) : subCategories.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>
+              소분류 카테고리가 없습니다.
+            </Typography>
           ) : (
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {subCategories.map((category) => (
+              {subCategories.map((category, index) => (
                 <Box
-                  key={category}
+                  key={`${category}-${index}`}
                   onClick={() => setSelectedSub(category)}
                   sx={{
                     px: 2,

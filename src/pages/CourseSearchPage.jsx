@@ -67,13 +67,24 @@ const CourseSearchPage = () => {
           size: 10,
         };
 
-        // Add filters if selected
+        // 카테고리 처리 - 수정된 부분
         if (selectedCategory) {
-          params.category = selectedCategory;
+          // 카테고리가 계층 구조로 선택된 경우 (대분류 > 중분류 > 소분류)
+          const categoryParts = selectedCategory.split(" > ");
+
+          // 마지막 부분(가장 구체적인 카테고리)을 category 매개변수로 사용
+          // 이는 서버에서 부모/중간/소분류 중 어느 것과도 매칭될 수 있도록 함
+          const lastCategory = categoryParts[categoryParts.length - 1];
+
+          // 선택된 카테고리 중에서 가장 구체적인 것을 사용
+          params.category = lastCategory;
+
+          console.log("검색에 사용되는 카테고리:", lastCategory);
         }
 
+        // 지역 처리
         if (selectedRegions && selectedRegions.length > 0) {
-          // Using the first region for simplicity, could be modified to support multiple
+          // 지역 정보 처리 방식은 그대로 유지
           params.region =
             selectedRegions[0].displayName ||
             `${selectedRegions[0].sido} ${selectedRegions[0].sigungu} ${
@@ -81,18 +92,23 @@ const CourseSearchPage = () => {
             }`.trim();
         }
 
+        // 가격 범위
         if (priceRange[0] > 0 || priceRange[1] < 300000) {
           params.minPrice = priceRange[0];
           params.maxPrice = priceRange[1];
         }
 
+        // 최소 평점
         if (ratingRange > 0) {
           params.minRating = ratingRange;
         }
 
+        // 인증 멘토만
         if (isCertified) {
           params.isCertified = true;
         }
+
+        console.log("검색 매개변수:", params);
 
         // 실제 API 호출
         const response = await getLectures(params);
