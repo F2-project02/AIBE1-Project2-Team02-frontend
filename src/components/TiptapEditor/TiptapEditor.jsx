@@ -1,5 +1,4 @@
 // src/components/TiptapEditor/TiptapEditor.jsx
-
 import React, { useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -11,16 +10,21 @@ import Highlight from "@tiptap/extension-highlight";
 import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Heading from "@tiptap/extension-heading";
+import Placeholder from "@tiptap/extension-placeholder";
 import { Box } from "@mui/material";
 
 import Toolbar from "./Toolbar";
 import "./editor.css";
 
-export default function TiptapEditor() {
+export default function TiptapEditor({ value, onChange, placeholder }) {
   const [showDropzone, setShowDropzone] = useState(false);
   const fileInputRef = useRef(null);
 
   const editor = useEditor({
+    content: value,
+    onUpdate: ({ editor }) => {
+      onChange?.(editor.getHTML());
+    },
     extensions: [
       StarterKit.configure({ heading: false }),
       Underline,
@@ -31,11 +35,12 @@ export default function TiptapEditor() {
       TextStyle,
       Color,
       Heading.configure({ levels: [1, 2, 3, 4] }),
+      Placeholder.configure({
+        placeholder: placeholder || "내용을 입력하세요...",
+      }),
     ],
-    content: "<p>멘토스는 아직 테스팅중이에요... :)</p>",
   });
 
-  // 이미지 삽입 로직 (커서 위치에 삽입)
   const handleImageInsert = (file) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -53,8 +58,7 @@ export default function TiptapEditor() {
         fileInputRef={fileInputRef}
         onImageInsert={handleImageInsert}
       />
-
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="tiptap" />
     </Box>
   );
 }

@@ -1,7 +1,8 @@
 // src/pages/CreateLecture.jsx
 
 import { useState, useEffect } from "react";
-import { Box, Typography, Tabs, Tab, Paper } from "@mui/material";
+import { Box, Typography, Paper } from "@mui/material";
+import CreateLectureTab from "../components/CreateLecture/CreateLectureTabs";
 import BasicInfoForm from "../components/CreateLecture/BasicInfoForm";
 import CurriculumForm from "../components/CreateLecture/CurriculumForm";
 import ScheduleAndLocationForm from "../components/CreateLecture/ScheduleAndLocationForm";
@@ -127,63 +128,29 @@ export default function CreateLecture() {
   }
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4, mb: 4 }}>
       {/* 개발 모드 안내 */}
       {import.meta.env.DEV && (
-        <Box sx={{ mb: 2, p: 1, bgcolor: "info.light", borderRadius: 1 }}>
-          <Typography variant="body2" color="info.contrastText">
-            현재 개발 모드입니다. 임시 토큰이 설정되었습니다.
+        <Box sx={{ mb: 3, p: 2, bgcolor: "var(--action-primary-bg)", borderRadius: "8px" }}>
+          <Typography variant="body2" color="var(--primary-300)">
+            ※ 현재 개발 모드입니다. 임시 토큰이 설정되었습니다.
           </Typography>
         </Box>
       )}
 
       {/* 상단 타이틀 */}
-      <Typography variant="h5" fontWeight={600} gutterBottom>
-        과외 등록하기
-      </Typography>
-
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        여러분의 지식과 경험을 공유해주세요!
+      <Typography variant="h5" fontWeight={600} color="var(--text-100)" mt={4} mb={4}>
+        새 과외 등록
       </Typography>
 
       {/* 탭 메뉴 */}
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "divider",
-          mb: 3,
-        }}
-      >
-        <Tabs
-          value={currentTab}
-          onChange={(_, newValue) => handleTabChange(newValue)}
-          sx={{
-            minHeight: 48,
-            "& .MuiTab-root": {
-              textTransform: "none",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "var(--text-400)",
-              padding: "12px 24px",
-              "&.Mui-selected": {
-                color: "var(--primary-200)",
-              },
-            },
-          }}
-        >
-          <Tab label="기본 정보" />
-          <Tab label="커리큘럼" />
-          <Tab label="일정 및 지역" />
-        </Tabs>
-      </Box>
+      <CreateLectureTab value={currentTab} onChange={handleTabChange} />
 
-      {/* 탭 패널 - 배경색 변경 */}
+      {/* 탭 패널 */}
       <Paper
         elevation={0}
         sx={{
-          p: 4,
-          borderRadius: 2,
-          backgroundColor: "var(--bg-100)", // 배경색 변경
+          backgroundColor: "var(--bg-100)",
         }}
       >
         <TabPanel value={currentTab} index={0}>
