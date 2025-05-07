@@ -22,7 +22,7 @@ export const createLecture = async (lectureData) => {
 };
 
 /**
- * 강의 목록 조회 API
+ * 강의 필터 조회 API
  */
 export const getLectures = async (params = {}) => {
   try {

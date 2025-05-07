@@ -95,7 +95,11 @@ export default function CreateLecture() {
         !formData.description ||
         !formData.curriculum
       ) {
-        showToast("기본 정보와 커리큘럼을 모두 입력해주세요.", warnGif, "error");
+        showToast(
+          "기본 정보와 커리큘럼을 모두 입력해주세요.",
+          warnGif,
+          "error"
+        );
         return;
       }
 
@@ -131,7 +135,8 @@ export default function CreateLecture() {
       console.error("Error creating lecture:", err);
       showToast(
         "과외 등록에 실패했습니다. 모든 필수 항목을 입력했는지 확인해주세요.",
-        warnGif, "error"
+        warnGif,
+        "error"
       );
     } finally {
       setIsLoading(false);
@@ -142,9 +147,9 @@ export default function CreateLecture() {
   const isMentor = true;
 
   // 테스트를 위해 항상 폼을 보여줌
-  if (!isLoggedIn || !isMentor) {
-    return <UnauthorizedView />;
-  }
+  // if (!isLoggedIn || !isMentor) {
+  //   return <UnauthorizedView />;
+  // }
 
   return (
     <Box sx={{ mt: 4, mb: 4 }}>
