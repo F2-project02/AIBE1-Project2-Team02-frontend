@@ -1,16 +1,12 @@
 // src/components/CreateLecture/BasicInfoForm.jsx
 import { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  TextField,
-  Select,
-  MenuItem,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Typography, TextField } from "@mui/material";
 import GradientButton from "../Button/GradientButton";
+import FormFieldWrapper from "./FormFieldWrapper";
+import CategorySelector from "./CategorySelector";
+import CustomTextField from "../common/CustomTextField";
 import { useLectureStore } from "../../store/useLectureStore";
-import LectureEditor from "./LectureEditor";
+import TiptapEditor from "../TiptapEditor/TiptapEditor";
 import { categoryApi } from "../../lib/api/categoryApi";
 
 export default function BasicInfoForm({ onNext }) {
@@ -42,12 +38,17 @@ export default function BasicInfoForm({ onNext }) {
   // 카테고리가 변경될 때 하위 카테고리 업데이트
   useEffect(() => {
     if (formData.category && categoryTree[formData.category]) {
-      setMiddleCategories(
-        Object.keys(categoryTree[formData.category].middle || {})
+      const newMiddleCategories = Object.keys(
+        categoryTree[formData.category].middle || {}
       );
-      setFormField("middleCategory", "");
-      setFormField("subCategory", "");
-      setFormField("categoryId", null);
+      setMiddleCategories(newMiddleCategories);
+
+      // 직접 categoryTree로 유효성 검사
+      if (!newMiddleCategories.includes(formData.middleCategory)) {
+        setFormField("middleCategory", "");
+        setFormField("subCategory", "");
+        setFormField("categoryId", null);
+      }
     }
   }, [formData.category, categoryTree]);
 
@@ -57,13 +58,15 @@ export default function BasicInfoForm({ onNext }) {
       formData.middleCategory &&
       categoryTree[formData.category]?.middle?.[formData.middleCategory]
     ) {
-      setSubCategories(
-        Object.keys(
-          categoryTree[formData.category].middle[formData.middleCategory]
-        )
+      const newSubCategories = Object.keys(
+        categoryTree[formData.category].middle[formData.middleCategory]
       );
-      setFormField("subCategory", "");
-      setFormField("categoryId", null);
+      setSubCategories(newSubCategories);
+  
+      if (!newSubCategories.includes(formData.subCategory)) {
+        setFormField("subCategory", "");
+        setFormField("categoryId", null);
+      }
     }
   }, [formData.middleCategory, formData.category, categoryTree]);
 
@@ -110,117 +113,63 @@ export default function BasicInfoForm({ onNext }) {
         과외에 대한 기본적인 정보를 입력해주세요.
       </Typography>
 
-      {/* 과외명 입력 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-          과외명 *
-        </Typography>
-        <TextField
-          fullWidth
+      <FormFieldWrapper label="과외명" required>
+        <CustomTextField
           placeholder="과외 제목을 입력하세요"
           value={formData.title || ""}
           onChange={(e) => setFormField("title", e.target.value)}
-          sx={{ mb: 3 }}
+          sx={{ maxWidth: "360px", width: "100%" }}
         />
-      </Box>
+      </FormFieldWrapper>
 
-      {/* 카테고리 선택 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-          카테고리 *
-        </Typography>
-        {loading ? (
-          <CircularProgress size={24} />
-        ) : (
-          <Box display="flex" gap={1}>
-            <Select
-              fullWidth
-              value={formData.category || ""}
-              onChange={(e) => setFormField("category", e.target.value)}
-              displayEmpty
-            >
-              <MenuItem value="">대분류</MenuItem>
-              {parentCategories.map((category) => (
-                <MenuItem key={category} value={category}>
-                  {category}
-                </MenuItem>
-              ))}
-            </Select>
+      <FormFieldWrapper label="카테고리" required>
+        <CategorySelector
+          categoryTree={categoryTree}
+          parentCategories={parentCategories}
+          middleCategories={middleCategories}
+          subCategories={subCategories}
+          formData={formData}
+          setFormField={setFormField}
+          loading={loading}
+        />
+      </FormFieldWrapper>
 
-            <Select
-              fullWidth
-              value={formData.middleCategory || ""}
-              onChange={(e) => setFormField("middleCategory", e.target.value)}
-              displayEmpty
-              disabled={!formData.category}
-            >
-              <MenuItem value="">중분류</MenuItem>
-              {middleCategories.map((middle) => (
-                <MenuItem key={middle} value={middle}>
-                  {middle}
-                </MenuItem>
-              ))}
-            </Select>
-
-            <Select
-              fullWidth
-              value={formData.subCategory || ""}
-              onChange={(e) => setFormField("subCategory", e.target.value)}
-              displayEmpty
-              disabled={!formData.middleCategory}
-            >
-              <MenuItem value="">소분류</MenuItem>
-              {subCategories.map((sub) => (
-                <MenuItem key={sub} value={sub}>
-                  {sub}
-                </MenuItem>
-              ))}
-            </Select>
-          </Box>
-        )}
-      </Box>
-
-      {/* 희당 수강료 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-          희당 수강료 *
-        </Typography>
-        <TextField
-          fullWidth
-          placeholder="원"
+      <FormFieldWrapper label="희망 수강료" required>
+        <CustomTextField
+          type="number"
           value={formData.price || ""}
           onChange={(e) => setFormField("price", e.target.value)}
-          type="number"
+          sx={{ maxWidth: "240px", width: "100%" }}
+          inputSx={{
+            textAlign: "right",
+          }}
           InputProps={{
             endAdornment: (
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                color="var(--text-400)"
+                sx={{ ml: 1 }}
+              >
                 원
               </Typography>
             ),
           }}
         />
-      </Box>
+      </FormFieldWrapper>
 
-      {/* 과외 소개 */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-          과외 소개 *
-        </Typography>
-        <LectureEditor
+      <FormFieldWrapper label="과외 소개" required>
+        <TiptapEditor
           value={formData.description}
           onChange={(content) => setFormField("description", content)}
           placeholder="과외의 특징과 목표 등을 자세히 설명해주세요."
         />
-      </Box>
+      </FormFieldWrapper>
 
-      {/* 다음으로 버튼 */}
       <GradientButton
         fullWidth
         size="md"
         onClick={handleNext}
-        sx={{
-          py: 1.5,
-        }}
+        sx={{ py: 1.5 }}
         disabled={loading}
       >
         다음으로
