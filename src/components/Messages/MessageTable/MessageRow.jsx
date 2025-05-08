@@ -55,6 +55,12 @@ export default function MessageRow({
           size="small"
           checked={isSelected} // 선택 상태에 따라 체크
           onClick={handleCheckboxClick} // 클릭 시 핸들러 호출
+          sx={{
+            color: "var(--text-300)",
+            "&.Mui-checked": {
+              color: "var(--primary-100)",
+            },
+          }}
           inputProps={{ "aria-labelledby": labelId }} // 접근성 레이블
         />
       </TableCell>
