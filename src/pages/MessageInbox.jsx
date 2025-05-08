@@ -47,7 +47,7 @@ export default function MessageInbox() {
     setFilter({ filterBy, keyword });
   };
   return (
-    <Box mt={4}>
+    <Box mt={4} mb={8}>
       <MessageTabs value={tab} onChange={handleTabChange} />
 
       {/* 필터 */}
