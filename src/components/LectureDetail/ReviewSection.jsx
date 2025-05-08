@@ -9,6 +9,9 @@ export default function ReviewSection({ reviews }) {
   const { role } = useUserStore();
   const isMentee = role === "MENTEE";
 
+  // Add safety check for reviews
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+
   return (
     <Box>
       {/* 후기 작성 영역 */}
@@ -25,8 +28,8 @@ export default function ReviewSection({ reviews }) {
 
       {/* 후기 리스트 */}
       <Box>
-        {reviews?.length > 0 ? (
-          reviews.map((review) => (
+        {safeReviews.length > 0 ? (
+          safeReviews.map((review) => (
             <ReviewCard key={review.reviewId} review={review} />
           ))
         ) : (
