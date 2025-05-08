@@ -23,7 +23,7 @@ export default function MessageModalSkeleton() {
         overflowY: "auto",
         bgcolor: "var(--bg-100)",
         borderRadius: isMobile ? 0 : "16px",
-        p: isMobile ? 2 : 4.5,
+        p: 4.5,
         position: "absolute",
         top: "50%",
         left: "50%",
