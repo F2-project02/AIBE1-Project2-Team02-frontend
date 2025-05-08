@@ -14,7 +14,9 @@ import {
 } from "@mui/material";
 import TableHeaderRow from "./TableHeaderRow";
 import MessageRow from "./MessageRow";
-import TablePagination from "./TablePagination";
+import MessageRowMobile from "./MessageRowMobile";
+import MessageRowMobileSkeleton from "./MessageRowMobileSkeleton";
+import MessageTablePagination from "./MessageTablePagination";
 import MessageModal from "../MessageModal";
 import { useState, useEffect, useCallback } from "react";
 import MessageSkeletonRow from "./MessageSkeletonRow";
@@ -88,78 +90,135 @@ export default function MessageTable({
 
   return (
     <>
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        sx={{
-          boxShadow: "none",
-          minHeight: 585,
-          width: "100%",
-          overflowX: "auto",
-        }}
-      >
-        <Table sx={{ width: isMobile ? "auto" : "100%", tableLayout: "fixed" }}>
-          <TableHeaderRow
-            tab={tab}
-            numSelected={selectedMessages.length}
-            rowCount={displayedMessages.length}
-            onSelectAllClick={handleSelectAllClick}
-            selectedAll={selectedAll}
-            isMobile={isMobile}
-          />
-          <TableBody>
-            {loading ? (
-              Array.from({ length: 10 }).map((_, i) => (
-                <MessageSkeletonRow key={i} />
-              ))
-            ) : displayedMessages.length > 0 ? (
-              displayedMessages.map((msg, i) => (
-                <MessageRow
-                  key={msg.messageId}
-                  {...msg}
-                  onClick={handleRowClick}
-                  isLast={i === displayedMessages.length - 1}
-                  removeBorder={isPageFull && i === 9}
-                  isSelected={isMessageSelected(msg.messageId)}
-                  onSelect={handleSelect}
-                  isMobile={isMobile}
-                />
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={isMobile ? 3 : 5}
-                  align="center"
+      {/* 모바일은 카드형 UI로 전환 */}
+      {isMobile ? (
+        <Box
+          sx={{
+            bgcolor: "var(--bg-100)",
+            minHeight: 585,
+          }}
+        >
+          {loading ? (
+            Array.from({ length: 10 }).map((_, i) => (
+              <MessageRowMobileSkeleton key={i} />
+            ))
+          ) : displayedMessages.length > 0 ? (
+            displayedMessages.map((msg) => (
+              <MessageRowMobile
+                key={msg.messageId}
+                message={msg}
+                isSelected={isMessageSelected(msg.messageId)}
+                onSelect={handleSelect}
+                onClick={handleRowClick}
+              />
+            ))
+          ) : (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height={300}
+              bgcolor="var(--bg-100)"
+            >
+              <Typography
+                color="text.secondary"
+                fontSize="14px"
+                textAlign="center"
+              >
+                쪽지가 없습니다.
+              </Typography>
+            </Box>
+          )}
+        </Box>
+      ) : (
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          sx={{
+            boxShadow: "none",
+            minHeight: 585,
+            width: "100%",
+            overflowX: "auto",
+            bgcolor: "var(--bg-100)",
+          }}
+        >
+          <Table
+            sx={{
+              width: "100%",
+              tableLayout: "fixed",
+              bgcolor: "var(--bg-100)",
+            }}
+          >
+            <TableHeaderRow
+              tab={tab}
+              numSelected={selectedMessages.length}
+              rowCount={displayedMessages.length}
+              onSelectAllClick={handleSelectAllClick}
+              selectedAll={selectedAll}
+              isMobile={isMobile}
+              sx={{ bgcolor: "var(--bg-100)" }}
+            />
+            <TableBody sx={{ bgcolor: "var(--bg-100)" }}>
+              {loading ? (
+                Array.from({ length: 10 }).map((_, i) => (
+                  <MessageSkeletonRow key={i} />
+                ))
+              ) : displayedMessages.length > 0 ? (
+                displayedMessages.map((msg, i) => (
+                  <MessageRow
+                    key={msg.messageId}
+                    {...msg}
+                    onClick={handleRowClick}
+                    isLast={i === displayedMessages.length - 1}
+                    removeBorder={isPageFull && i === 9}
+                    isSelected={isMessageSelected(msg.messageId)}
+                    onSelect={handleSelect}
+                    isMobile={isMobile}
+                  />
+                ))
+              ) : (
+                <TableRow
                   sx={{
-                    height: 300,
-                    borderBottom: "none",
-                    px: 0,
-                    py: 0,
+                    bgcolor: "var(--bg-100)",
+                    "&:hover": { bgcolor: "var(--bg-200)" },
                   }}
                 >
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="100%"
-                    width="100%"
+                  <TableCell
+                    colSpan={5}
+                    align="center"
+                    sx={{
+                      height: 300,
+                      borderBottom: "none",
+                      px: 0,
+                      py: 0,
+                      bgcolor: "var(--bg-100)",
+                    }}
                   >
-                    <Typography
-                      color="text.secondary"
-                      fontSize="14px"
-                      textAlign="center"
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                      height="100%"
+                      width="100%"
+                      bgcolor="var(--bg-100)"
                     >
-                      쪽지가 없습니다.
-                    </Typography>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                      <Typography
+                        color="text.secondary"
+                        fontSize="14px"
+                        textAlign="center"
+                      >
+                        쪽지가 없습니다.
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
 
-      <TablePagination
+      <MessageTablePagination
         page={page}
         totalItems={totalItems}
         totalPages={totalPages}

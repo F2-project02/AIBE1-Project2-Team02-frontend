@@ -20,7 +20,7 @@ export default function MessageModalSkeleton() {
         height: isMobile ? "100dvh" : "auto",
         maxHeight: isMobile ? "100dvh" : "80vh",
         overflowY: "auto",
-        bgcolor: "#fefefe",
+        bgcolor: "var(--bg-100)",
         borderRadius: isMobile ? 0 : "16px",
         p: isMobile ? 2 : 4.5,
         position: "absolute",

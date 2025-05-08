@@ -9,21 +9,14 @@ export default function MessageTabs({ value, onChange }) {
         sx={{
           "& .MuiTabs-indicator": {
             height: 2,
-            backgroundColor: "primary.main",
+            backgroundColor: "var(--primary-200)",
           },
           "& .MuiTab-root": {
-            textTransform: "none",
-            fontFamily: "Pretendard, Helvetica",
-            fontSize: "13px",
             fontWeight: 500,
-            letterSpacing: "0.4px",
-            lineHeight: "24px",
-            minWidth: "108px",
-            padding: "9px 16px",
-            color: "var(--text-300)",
+            color: "var(--text-400)",
           },
           "& .Mui-selected": {
-            color: "primary.main",
+            color: "var(--primary-200)",
           },
         }}
       >
