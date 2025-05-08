@@ -159,7 +159,7 @@ export default function BasicInfoForm({ onNext, showToast }) {
         />
       </FormFieldWrapper>
 
-      <FormFieldWrapper label="희망 수강료" required>
+      <FormFieldWrapper label="회당 수강료" required>
         <CustomTextField
           type="number"
           value={formData.price || ""}
@@ -175,13 +175,15 @@ export default function BasicInfoForm({ onNext, showToast }) {
               setFormField("price", numeric);
             }
           }}
-          sx={{     width: {
-            xs: "100%",
-            md: "240px",
-          }, }}
+          sx={{
+            width: {
+              xs: "100%",
+              md: "240px",
+            },
+          }}
           inputProps={{
             min: 0,
-            step: 5000, 
+            step: 5000,
             inputMode: "numeric", // 모바일 키패드 대응
           }}
           inputSx={{
@@ -199,6 +201,9 @@ export default function BasicInfoForm({ onNext, showToast }) {
             ),
           }}
         />
+        <Typography variant="caption" color="var(--text-300)">
+        1회 수업 기준으로 원하는 금액을 입력하세요.
+        </Typography>
       </FormFieldWrapper>
 
       <FormFieldWrapper label="과외 소개" required>
