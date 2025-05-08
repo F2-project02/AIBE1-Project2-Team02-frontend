@@ -7,6 +7,7 @@ import MessageInbox from "../pages/MessageInbox";
 import CreateLecture from "../pages/CreateLecture";
 import SearchPage from "../pages/SearchPage";
 import MyPage from "../pages/MyPage";
+import LectureInquiries from "../pages/LectureInquiries";
 
 export default function AppRouter() {
   return (
@@ -14,9 +15,10 @@ export default function AppRouter() {
       <Route path="/" element={<Home />} />
       <Route path="/register" element={<CreateLecture />} />
       <Route path="/lectures/:lectureId" element={<LectureDetailPage />} />
+      <Route path="/questions" element={<LectureInquiries />} />
       <Route path="/messages" element={<MessageInbox />} />
       <Route path="/search" element={<SearchPage />} />
-      <Route path="/mypage" element={<MyPage  />} />
+      <Route path="/mypage" element={<MyPage />} />
     </Routes>
   );
 }

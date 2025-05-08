@@ -61,8 +61,8 @@ export default function MessageInbox() {
           messages={messages}
           loading={loading}
           tab={tab}
-          totalItems={totalCount} // ✅ 총 개수
-          totalPages={Math.ceil(totalCount / 10)} // ✅ 총 페이지 수
+          totalItems={totalCount}
+          totalPages={Math.ceil(totalCount / 10)}
         />
       </Box>
     </Box>
