@@ -6,12 +6,12 @@ import GradientButton from "../Button/GradientButton";
 import FormFieldWrapper from "./FormFieldWrapper";
 import { useLectureStore } from "../../store/useLectureStore";
 
-export default function CurriculumForm({ onNext }) {
+export default function CurriculumForm({ onNext, showToast }) {
   const { formData, setFormField } = useLectureStore();
 
   const handleNext = () => {
     if (!formData.curriculum) {
-      alert("커리큘럼을 입력해주세요.");
+      showToast("커리큘럼을 입력해주세요.");
       return;
     }
     onNext();

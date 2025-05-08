@@ -9,7 +9,7 @@ import { useLectureStore } from "../../store/useLectureStore";
 import TiptapEditor from "../TiptapEditor/TiptapEditor";
 import { categoryApi } from "../../lib/api/categoryApi";
 
-export default function BasicInfoForm({ onNext }) {
+export default function BasicInfoForm({ onNext, showToast }) {
   const { formData, setFormField } = useLectureStore();
   const [loading, setLoading] = useState(false);
   const [categoryTree, setCategoryTree] = useState({});
@@ -97,7 +97,7 @@ export default function BasicInfoForm({ onNext }) {
 
   const handleNext = () => {
     if (!formData.title || !formData.categoryId || !formData.price) {
-      alert("필수 항목을 모두 입력해주세요.");
+      showToast("필수 항목을 모두 입력해주세요.");
       return;
     }
     onNext();
@@ -109,7 +109,7 @@ export default function BasicInfoForm({ onNext }) {
         과외 기본 정보
       </Typography>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body2" color="var(--text-300)" sx={{ mb: 4 }}>
         과외에 대한 기본적인 정보를 입력해주세요.
       </Typography>
 
@@ -117,9 +117,34 @@ export default function BasicInfoForm({ onNext }) {
         <CustomTextField
           placeholder="과외 제목을 입력하세요"
           value={formData.title || ""}
-          onChange={(e) => setFormField("title", e.target.value)}
-          sx={{ maxWidth: "360px", width: "100%" }}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value.length <= 50) {
+              setFormField("title", value);
+            } else {
+              setFormField("title", value.slice(0, 50));
+            }
+          }}
+          sx={{ maxWidth: "640px", width: "100%" }}
+          inputProps={{ maxLength: 50 }}
         />
+        <Box
+          display="flex"
+          justifyContent={{ xs: "space-between", md: "space-between" }}
+          width="100%"
+          maxWidth="640px"
+          mt={0.5}
+        >
+          <Typography variant="caption" color="var(--text-300)">
+            최대 50자까지 입력할 수 있어요.
+          </Typography>
+          <Typography
+            variant="caption"
+            color={formData.title?.length > 50 ? "error" : "var(--text-300)"}
+          >
+            {(formData.title || "").length} / 50자
+          </Typography>
+        </Box>
       </FormFieldWrapper>
 
       <FormFieldWrapper label="카테고리" required>
@@ -138,8 +163,27 @@ export default function BasicInfoForm({ onNext }) {
         <CustomTextField
           type="number"
           value={formData.price || ""}
-          onChange={(e) => setFormField("price", e.target.value)}
-          sx={{ maxWidth: "240px", width: "100%" }}
+          onChange={(e) => {
+            const value = e.target.value;
+            const numeric = Number(value);
+            // 음수 또는 소수점 방지
+            if (
+              Number.isInteger(numeric) &&
+              numeric >= 0 &&
+              numeric <= 1000000
+            ) {
+              setFormField("price", numeric);
+            }
+          }}
+          sx={{     width: {
+            xs: "100%",
+            md: "240px",
+          }, }}
+          inputProps={{
+            min: 0,
+            step: 5000, 
+            inputMode: "numeric", // 모바일 키패드 대응
+          }}
           inputSx={{
             textAlign: "right",
           }}
