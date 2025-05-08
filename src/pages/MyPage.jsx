@@ -24,9 +24,11 @@ export default function MyPage() {
   // 파일 업로드 관련 상태
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(
-    profileData?.profileImage || "/images/default-profile.svg"
+    "/images/default-profile.svg"
   );
   const [uploading, setUploading] = useState(false);
+
+  const [mentorProfile, setMentorProfile] = useState(null);
 
   // 편집을 위한 상태 변수들
   const [nickname, setNickname] = useState("");
@@ -106,17 +108,12 @@ export default function MyPage() {
     fetchProfile();
   }, []);
 
+  // 멘토 프로필 정보 요청
   useEffect(() => {
-    // 사용자가 멘토인 경우에만 멘토 프로필 정보 요청
-    if (
-      profileData &&
-      profileData.role === "MENTOR" &&
-      !profileData.mentorProfile
-    ) {
+    if (profileData?.role === "MENTOR" && !mentorProfile) {
       const fetchMentorProfile = async () => {
         try {
           const token = localStorage.getItem("token");
-          // 멘토 프로필 정보를 가져오는 API 호출 (올바른 엔드포인트 사용)
           const response = await fetch(
             "http://localhost:8081/api/account/mentor/profile",
             {
@@ -131,11 +128,7 @@ export default function MyPage() {
             console.log("멘토 프로필 응답:", result);
 
             if (result.success) {
-              // 기존 프로필 데이터에 멘토 프로필 정보 추가
-              setProfileData((prevData) => ({
-                ...prevData,
-                mentorProfile: result.data,
-              }));
+              setMentorProfile(result.data);
             }
           }
         } catch (error) {
@@ -145,7 +138,21 @@ export default function MyPage() {
 
       fetchMentorProfile();
     }
-  }, [profileData?.role]);
+  }, [profileData?.role, mentorProfile]);
+
+  useEffect(() => {
+    if (profileData?.profileImage) {
+      setImagePreview(profileData.profileImage);
+    }
+  }, [profileData]);
+
+  useEffect(() => {
+    console.log("프로필 데이터 변경:", profileData);
+  }, [profileData]);
+
+  useEffect(() => {
+    console.log("이미지 미리보기 변경:", imagePreview);
+  }, [imagePreview]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -295,10 +302,6 @@ export default function MyPage() {
             height: 50,
             mr: 2,
             borderRadius: "50%",
-            bgcolor: "#f0f0f0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             overflow: "hidden",
           }}
         >
@@ -317,38 +320,36 @@ export default function MyPage() {
             </Typography>
 
             {/* 인증 아이콘 (멘토 + 인증된 사용자만 표시) */}
-            {profileData?.role === "MENTOR" &&
-              profileData?.mentorProfile?.isCertified && (
-                <Box
-                  component="span"
-                  sx={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "18px",
-                    height: "18px",
-                    ml: 1,
-                    borderRadius: "50%",
-                    bgcolor: "var(--primary-100)",
-                    color: "white",
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  ✓
-                </Box>
-              )}
+            {profileData?.role === "MENTOR" && mentorProfile?.isCertified && (
+              <Box
+                component="span"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "18px",
+                  height: "18px",
+                  ml: 1,
+                  borderRadius: "50%",
+                  bgcolor: "var(--primary-100)",
+                  color: "white",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+              >
+                ✓
+              </Box>
+            )}
           </Box>
 
           {/* 학교/지역 - 멘토일 때만 표시 */}
-          {profileData?.role === "MENTOR" && profileData?.mentorProfile && (
+          {profileData?.role === "MENTOR" && mentorProfile && (
             <Typography
               variant="body2"
               color="text.secondary"
               fontSize="0.85rem"
             >
-              {profileData.mentorProfile.education}{" "}
-              {profileData.mentorProfile.major}
+              {mentorProfile.education} {mentorProfile.major}
             </Typography>
           )}
         </Box>
@@ -378,14 +379,13 @@ export default function MyPage() {
           </Box>
         )}
       </Box>
-
       {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
       <Box sx={{ display: "flex", gap: 4 }}>
         {/* 좌측 메뉴 영역 */}
         <Box sx={{ width: 240 }}>
           <List component="nav" aria-label="마이페이지 메뉴">
             <ListItem
-              button
+              button={true}
               selected
               sx={{
                 borderRadius: "8px",
