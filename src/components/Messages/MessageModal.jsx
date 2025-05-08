@@ -64,7 +64,7 @@ export default function MessageModal({ messageId, tab, onClose }) {
             overflowY: "auto",
             bgcolor: "#fefefe",
             borderRadius: isMobile ? 0 : "16px",
-            p: isMobile ? 2 : 4.5,
+            p: 4.5,
             position: "absolute",
             top: "50%",
             left: "50%",
@@ -81,6 +81,7 @@ export default function MessageModal({ messageId, tab, onClose }) {
             variant="h6"
             textAlign="center"
             fontWeight={600}
+            color="var(--text-100)"
             fontSize="1.25rem"
             mb={4}
           >
@@ -90,34 +91,48 @@ export default function MessageModal({ messageId, tab, onClose }) {
           {/* 보낸 사람 / 보낸 시간 */}
           <Stack spacing={1.5} mb={3} sx={{ flexShrink: 0 }}>
             <Stack direction="row" spacing={2.5}>
-              <Typography fontWeight={600}>
+              <Typography fontWeight={600} color="var(--text-300)">
                 {isReceived ? "보낸 사람" : "받는 사람"}
               </Typography>
-              <Typography fontWeight={500}>{nickname}</Typography>
+              <Typography fontWeight={500} color="var(--text-200)">
+                {nickname}
+              </Typography>
             </Stack>
             <Stack direction="row" spacing={2.5}>
-              <Typography fontWeight={600}>보낸 시간</Typography>
-              <Typography fontWeight={500}>
+              <Typography fontWeight={600} color="var(--text-300)">
+                보낸 시간
+              </Typography>
+              <Typography fontWeight={500} color="var(--text-200)">
                 {createdAt ? formatDateFromArray(createdAt) : "-"}
               </Typography>
             </Stack>
           </Stack>
           {/* 쪽지 내용 - 스크롤 적용 */}
+          <Typography
+            fontSize="0.85rem"
+            fontWeight={500}
+            color="var(--text-300)"
+          >
+            쪽지 내용
+          </Typography>
           <Box
             sx={{
               minHeight: isMobile ? 100 : 216,
               maxHeight: "calc(80vh - 280px)",
               borderRadius: "12px",
-              bgcolor: "#fafafa",
-              p: 2,
+              py: 2,
               mb: isMobile ? 2 : 3,
               overflowY: "auto",
+              overflowX: "hidden",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
               flexGrow: 1,
             }}
           >
             <Typography
               fontWeight={500}
               fontSize={isMobile ? "0.9rem" : "1rem"}
+                color="var(--text-200)"
             >
               {content}
             </Typography>
