@@ -21,6 +21,13 @@ export default function MyPage() {
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
 
+  // 파일 업로드 관련 상태
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(
+    profileData?.profileImage || "/images/default-profile.svg"
+  );
+  const [uploading, setUploading] = useState(false);
+
   // 편집을 위한 상태 변수들
   const [nickname, setNickname] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -75,6 +82,7 @@ export default function MyPage() {
 
         const result = await response.json();
         if (result.success) {
+          // 프로필 데이터 설정 부분을 다음과 같이 수정
           setProfileData(result.data);
 
           // 편집을 위한 상태 초기화
@@ -82,6 +90,11 @@ export default function MyPage() {
           setBirthDate(result.data.birthDate || "");
           setSex(result.data.sex || "남성");
           setMbti(result.data.mbti || "");
+
+          // 프로필 이미지 초기화
+          setImagePreview(
+            result.data.profileImage || "/images/default-profile.svg"
+          );
         }
       } catch (error) {
         console.error("프로필 조회 오류: ", error);
@@ -133,6 +146,63 @@ export default function MyPage() {
       fetchMentorProfile();
     }
   }, [profileData?.role]);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!profileImage) return;
+
+    setUploading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("인증 토큰이 없습니다");
+      }
+
+      const formData = new FormData();
+      formData.append("file", profileImage);
+
+      const response = await fetch(
+        "http://localhost:8081/api/account/profile/image",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("이미지 업로드에 실패했습니다");
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setProfileData({ ...profileData, profileImage: result.data });
+        alert("프로필 이미지가 성공적으로 업데이트되었습니다");
+      } else {
+        throw new Error(result.message || "이미지 업로드에 실패했습니다");
+      }
+    } catch (error) {
+      console.error("이미지 업로드 오류: ", error);
+      alert("이미지 업로드 중 오류가 발생했습니다: " + error.message);
+    } finally {
+      setUploading(false);
+      setProfileImage(null);
+    }
+  };
 
   // 프로필 업데이트
   const handleSubmit = async (e) => {
@@ -224,12 +294,18 @@ export default function MyPage() {
             width: 50,
             height: 50,
             mr: 2,
+            borderRadius: "50%",
+            bgcolor: "#f0f0f0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
           }}
         >
           <img
-            src="/images/default-profile.svg"
+            src={imagePreview}
             alt="프로필 이미지"
-            style={{ width: "100%", height: "100%" }}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         </Box>
 
@@ -358,12 +434,13 @@ export default function MyPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 mb: 2,
+                overflow: "hidden",
               }}
             >
               <img
-                src="/images/default-profile.svg"
+                src={imagePreview}
                 alt="프로필 이미지"
-                style={{ width: "100%", height: "100%", borderRadius: "50%" }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </Box>
 
@@ -373,20 +450,55 @@ export default function MyPage() {
               </Typography>
             </Box>
 
-            <Button
-              variant="outlined"
-              size="small"
-              sx={{
-                mt: 2,
-                fontSize: "0.8rem",
-                borderRadius: "20px",
-                borderColor: "var(--bg-300)",
-                color: "var(--text-300)",
-                px: 2,
-              }}
-            >
-              프로필 이미지 변경
-            </Button>
+            <input
+              type="file"
+              id="profile-image-upload"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleFileSelect}
+            />
+
+            <label htmlFor="profile-image-upload">
+              <Button
+                variant="outlined"
+                component="span"
+                size="small"
+                sx={{
+                  mt: 2,
+                  fontSize: "0.8rem",
+                  borderRadius: "20px",
+                  borderColor: "var(--bg-300)",
+                  color: "var(--text-300)",
+                  px: 2,
+                }}
+              >
+                이미지 선택
+              </Button>
+            </label>
+
+            {/* 이미지 업로드 버튼 - 파일 선택 시에만 표시 */}
+            {profileImage && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleImageUpload}
+                disabled={uploading}
+                sx={{
+                  mt: 1,
+                  fontSize: "0.8rem",
+                  borderRadius: "20px",
+                  background: "var(--primary-100)",
+                  color: "white",
+                  px: 2,
+                }}
+              >
+                {uploading ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  "업로드"
+                )}
+              </Button>
+            )}
           </Box>
 
           {/* 프로필 정보 폼 - 바로 편집 가능 */}
