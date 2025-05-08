@@ -6,25 +6,18 @@ import {
   Chip,
   Stack,
   Avatar,
-  Switch,
-  Tooltip,
   Breadcrumbs,
   Link,
 } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
-import { useUserStore } from "../../store/useUserStore";
 
 export default function LectureHeader({ lecture }) {
-  const { userId, role, myLectureIds = [] } = useUserStore();
-  const isOwner = myLectureIds.includes(lecture.lectureId);
-  const isMentor = role === "MENTOR";
+  if (!lecture) {
+    return null;
+  }
 
-  const handleToggleChange = () => {
-    console.log("과외 모집 마감 토글");
-  };
-
-  // Safely access props with fallbacks
+  // 안전하게 데이터 추출
   const categorySubject = lecture?.category?.sub || "기타";
   const categoryParent = lecture?.category?.parent || "교육";
   const categoryMiddle = lecture?.category?.middle || "일반";
@@ -36,6 +29,7 @@ export default function LectureHeader({ lecture }) {
     lecture?.mentor?.profileImage || "/images/default-profile.svg";
   const mentorIsCertified = lecture?.mentor?.isCertified || false;
   const mentorRating = lecture?.mentor?.rating || 0;
+  const isClosed = lecture?.isClosed || false;
 
   return (
     <Box sx={{ mb: 6 }}>
@@ -55,11 +49,13 @@ export default function LectureHeader({ lecture }) {
             }}
           />
           <Chip
-            label="모집중"
+            label={isClosed ? "마감됨" : "모집중"}
             size="small"
             sx={{
-              backgroundColor: "var(--action-green-bg)",
-              color: "var(--action-green)",
+              backgroundColor: isClosed
+                ? "var(--action-red-bg)"
+                : "var(--action-green-bg)",
+              color: isClosed ? "var(--action-red)" : "var(--action-green)",
               borderRadius: "8px",
               fontWeight: 500,
               fontSize: "0.75rem",
@@ -67,44 +63,6 @@ export default function LectureHeader({ lecture }) {
             }}
           />
         </Stack>
-
-        {isMentor && isOwner && (
-          <Tooltip
-            title="토글을 눌러 과외 모집을 마감할 수 있어요"
-            placement="right"
-            componentsProps={{
-              tooltip: {
-                sx: {
-                  bgcolor: "var(--bg-300)",
-                  color: "var(--text-300)",
-                  fontSize: "12px",
-                  borderRadius: "8px",
-                  fontWeight: 500,
-                },
-              },
-              arrow: {
-                sx: {
-                  color: "var(--bg-200)",
-                },
-              },
-            }}
-            arrow
-          >
-            <Switch
-              onChange={handleToggleChange}
-              sx={{
-                color: "var(--primary-100)",
-                "& .MuiSwitch-thumb": {
-                  backgroundColor: "var(--primary-100)",
-                },
-                "& .MuiSwitch-track": {
-                  backgroundColor: "var(--primary-100)",
-                  opacity: 0.2,
-                },
-              }}
-            />
-          </Tooltip>
-        )}
       </Stack>
 
       {/* 과외 제목 */}
@@ -114,10 +72,20 @@ export default function LectureHeader({ lecture }) {
 
       {/* 브레드크럼 */}
       <Breadcrumbs separator="›" sx={{ mb: 2 }}>
-        <Link underline="hover" color="var(--text-300)">
+        <Link
+          underline="hover"
+          color="var(--text-300)"
+          component="button"
+          onClick={() => console.log(`카테고리 ${categoryParent} 클릭`)}
+        >
           {categoryParent}
         </Link>
-        <Link underline="hover" color="var(--text-300)">
+        <Link
+          underline="hover"
+          color="var(--text-300)"
+          component="button"
+          onClick={() => console.log(`카테고리 ${categoryMiddle} 클릭`)}
+        >
           {categoryMiddle}
         </Link>
         <Typography color="var(--text-100)">{categorySubject}</Typography>
