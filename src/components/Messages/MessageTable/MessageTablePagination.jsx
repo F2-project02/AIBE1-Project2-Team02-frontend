@@ -6,7 +6,7 @@ import {
   LastPage as LastPageIcon,
 } from "@mui/icons-material";
 
-export default function TablePagination({
+export default function MessageTablePagination({
   page = 0,
   totalPages = 1,
   totalItems = 0,
@@ -27,12 +27,12 @@ export default function TablePagination({
         justifyContent: "space-between",
         px: 2,
         py: 1.5,
-        borderTop: "1px solid #ddd",
-        backgroundColor: "background.paper",
+        borderTop: "1px solid var(--bg-300)",
+        backgroundColor: "var(--bg-100)",
       }}
     >
       {/* 현재 표시 중인 아이템 정보 */}
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body2" color="var(--text-100)">
         {totalItems > 0 ? `${totalItems}개 중 ${page + 1}페이지` : "0개 항목"}
       </Typography>
 

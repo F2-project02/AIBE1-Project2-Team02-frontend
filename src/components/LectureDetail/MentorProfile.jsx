@@ -18,6 +18,19 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 export default function MentorProfile({ mentor }) {
+  // Add safety checks and fallbacks
+  const profileImage = mentor?.profileImage || "/images/default-profile.svg";
+  const nickname = mentor?.nickname || "멘토";
+  const isCertified = mentor?.isCertified || false;
+  const rating = mentor?.rating || 0;
+  const mbti = mentor?.mbti || "MBTI";
+  const education = mentor?.education || "";
+  const major = mentor?.major || "";
+  const regions = Array.isArray(mentor?.regions) ? mentor.regions : [];
+  const analysisComment = mentor?.analysisComment || "";
+  const content = mentor?.content || "멘토 소개 내용이 없습니다.";
+  const appealFileUrl = mentor?.appealFileUrl || "";
+
   return (
     <Box>
       <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -26,18 +39,15 @@ export default function MentorProfile({ mentor }) {
 
       {/* 프로필 이미지 */}
       <Box display="flex" justifyContent="center" mt={2} mb={1}>
-        <Avatar
-          src={"/images/default-profile.svg"}
-          sx={{ width: 80, height: 80 }}
-        />
+        <Avatar src={profileImage} sx={{ width: 80, height: 80 }} />
       </Box>
 
       {/* 닉네임 + 인증 */}
       <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
         <Typography fontWeight={600} fontSize="1rem" color="var(--text-100)">
-          {mentor.nickname}
+          {nickname}
         </Typography>
-        {mentor.isCertified && (
+        {isCertified && (
           <ShieldIcon fontSize="small" sx={{ color: "var(--primary-100)" }} />
         )}
       </Box>
@@ -53,11 +63,11 @@ export default function MentorProfile({ mentor }) {
         <Box display="flex" alignItems="center" gap={0.5}>
           <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
           <Typography fontSize="0.85rem">
-            {mentor.rating?.toFixed(1)}
+            {typeof rating === "number" ? rating.toFixed(1) : "0.0"}
           </Typography>
         </Box>
         <Chip
-          label={mentor.mbti || "MBTI"}
+          label={mbti}
           size="small"
           sx={{
             backgroundColor: "var(--action-green-bg)",
@@ -75,11 +85,11 @@ export default function MentorProfile({ mentor }) {
         mt={1}
         color="var(--text-300)"
       >
-        {mentor.education} {mentor.major && `${mentor.major}`}
+        {education} {major && `${major}`}
       </Typography>
 
       {/* 지역 */}
-      {mentor.regions && mentor.regions.length > 0 && (
+      {regions.length > 0 && (
         <Box
           display="flex"
           justifyContent="center"
@@ -87,10 +97,14 @@ export default function MentorProfile({ mentor }) {
           gap={1}
           mt={1}
         >
-          {mentor.regions.map((r) => (
+          {regions.map((r, index) => (
             <Chip
-              key={r}
-              label={r}
+              key={index}
+              label={
+                typeof r === "string"
+                  ? r
+                  : `${r.sido || ""} ${r.sigungu || ""}`.trim()
+              }
               size="small"
               sx={{
                 backgroundColor: "var(--action-primary-bg)",
@@ -104,7 +118,7 @@ export default function MentorProfile({ mentor }) {
       )}
 
       {/* AI 멘토 분석 */}
-      {mentor.analysisComment && (
+      {analysisComment && (
         <Box
           mt={3}
           p={2}
@@ -122,7 +136,7 @@ export default function MentorProfile({ mentor }) {
             </Typography>
           </Box>
           <Typography fontSize={13} fontWeight={400}>
-            {mentor.analysisComment}
+            {analysisComment}
           </Typography>
         </Box>
       )}
@@ -145,16 +159,16 @@ export default function MentorProfile({ mentor }) {
           variant="body2"
           sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
         >
-          {mentor.content}
+          {content}
         </Typography>
       </Box>
 
       {/* 첨부파일 */}
-      {mentor.appealFileUrl && (
+      {appealFileUrl && (
         <Box mt={2}>
           <ListItem
             component="a"
-            href={mentor.appealFileUrl}
+            href={appealFileUrl}
             target="_blank"
             sx={{
               border: "1px solid var(--bg-200)",

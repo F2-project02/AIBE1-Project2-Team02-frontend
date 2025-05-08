@@ -1,4 +1,4 @@
-// 📄 src/components/CourseSection/CourseCard.jsx
+// src/components/CourseSection/CourseCard.jsx - Fixed version
 
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,26 +17,53 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 export default function CourseCard({ data }) {
   const navigate = useNavigate();
 
+  // Ensure data has all required properties or provide defaults
   const {
-    lectureId,
-    mentorName,
-    profileImage,
-    isCertified,
-    rating,
+    lectureId = 0,
+    title = "",
+    price = 0,
+    mentorName = "",
+    profileImage = "/images/default-profile.svg",
+    isCertified = false,
+    rating = 0,
     subcategory = [],
     region = [],
-    title,
-    price,
-  } = data;
+  } = data || {};
 
   const handleClick = () => {
+    // Store the lecture data in sessionStorage for access on the detail page
+    sessionStorage.setItem(`lecture_${lectureId}`, JSON.stringify(data));
+    // Navigate to the lecture detail page
     navigate(`/lectures/${lectureId}`);
   };
 
+  // Ensure subcategory and region are arrays of strings
+  const safeSubcategory = Array.isArray(subcategory)
+    ? subcategory.map((cat) => String(cat))
+    : subcategory
+    ? [String(subcategory)]
+    : [];
+
+  const safeRegion = Array.isArray(region)
+    ? region.map((r) =>
+        typeof r === "string"
+          ? r
+          : r && typeof r === "object"
+          ? JSON.stringify(r)
+          : ""
+      )
+    : region
+    ? [String(region)]
+    : [];
+
+  // Create display chips
   const sortedChips = [
-    ...subcategory.sort().map((label) => ({ label, type: "category" })),
-    ...region.sort().map((label) => ({ label, type: "region" })),
+    ...safeSubcategory
+      .filter(Boolean)
+      .map((label) => ({ label, type: "category" })),
+    ...safeRegion.filter(Boolean).map((label) => ({ label, type: "region" })),
   ];
+
   const visibleChips = sortedChips.slice(0, 3);
   const hiddenChips = sortedChips.slice(3);
 

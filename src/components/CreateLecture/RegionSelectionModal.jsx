@@ -17,7 +17,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import GradientButton from "../Button/GradientButton";
-import { regionApi } from "../../lib/api/regionApi";
+import { RegionApiService } from "../Search/RegionApiService";
 
 export default function RegionSelectionModal({
   open,
@@ -82,8 +82,11 @@ export default function RegionSelectionModal({
     const loadProvinces = async () => {
       try {
         setLoading(true);
-        const response = await regionApi.getSidos();
-        setProvinces(response);
+        setError(null);
+
+        // 실제 API 호출
+        const sidoList = await RegionApiService.getSidos();
+        setProvinces(sidoList);
       } catch (error) {
         console.error("시도 목록 로드 실패:", error);
         setError("시도 목록을 불러오는데 실패했습니다.");
@@ -105,8 +108,11 @@ export default function RegionSelectionModal({
 
     try {
       setLoading(true);
-      const response = await regionApi.getSigungus(province);
-      setDistricts(response);
+      setError(null);
+
+      // 실제 API 호출
+      const sigunguList = await RegionApiService.getSigungus(province);
+      setDistricts(sigunguList);
     } catch (error) {
       console.error("시군구 목록 로드 실패:", error);
       setError("시군구 목록을 불러오는데 실패했습니다.");
@@ -121,8 +127,14 @@ export default function RegionSelectionModal({
 
     try {
       setLoading(true);
-      const response = await regionApi.getDongs(selectedProvince, district);
-      setDongs(response);
+      setError(null);
+
+      // 실제 API 호출
+      const dongList = await RegionApiService.getDongs(
+        selectedProvince,
+        district
+      );
+      setDongs(dongList);
     } catch (error) {
       console.error("읍면동 목록 로드 실패:", error);
       setError("읍면동 목록을 불러오는데 실패했습니다.");
@@ -134,12 +146,9 @@ export default function RegionSelectionModal({
   // 동 선택 토글 핸들러
   const toggleDong = (dong) => {
     setSelectedDongs((prev) => {
-      // 전체 주소로 중복 체크
-      const fullAddress = `${dong.sido} ${dong.sigungu} ${
-        dong.dong || ""
-      }`.trim();
+      // 동일한 지역 코드 체크
       const existingIndex = prev.findIndex(
-        (d) => `${d.sido} ${d.sigungu} ${d.dong || ""}`.trim() === fullAddress
+        (d) => d.regionCode === dong.regionCode
       );
 
       if (existingIndex >= 0) {
@@ -149,7 +158,7 @@ export default function RegionSelectionModal({
         // 새로 추가
         const dongWithDisplay = {
           ...dong,
-          displayName: fullAddress,
+          displayName: `${dong.sido} ${dong.sigungu} ${dong.dong || ""}`.trim(),
           name: dong.dong || dong.sigungu, // 호환성 유지
           code: dong.regionCode, // 호환성 유지
         };
@@ -168,14 +177,9 @@ export default function RegionSelectionModal({
     setSelectedDongs([]);
   };
 
-  // 동이 이미 선택되었는지 확인하는 함수 - 주소 기준
+  // 동이 이미 선택되었는지 확인하는 함수
   const isDongSelected = (dong) => {
-    const fullAddress = `${dong.sido} ${dong.sigungu} ${
-      dong.dong || ""
-    }`.trim();
-    return selectedDongs.some(
-      (d) => `${d.sido} ${d.sigungu} ${d.dong || ""}`.trim() === fullAddress
-    );
+    return selectedDongs.some((d) => d.regionCode === dong.regionCode);
   };
 
   return (
@@ -183,7 +187,7 @@ export default function RegionSelectionModal({
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth="md" // 모달 크기를 더 넓게 설정
+      maxWidth="md"
       PaperProps={{
         sx: {
           borderRadius: "16px",
