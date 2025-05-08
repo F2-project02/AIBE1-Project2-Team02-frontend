@@ -34,7 +34,7 @@ export default function CustomToast({
               boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
               borderRadius: "12px",
               px: 2,
-              py: 1,
+              py: 0.75,
             }
           : {},
       }}
