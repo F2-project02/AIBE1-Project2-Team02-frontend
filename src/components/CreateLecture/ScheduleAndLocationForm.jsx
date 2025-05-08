@@ -1,12 +1,7 @@
 // src/components/CreateLecture/ScheduleAndLocationForm.jsx
 
 import { useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  CircularProgress,
-} from "@mui/material";
+import { Box, Typography, Button, CircularProgress } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RegionSelectionModal from "./RegionSelectionModal";
 import GradientButton from "../Button/GradientButton";
@@ -142,7 +137,12 @@ export default function ScheduleAndLocationForm({ onSubmit, isLoading }) {
           variant="outlined"
           startIcon={<AddIcon />}
           onClick={addTimeSlot}
-          sx={{ borderColor: "var(--bg-300)", borderRadius: "8px", color: "var(--text-400)", mt: 1 }}
+          sx={{
+            borderColor: "var(--bg-300)",
+            borderRadius: "8px",
+            color: "var(--text-400)",
+            mt: 1,
+          }}
           disabled={!selectedDay}
         >
           {selectedDay
