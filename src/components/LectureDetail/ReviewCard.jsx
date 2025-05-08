@@ -5,9 +5,21 @@ import { useUserStore } from "../../store/useUserStore";
 
 export default function ReviewCard({ review }) {
   const { userId: currentUserId } = useUserStore();
-  const isMyReview = review.writer.userId === currentUserId;
 
-  const timeAgo = formatDistanceToNow(new Date(review.createdAt), {
+  // Add safety checks and fallbacks
+  const reviewWriter = review?.writer || {};
+  const writerId = reviewWriter.userId;
+  const writerNickname = reviewWriter.nickname || "사용자";
+  const writerImage =
+    reviewWriter.profileImage || "/images/default-profile.svg";
+  const rating = review?.rating || 0;
+  const content = review?.content || "";
+  const createdAt = review?.createdAt ? new Date(review.createdAt) : new Date();
+
+  const isMyReview = writerId === currentUserId;
+
+  // Format the date
+  const timeAgo = formatDistanceToNow(createdAt, {
     addSuffix: true,
     locale: ko,
   });
@@ -30,17 +42,14 @@ export default function ReviewCard({ review }) {
         mb={2}
       >
         <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar
-            src={review.writer.profileImage}
-            sx={{ width: 40, height: 40 }}
-          />
+          <Avatar src={writerImage} sx={{ width: 40, height: 40 }} />
           <Box>
             <Typography
               fontWeight={700}
               fontSize="0.95rem"
               color="var(--text-100)"
             >
-              {review.writer.nickname}
+              {writerNickname}
             </Typography>
             <Typography fontSize="0.8rem" color="var(--text-400)">
               {timeAgo}
@@ -49,7 +58,7 @@ export default function ReviewCard({ review }) {
         </Stack>
 
         <Rating
-          value={review.rating}
+          value={rating}
           readOnly
           size="medium"
           sx={{
@@ -65,7 +74,7 @@ export default function ReviewCard({ review }) {
         color="var(--text-200)"
         sx={{ whiteSpace: "pre-line" }}
       >
-        {review.content}
+        {content}
       </Typography>
 
       {/* 수정/삭제 버튼 - 본인 작성 시만 보이게 */}

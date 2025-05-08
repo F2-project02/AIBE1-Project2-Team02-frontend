@@ -1,137 +1,237 @@
-// src/components/Search/CategoryFilterDialog.jsx
-
+// src/components/Search/CategoryFilterDialog.jsx - Fixed version
 import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
   Box,
   Typography,
-  Tabs,
-  Tab,
-  Chip,
   IconButton,
-  Grid,
+  Button,
+  Divider,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import GradientButton from "../Button/GradientButton";
+import { CategoryService } from "../../lib/api/categoryApi";
 
-// Mock category data (이후 API 연동)
-const categoryData = {
-  "교육/입시": {
-    중등교육: ["국어", "영어", "수학", "과학", "사회", "한국사"],
-    고등교육: [
-      "국어",
-      "영어",
-      "수학",
-      "물리",
-      "화학",
-      "생물",
-      "지구과학",
-      "한국사",
-      "세계사",
-      "경제",
-    ],
-    대입: ["수능", "논술", "면접", "내신"],
-  },
-  "IT/개발": {
-    프론트엔드: ["HTML/CSS", "JavaScript", "React", "Vue", "Angular"],
-    백엔드: ["Java", "Python", "Node.js", "Spring", "Express", "Django"],
-    모바일: ["Android", "iOS", "React Native", "Flutter"],
-    데이터사이언스: ["SQL", "Python", "R", "데이터분석", "머신러닝", "딥러닝"],
-  },
-  "취업/N잡": {
-    취업준비: ["자소서", "면접", "포트폴리오", "직무적성검사"],
-    자격증: ["토익", "토플", "컴활", "SQLD"],
-    부업: ["주식", "부동산", "블로그", "유튜브"],
-  },
-  자격: {
-    국가자격증: ["공인중개사", "식품기사", "전기기사", "간호사"],
-    민간자격증: ["빅데이터분석기사", "네트워크관리사", "컴퓨터활용능력"],
-  },
-  학위: {
-    정규학위: ["학사", "석사", "박사"],
-    비정규학위: ["독학학위제", "학점은행제"],
-  },
-  예체능: {
-    음악: ["피아노", "기타", "드럼", "보컬"],
-    미술: ["회화", "디자인", "조소", "공예"],
-    체육: ["축구", "농구", "테니스", "수영"],
-  },
-  라이프스타일: {
-    요리: ["한식", "양식", "일식", "중식", "베이킹"],
-    운동: ["헬스", "요가", "필라테스"],
-    여가: ["여행", "사진", "독서"],
-  },
-};
-
-function CategoryFilterDialog({
+export default function CategoryFilterDialog({
   open,
   onClose,
-  selectedCategories,
-  setSelectedCategories,
+  initialSelection = null,
+  onSelect,
 }) {
-  const [selectedParent, setSelectedParent] = useState("교육/입시");
-  const [selectedMiddle, setSelectedMiddle] = useState(null);
+  // Selected category state
+  const [selectedParent, setSelectedParent] = useState("");
+  const [selectedMiddle, setSelectedMiddle] = useState("");
+  const [selectedSub, setSelectedSub] = useState("");
+
+  // Available categories
+  const [parentCategories, setParentCategories] = useState([]);
   const [middleCategories, setMiddleCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [tempSelectedCategories, setTempSelectedCategories] = useState([]);
 
-  // 선택된 대분류에 따른 중분류 목록 업데이트
+  // Loading states
+  const [loadingParent, setLoadingParent] = useState(false);
+  const [loadingMiddle, setLoadingMiddle] = useState(false);
+  const [loadingSub, setLoadingSub] = useState(false);
+
+  // Error messages
+  const [parentError, setParentError] = useState(null);
+  const [middleError, setMiddleError] = useState(null);
+  const [subError, setSubError] = useState(null);
+
+  // Reset selections when dialog opens/closes
   useEffect(() => {
-    if (selectedParent) {
-      const middleCats = Object.keys(categoryData[selectedParent]);
-      setMiddleCategories(middleCats);
-      setSelectedMiddle(middleCats[0]);
+    if (open && initialSelection) {
+      // Parse the initialSelection if it's a string like "대분류 > 중분류 > 소분류"
+      const parts = initialSelection.split(" > ");
+
+      if (parts.length >= 1) setSelectedParent(parts[0]);
+      if (parts.length >= 2) setSelectedMiddle(parts[1]);
+      if (parts.length >= 3) setSelectedSub(parts[2]);
+    } else if (!open) {
+      // Don't reset on close to maintain state between openings
     }
+  }, [open, initialSelection]);
+
+  // Load parent categories on mount
+  useEffect(() => {
+    const loadParentCategories = async () => {
+      if (!open) return;
+
+      try {
+        setLoadingParent(true);
+        setParentError(null);
+
+        // 강화된 카테고리 서비스 사용
+        const parentCats = await CategoryService.getParentCategories();
+
+        if (parentCats && parentCats.length > 0) {
+          setParentCategories(parentCats);
+        } else {
+          setParentError("카테고리를 불러오는데 실패했습니다.");
+          // 기본값으로 대체
+          setParentCategories([
+            "교육/입시",
+            "IT/개발",
+            "취업/N잡",
+            "자격증",
+            "예체능",
+            "라이프스타일",
+          ]);
+        }
+      } catch (error) {
+        console.error("Failed to load parent categories:", error);
+        setParentError("카테고리를 불러오는데 실패했습니다.");
+        // 기본값으로 대체
+        setParentCategories([
+          "교육/입시",
+          "IT/개발",
+          "취업/N잡",
+          "자격증",
+          "예체능",
+          "라이프스타일",
+        ]);
+      } finally {
+        setLoadingParent(false);
+      }
+    };
+
+    loadParentCategories();
+  }, [open]);
+
+  // Load middle categories when parent changes
+  useEffect(() => {
+    const loadMiddleCategories = async () => {
+      if (!selectedParent) {
+        setMiddleCategories([]);
+        return;
+      }
+
+      try {
+        setLoadingMiddle(true);
+        setMiddleError(null);
+
+        // 강화된 카테고리 서비스 사용
+        const middleCats = await CategoryService.getMiddleCategories(
+          selectedParent
+        );
+
+        if (middleCats && middleCats.length > 0) {
+          setMiddleCategories(middleCats);
+        } else {
+          console.log(`중분류가 없거나 로드 실패: ${selectedParent}`);
+          setMiddleError(
+            `${selectedParent}의 중분류 카테고리를 불러오는데 실패했습니다.`
+          );
+
+          // 백엔드 API가 작동하지 않는 경우를 위한 기본값
+          if (selectedParent === "IT/개발") {
+            setMiddleCategories([
+              "프론트엔드",
+              "백엔드",
+              "모바일",
+              "데이터베이스",
+              "AI/머신러닝",
+            ]);
+          } else if (selectedParent === "교육/입시") {
+            setMiddleCategories(["초등", "중등", "고등"]);
+          } else {
+            setMiddleCategories([]);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load middle categories:", error);
+        setMiddleError("중분류 카테고리를 불러오는데 실패했습니다.");
+
+        // 백엔드 API가 작동하지 않는 경우를 위한 기본값
+        if (selectedParent === "IT/개발") {
+          setMiddleCategories([
+            "프론트엔드",
+            "백엔드",
+            "모바일",
+            "데이터베이스",
+            "AI/머신러닝",
+          ]);
+        } else if (selectedParent === "교육/입시") {
+          setMiddleCategories(["초등", "중등", "고등"]);
+        } else {
+          setMiddleCategories([]);
+        }
+      } finally {
+        setLoadingMiddle(false);
+      }
+    };
+
+    loadMiddleCategories();
   }, [selectedParent]);
 
-  // 선택된 중분류에 따른 소분류 목록 업데이트
+  // Load sub categories when middle changes
   useEffect(() => {
-    if (selectedParent && selectedMiddle) {
-      setSubCategories(categoryData[selectedParent][selectedMiddle]);
-    }
-  }, [selectedParent, selectedMiddle]);
-
-  // 다이얼로그 열릴 때 임시 선택된 카테고리 초기화
-  useEffect(() => {
-    if (open) {
-      setTempSelectedCategories([...selectedCategories]);
-    }
-  }, [open, selectedCategories]);
-
-  // 대분류 탭 변경 핸들러
-  const handleParentChange = (event, newValue) => {
-    setSelectedParent(newValue);
-  };
-
-  // 중분류 탭 변경 핸들러
-  const handleMiddleChange = (event, newValue) => {
-    setSelectedMiddle(newValue);
-  };
-
-  // 카테고리 선택/해제 핸들러
-  const handleCategoryToggle = (category) => {
-    setTempSelectedCategories((prev) => {
-      if (prev.includes(category)) {
-        return prev.filter((cat) => cat !== category);
-      } else {
-        return [...prev, category];
+    const loadSubCategories = async () => {
+      if (!selectedParent || !selectedMiddle) {
+        setSubCategories([]);
+        return;
       }
-    });
-  };
 
-  // 선택 완료 핸들러
-  const handleConfirm = () => {
-    setSelectedCategories(tempSelectedCategories);
-    onClose();
-  };
+      try {
+        setLoadingSub(true);
+        setSubError(null);
 
-  // 선택 초기화 핸들러
+        // 서버에서 소분류 데이터 로드 시도
+        let subCats = await CategoryService.getSubcategories(
+          selectedParent,
+          selectedMiddle
+        );
+
+        // 응답이 CategoryResponse 객체 배열인지 확인하고 처리
+        if (subCats && Array.isArray(subCats)) {
+          // 객체 배열인 경우 subcategory 필드만 추출
+          if (subCats.length > 0 && typeof subCats[0] === "object") {
+            // 중요: 백엔드에서 CategoryResponse 객체를 반환하는 경우
+            subCats = subCats.map((cat) => cat.subcategory);
+          }
+
+          setSubCategories(subCats);
+        } else {
+          console.log(
+            `소분류가 없거나 로드 실패: ${selectedParent} > ${selectedMiddle}`
+          );
+          setSubCategories([]);
+        }
+      } catch (error) {
+        console.error("Failed to load sub categories:", error);
+        setSubError("소분류 카테고리를 불러오는데 실패했습니다.");
+        setSubCategories([]);
+      } finally {
+        setLoadingSub(false);
+      }
+    };
+
+    loadSubCategories();
+  }, [selectedMiddle, selectedParent]);
+
+  // Handle selection reset
   const handleReset = () => {
-    setTempSelectedCategories([]);
+    setSelectedParent("");
+    setSelectedMiddle("");
+    setSelectedSub("");
+  };
+
+  // Handle selection complete
+  const handleComplete = () => {
+    let result = null;
+
+    if (selectedSub) {
+      result = `${selectedParent} > ${selectedMiddle} > ${selectedSub}`;
+    } else if (selectedMiddle) {
+      result = `${selectedParent} > ${selectedMiddle}`;
+    } else if (selectedParent) {
+      result = selectedParent;
+    }
+
+    onSelect(result);
   };
 
   return (
@@ -142,164 +242,249 @@ function CategoryFilterDialog({
       maxWidth="sm"
       PaperProps={{
         sx: {
-          borderRadius: "20px",
-          overflowY: "visible",
+          borderRadius: 2,
+          p: 3,
         },
       }}
     >
-      <DialogTitle
+      <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          mb: 2,
         }}
       >
         <Typography variant="h6" fontWeight={600}>
-          과목 필터
+          과목 카테고리 선택
         </Typography>
         <IconButton onClick={onClose} size="small">
           <CloseIcon />
         </IconButton>
-      </DialogTitle>
+      </Box>
 
-      <DialogContent sx={{ pb: 1 }}>
-        {/* 선택된 카테고리 표시 */}
-        {tempSelectedCategories.length > 0 && (
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" fontWeight={600} sx={{ mb: 1 }}>
-              선택 항목 {tempSelectedCategories.length}
-            </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {tempSelectedCategories.map((category) => (
-                <Chip
-                  key={category}
-                  label={category}
-                  onDelete={() => handleCategoryToggle(category)}
-                  sx={{
-                    backgroundColor: "var(--action-primary-bg)",
-                    color: "var(--primary-200)",
-                    fontWeight: 500,
-                    borderRadius: "8px",
-                  }}
-                />
-              ))}
-              <Button
-                variant="text"
-                onClick={handleReset}
-                sx={{ color: "var(--text-400)", fontSize: 14, ml: 1 }}
-              >
-                초기화
-              </Button>
-            </Box>
+      <Divider sx={{ mb: 3 }} />
+
+      {/* 대분류 선택 */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+          대분류
+        </Typography>
+
+        {loadingParent ? (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+            <CircularProgress size={24} />
           </Box>
-        )}
-
-        {/* 대분류 탭 */}
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs
-            value={selectedParent}
-            onChange={handleParentChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            TabIndicatorProps={{
-              style: { backgroundColor: "var(--primary-100)" },
-            }}
-          >
-            {Object.keys(categoryData).map((parent) => (
-              <Tab
-                key={parent}
-                label={parent}
-                value={parent}
-                sx={{
-                  textTransform: "none",
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  color: "var(--text-300)",
-                  "&.Mui-selected": {
-                    color: "var(--primary-100)",
-                  },
+        ) : parentError ? (
+          <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+            {parentError}
+          </Typography>
+        ) : (
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {parentCategories.map((category) => (
+              <Box
+                key={category}
+                onClick={() => {
+                  setSelectedParent(category);
+                  setSelectedMiddle("");
+                  setSelectedSub("");
                 }}
-              />
-            ))}
-          </Tabs>
-        </Box>
-
-        {/* 중분류 탭 */}
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mt: 2 }}>
-          <Tabs
-            value={selectedMiddle}
-            onChange={handleMiddleChange}
-            variant="scrollable"
-            scrollButtons="auto"
-            TabIndicatorProps={{
-              style: { backgroundColor: "var(--primary-100)" },
-            }}
-          >
-            {middleCategories.map((middle) => (
-              <Tab
-                key={middle}
-                label={middle}
-                value={middle}
                 sx={{
-                  textTransform: "none",
-                  fontWeight: "500",
-                  fontSize: "14px",
-                  color: "var(--text-300)",
-                  "&.Mui-selected": {
-                    color: "var(--primary-100)",
-                  },
-                }}
-              />
-            ))}
-          </Tabs>
-        </Box>
-
-        {/* 소분류 선택 영역 */}
-        <Grid container spacing={1} sx={{ mt: 2 }}>
-          {subCategories.map((sub) => (
-            <Grid item key={sub}>
-              <Chip
-                label={sub}
-                onClick={() => handleCategoryToggle(sub)}
-                sx={{
-                  backgroundColor: tempSelectedCategories.includes(sub)
-                    ? "var(--primary-100)"
-                    : "var(--bg-200)",
-                  color: tempSelectedCategories.includes(sub)
-                    ? "white"
-                    : "var(--text-300)",
-                  fontWeight: "500",
+                  px: 2,
+                  py: 1,
+                  backgroundColor:
+                    selectedParent === category
+                      ? "var(--action-primary-bg)"
+                      : "var(--bg-200)",
+                  color:
+                    selectedParent === category
+                      ? "var(--primary-200)"
+                      : "var(--text-300)",
                   borderRadius: "20px",
                   cursor: "pointer",
+                  fontWeight: selectedParent === category ? 600 : 400,
+                  fontSize: "14px",
+                  transition: "all 0.2s ease",
                   "&:hover": {
-                    backgroundColor: tempSelectedCategories.includes(sub)
-                      ? "var(--primary-200)"
-                      : "var(--bg-300)",
+                    backgroundColor:
+                      selectedParent === category
+                        ? "var(--action-primary-bg)"
+                        : "var(--bg-300)",
                   },
                 }}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      </DialogContent>
+              >
+                {category}
+              </Box>
+            ))}
+          </Box>
+        )}
+      </Box>
 
-      <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button
-          onClick={onClose}
+      {/* 중분류 선택 */}
+      {selectedParent && (
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+            중분류
+          </Typography>
+
+          {loadingMiddle ? (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : middleError ? (
+            <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+              {middleError}
+            </Typography>
+          ) : middleCategories.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>
+              중분류 카테고리가 없습니다.
+            </Typography>
+          ) : (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {middleCategories.map((category) => (
+                <Box
+                  key={category}
+                  onClick={() => {
+                    setSelectedMiddle(category);
+                    setSelectedSub("");
+                  }}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    backgroundColor:
+                      selectedMiddle === category
+                        ? "var(--action-primary-bg)"
+                        : "var(--bg-200)",
+                    color:
+                      selectedMiddle === category
+                        ? "var(--primary-200)"
+                        : "var(--text-300)",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                    fontWeight: selectedMiddle === category ? 600 : 400,
+                    fontSize: "14px",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      backgroundColor:
+                        selectedMiddle === category
+                          ? "var(--action-primary-bg)"
+                          : "var(--bg-300)",
+                    },
+                  }}
+                >
+                  {category}
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {/* 소분류 선택 */}
+      {selectedMiddle && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+            소분류
+          </Typography>
+
+          {loadingSub ? (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : subError ? (
+            <Typography color="error" variant="body2" sx={{ mb: 1 }}>
+              {subError}
+            </Typography>
+          ) : subCategories.length === 0 ? (
+            <Typography variant="body2" color="text.secondary" sx={{ my: 1 }}>
+              소분류 카테고리가 없습니다.
+            </Typography>
+          ) : (
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {subCategories.map((category, index) => (
+                <Box
+                  key={`${category}-${index}`}
+                  onClick={() => setSelectedSub(category)}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    backgroundColor:
+                      selectedSub === category
+                        ? "var(--action-primary-bg)"
+                        : "var(--bg-200)",
+                    color:
+                      selectedSub === category
+                        ? "var(--primary-200)"
+                        : "var(--text-300)",
+                    borderRadius: "20px",
+                    cursor: "pointer",
+                    fontWeight: selectedSub === category ? 600 : 400,
+                    fontSize: "14px",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      backgroundColor:
+                        selectedSub === category
+                          ? "var(--action-primary-bg)"
+                          : "var(--bg-300)",
+                    },
+                  }}
+                >
+                  {category}
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      )}
+
+      {/* 현재 선택 표시 */}
+      {selectedParent && (
+        <Box
           sx={{
-            color: "var(--text-300)",
-            textTransform: "none",
-            fontWeight: "500",
+            mb: 4,
+            p: 2,
+            borderRadius: 1,
+            backgroundColor: "var(--bg-200)",
           }}
         >
-          취소
+          <Typography variant="body2" color="var(--text-300)">
+            현재 선택:
+          </Typography>
+          <Typography
+            variant="body1"
+            fontWeight={600}
+            color="var(--primary-200)"
+          >
+            {selectedParent}
+            {selectedMiddle && ` > ${selectedMiddle}`}
+            {selectedSub && ` > ${selectedSub}`}
+          </Typography>
+        </Box>
+      )}
+
+      {/* 버튼 영역 */}
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Button
+          variant="outlined"
+          onClick={handleReset}
+          sx={{
+            flex: 1,
+            py: 1.2,
+            borderColor: "var(--bg-300)",
+            color: "var(--text-300)",
+            "&:hover": {
+              borderColor: "var(--bg-300)",
+              backgroundColor: "var(--bg-200)",
+            },
+          }}
+        >
+          초기화
         </Button>
-        <GradientButton onClick={handleConfirm} size="xs">
-          선택 완료 ({tempSelectedCategories.length})
+
+        <GradientButton onClick={handleComplete} sx={{ flex: 1, py: 1.2 }}>
+          선택 완료
         </GradientButton>
-      </DialogActions>
+      </Box>
     </Dialog>
   );
 }
-
-export default CategoryFilterDialog;
