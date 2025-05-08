@@ -14,7 +14,7 @@ import { useLectureStore } from "../../store/useLectureStore";
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
-export default function ScheduleAndLocationForm({ onSubmit, isLoading }) {
+export default function ScheduleAndLocationForm({ onSubmit, isLoading,  showToast }) {
   const { formData, setTimeSlots, setRegions } = useLectureStore();
   const [selectedDay, setSelectedDay] = useState(null);
   const [showRegionModal, setShowRegionModal] = useState(false);
@@ -27,7 +27,7 @@ export default function ScheduleAndLocationForm({ onSubmit, isLoading }) {
   // 시간대 추가
   const addTimeSlot = () => {
     if (!selectedDay) {
-      alert("요일을 먼저 선택해주세요.");
+      showToast("요일을 먼저 선택해주세요.");
       return;
     }
 
@@ -87,11 +87,11 @@ export default function ScheduleAndLocationForm({ onSubmit, isLoading }) {
   const handleSubmit = () => {
     // 유효성 검사
     if (formData.timeSlots.length === 0) {
-      alert("최소 하나의 시간대를 입력해주세요.");
+      showToast("최소 하나의 시간대를 입력해주세요.");
       return;
     }
     if (formData.regions.length === 0) {
-      alert("최소 하나의 지역을 선택해주세요.");
+      showToast("최소 하나의 지역을 선택해주세요.");
       return;
     }
 

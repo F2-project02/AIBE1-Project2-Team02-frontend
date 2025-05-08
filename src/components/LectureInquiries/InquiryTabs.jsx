@@ -6,30 +6,13 @@ import EditIcon from "@mui/icons-material/Edit";
 
 function InquiryTabs({ value, onChange }) {
   return (
-    <Box>
+    <Box sx={{ width: "100%", borderBottom: "none" }}>
       <Tabs
         value={value}
         onChange={onChange}
-        sx={{
-          "& .MuiTabs-indicator": {
-            height: 2,
-            backgroundColor: "primary.main",
-          },
-          "& .MuiTab-root": {
-            textTransform: "none",
-            fontFamily: "Pretendard, Helvetica",
-            fontSize: "13px",
-            fontWeight: 500,
-            letterSpacing: "0.4px",
-            lineHeight: "24px",
-            minWidth: "108px",
-            padding: "9px 16px",
-            color: "var(--text-300)",
-            gap: "4px",
-          },
-          "& .Mui-selected": {
-            color: "primary.main",
-          },
+        textColor="inherit"
+        TabIndicatorProps={{
+          style: { backgroundColor: "var(--primary-200)", height: 2 },
         }}
       >
         <Tab
@@ -42,6 +25,15 @@ function InquiryTabs({ value, onChange }) {
             </Box>
           }
           value="requested"
+          sx={{
+            fontWeight: 500,
+            fontSize: "13px",
+            textTransform: "none",
+            minWidth: 108,
+            padding: "9px 16px",
+            color: "var(--text-400)",
+            "&.Mui-selected": { color: "var(--primary-200)" },
+          }}
         />
         <Tab
           label={
@@ -53,6 +45,15 @@ function InquiryTabs({ value, onChange }) {
             </Box>
           }
           value="registered"
+          sx={{
+            fontWeight: 500,
+            fontSize: "13px",
+            textTransform: "none",
+            minWidth: 108,
+            padding: "9px 16px",
+            color: "var(--text-400)",
+            "&.Mui-selected": { color: "var(--primary-200)" },
+          }}
         />
       </Tabs>
     </Box>

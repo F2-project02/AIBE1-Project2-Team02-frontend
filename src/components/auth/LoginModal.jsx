@@ -55,15 +55,25 @@ export default function LoginModal() {
           </IconButton>
 
           {/* 로고 + 타이틀 */}
-          <Box display="flex" flexDirection="column" alignItems="center" mt={2} mb={3}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            mt={2}
+            mb={3}
+          >
             <Box display="flex" alignItems="center" gap={1}>
-              <Box component="img" src={logo} alt="MEN:TOSS 로고" sx={{ width: 40, height: 40 }} />
+              <Box
+                component="img"
+                src={logo}
+                alt="MEN:TOSS 로고"
+                sx={{ width: 40, height: 40 }}
+              />
               <Typography
                 sx={{
                   fontSize: 24,
                   fontWeight: 700,
                   color: "#222",
-                  fontFamily: "Pretendard",
                 }}
               >
                 MEN:TOSS
@@ -75,8 +85,7 @@ export default function LoginModal() {
                 fontSize: 15,
                 fontWeight: 500,
                 lineHeight: "22px",
-                color: "#555",
-                fontFamily: "Pretendard",
+                color: "var(--text-300)",
                 textAlign: "center",
               }}
             >
@@ -101,8 +110,7 @@ export default function LoginModal() {
               sx={{
                 fontSize: 16,
                 fontWeight: 500,
-                color: "#aaa",
-                fontFamily: "Pretendard",
+                color: "var(--bg-300)",
               }}
             >
               간편 로그인
@@ -114,14 +122,18 @@ export default function LoginModal() {
             fullWidth
             onClick={() => handleSocialLogin("kakao")}
             startIcon={
-              <Box component="img" src={kakaoIcon} alt="카카오 아이콘" sx={{ width: 20, height: 20 }} />
+              <Box
+                component="img"
+                src={kakaoIcon}
+                alt="카카오 아이콘"
+                sx={{ width: 20, height: 20 }}
+              />
             }
             sx={{
               backgroundColor: "#FFDF2C",
               color: "var(--text-300)",
               fontSize: 15,
               fontWeight: 500,
-              fontFamily: "Pretendard",
               textTransform: "none",
               borderRadius: "12px",
               py: "16px",
@@ -144,12 +156,16 @@ export default function LoginModal() {
             onClick={() => handleSocialLogin("google")}
             variant="outlined"
             startIcon={
-              <Box component="img" src={googleIcon} alt="구글 아이콘" sx={{ width: 20, height: 20 }} />
+              <Box
+                component="img"
+                src={googleIcon}
+                alt="구글 아이콘"
+                sx={{ width: 20, height: 20 }}
+              />
             }
             sx={{
               fontSize: 15,
               fontWeight: 500,
-              fontFamily: "Pretendard",
               textTransform: "none",
               borderRadius: "12px",
               py: "16px",
