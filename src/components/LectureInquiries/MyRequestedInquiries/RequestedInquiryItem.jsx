@@ -1,6 +1,3 @@
-// src/components/CourseSection/CourseCard.jsx - Fixed version
-
-import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -14,58 +11,34 @@ import StarIcon from "@mui/icons-material/Star";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-export default function CourseCard({ data }) {
-  const navigate = useNavigate();
-
-  // 데이터가 없는 경우 기본값 설정
+export default function RequestedInquiryItem({ data }) {
   const {
-    lectureId = 0,
-    title = "",
-    price = 0,
-    mentorName = "",
-    profileImage = "/images/default-profile.svg",
-    isCertified = false,
-    rating = 0,
-    subcategory = [],
-    region = [],
-  } = data || {};
+    nickname,
+    profile_image,
+    isCertified,
+    averageRating,
+    subcategory,
+    preferredRegions,
+    lectureTitle,
+    price,
+    status,
+  } = data;
 
-  const handleClick = () => {
-    // 상세 페이지에서 사용할 수 있도록 데이터를 세션에 저장
-    sessionStorage.setItem(`lecture_${lectureId}`, JSON.stringify(data));
-    // 상세 페이지로 이동
-    navigate(`/lectures/${lectureId}`);
-  };
+  // Chip 배열 구성
+  const sortedChips = [];
 
-  // subcategory와 region이 배열 형식이 되도록 보정
-  const safeSubcategory = Array.isArray(subcategory)
-    ? subcategory.map((cat) => String(cat))
-    : subcategory
-    ? [String(subcategory)]
-    : [];
+  if (subcategory) {
+    sortedChips.push({ label: subcategory, type: "category" });
+  }
 
-  const safeRegion = Array.isArray(region)
-    ? region.map((r) =>
-        typeof r === "string"
-          ? r
-          : r && typeof r === "object"
-          ? JSON.stringify(r)
-          : ""
-      )
-    : region
-    ? [String(region)]
-    : [];
+  if (preferredRegions) {
+    preferredRegions
+      .split(",")
+      .forEach((region) => sortedChips.push({ label: region, type: "region" }));
+  }
 
-  // 뱃지에 들어갈 데이터 구성
-  const sortedChips = [
-    ...safeSubcategory
-      .filter(Boolean)
-      .map((label) => ({ label, type: "category" })),
-    ...safeRegion.filter(Boolean).map((label) => ({ label, type: "region" })),
-  ];
-
-  const visibleChips = sortedChips.slice(0, 3); // 최대 3개만 노출
-  const hiddenChips = sortedChips.slice(3); // 나머지는 툴팁으로 숨김 처리
+  const visibleChips = sortedChips.slice(0, 3);
+  const hiddenChips = sortedChips.slice(3);
 
   // 가격을 만원 단위로 포맷 그 이하면 원
   function formatPriceKRW(price) {
@@ -74,11 +47,28 @@ export default function CourseCard({ data }) {
       : `${Math.floor(price / 10000).toLocaleString()}만원`;
   }
 
+  const statusMap = {
+    PENDING: {
+      label: "매칭 대기",
+      bg: "var(--action-green-bg)",
+      color: "var(--action-green)",
+    },
+    APPROVED: {
+      label: "매칭 성공",
+      bg: "var(--action-primary-bg)",
+      color: "var(--primary-200)",
+    },
+    REJECTED: {
+      label: "매칭 실패",
+      bg: "var(--action-red-bg)",
+      color: "var(--action-red)",
+    },
+  };
+
   return (
     <Card
-      onClick={handleClick}
       sx={{
-        width: 300,
+        width: 500,
         minHeight: 220,
         px: 2,
         py: 3,
@@ -89,28 +79,23 @@ export default function CourseCard({ data }) {
         borderRadius: 0,
         backgroundColor: "unset",
         boxShadow: "none",
-        transition: "transform 0.2s ease",
-        "&:hover": {
-          cursor: "pointer",
-          transform: "translateY(-2px)",
-        },
       }}
     >
-      {/* 프로필 영역 */}
+      {/* 프로필 정보 */}
       <Stack direction="row" alignItems="center" spacing={1} mb={1}>
         <Avatar
-          src={profileImage || "/images/default-profile.svg"}
+          src={profile_image || "/images/default-profile.svg"}
           sx={{ width: 32, height: 32 }}
         />
         <Typography variant="subtitle2" fontWeight={600}>
-          {mentorName}
+          {nickname}
         </Typography>
         {isCertified && (
           <ShieldIcon sx={{ fontSize: 16, color: "var(--primary-100)" }} />
         )}
         <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
         <Typography variant="body2" fontWeight={500}>
-          {rating?.toFixed(1)}
+          {averageRating?.toFixed(1)}
         </Typography>
       </Stack>
 
@@ -172,26 +157,48 @@ export default function CourseCard({ data }) {
         )}
       </Box>
 
-      {/* 제목 */}
-      <Typography
-        variant="body1"
-        fontWeight={600}
-        sx={{
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          height: "3rem",
-        }}
+      {/* 제목 + 상태 Chip */}
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
         mb={1}
       >
-        {title}
-      </Typography>
+        <Typography
+          variant="body1"
+          fontWeight={600}
+          sx={{
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            height: "3rem",
+          }}
+        >
+          {lectureTitle}
+        </Typography>
 
-      {/* 가격 */}
+        {status && statusMap[status] && (
+          <Chip
+            label={statusMap[status].label}
+            size="small"
+            sx={{
+              bgcolor: statusMap[status].bg,
+              color: statusMap[status].color,
+              fontWeight: 600,
+              fontSize: 13,
+              borderRadius: "8px",
+              px: 1.5,
+              height: 30,
+            }}
+          />
+        )}
+      </Stack>
+
+      {/* 수업료 */}
       <Typography variant="body2" color="var(--text-300)">
-        수업료 | 1회 {formatPriceKRW(price)}
+        수업료 | {formatPriceKRW(price)}
       </Typography>
     </Card>
   );
