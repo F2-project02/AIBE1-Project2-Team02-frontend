@@ -3,10 +3,11 @@ import { Tabs, Tab, Box } from "@mui/material";
 
 const categories = [
   { label: "전체", value: null },
-  { label: "IT/개발", value: "IT/개발" },
   { label: "교육/입시", value: "교육/입시" },
   { label: "취업/N잡", value: "취업/N잡" },
+  { label: "IT/개발", value: "IT/개발" },
   { label: "자격", value: "자격" },
+  { label: "학위", value: "학위" },
   { label: "예체능", value: "예체능" },
   { label: "라이프스타일", value: "라이프스타일" },
 ];

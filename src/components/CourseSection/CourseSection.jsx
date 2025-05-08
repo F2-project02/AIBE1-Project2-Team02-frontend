@@ -8,17 +8,18 @@ import { getLectures } from "../../lib/api/lectureApi";
 
 const CATEGORY_TABS = [
   { label: "전체", value: null },
-  { label: "IT/개발", value: "IT/개발" },
   { label: "교육/입시", value: "교육/입시" },
   { label: "취업/N잡", value: "취업/N잡" },
+  { label: "IT/개발", value: "IT/개발" },
   { label: "자격", value: "자격" },
+  { label: "학위", value: "학위" },
   { label: "예체능", value: "예체능" },
   { label: "라이프스타일", value: "라이프스타일" },
 ];
 
 export default function CourseSection() {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState("교육/입시");
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
 
