@@ -34,7 +34,7 @@ export default function MessageSearchFilter({ onSearch }) {
       gap={1}
       mt={1.5}
       mb={1.5}
-      flexWrap="wrap"
+      flexWrap="nowrap"
       justifyContent={{ xs: "flex-start", sm: "flex-end" }}
       width="100%"
     >

@@ -106,7 +106,11 @@ export default function MessageTable({
             displayedMessages.map((msg) => (
               <MessageRowMobile
                 key={msg.messageId}
-                message={msg}
+                messageId={msg.messageId}
+                nickname={msg.nickname}
+                content={msg.content}
+                isRead={msg.isRead}
+                createdAt={msg.createdAt}
                 isSelected={isMessageSelected(msg.messageId)}
                 onSelect={handleSelect}
                 onClick={handleRowClick}
