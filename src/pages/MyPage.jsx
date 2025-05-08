@@ -93,6 +93,47 @@ export default function MyPage() {
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    // 사용자가 멘토인 경우에만 멘토 프로필 정보 요청
+    if (
+      profileData &&
+      profileData.role === "MENTOR" &&
+      !profileData.mentorProfile
+    ) {
+      const fetchMentorProfile = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          // 멘토 프로필 정보를 가져오는 API 호출 (올바른 엔드포인트 사용)
+          const response = await fetch(
+            "http://localhost:8081/api/account/mentor/profile",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log("멘토 프로필 응답:", result);
+
+            if (result.success) {
+              // 기존 프로필 데이터에 멘토 프로필 정보 추가
+              setProfileData((prevData) => ({
+                ...prevData,
+                mentorProfile: result.data,
+              }));
+            }
+          }
+        } catch (error) {
+          console.error("멘토 프로필 정보 조회 오류:", error);
+        }
+      };
+
+      fetchMentorProfile();
+    }
+  }, [profileData?.role]);
+
   // 프로필 업데이트
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -198,8 +239,68 @@ export default function MyPage() {
             <Typography variant="body1" fontWeight={600}>
               {profileData?.nickname || "가나다라마바사아자차카타"}
             </Typography>
+
+            {/* 인증 아이콘 (멘토 + 인증된 사용자만 표시) */}
+            {profileData?.role === "MENTOR" &&
+              profileData?.mentorProfile?.isCertified && (
+                <Box
+                  component="span"
+                  sx={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "18px",
+                    height: "18px",
+                    ml: 1,
+                    borderRadius: "50%",
+                    bgcolor: "var(--primary-100)",
+                    color: "white",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  ✓
+                </Box>
+              )}
           </Box>
+
+          {/* 학교/지역 - 멘토일 때만 표시 */}
+          {profileData?.role === "MENTOR" && profileData?.mentorProfile && (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              fontSize="0.85rem"
+            >
+              {profileData.mentorProfile.education}{" "}
+              {profileData.mentorProfile.major}
+            </Typography>
+          )}
         </Box>
+
+        {/* 별점 (오른쪽에 표시) - 멘토일 때만 표시 */}
+        {profileData?.role === "MENTOR" && (
+          <Box
+            sx={{
+              ml: "auto",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Box
+              sx={{
+                display: "inline-flex",
+                color: "#FFC107",
+                mr: 0.5,
+                fontSize: "16px",
+              }}
+            >
+              ★
+            </Box>
+            <Typography variant="body2" fontWeight={500}>
+              {profileData?.rating || "4.9"}
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
