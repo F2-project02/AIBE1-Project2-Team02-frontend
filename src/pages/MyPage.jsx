@@ -1,5 +1,3 @@
-// src/pages/MyPage.jsx
-
 import { useState, useEffect } from "react";
 import {
   Box,
@@ -32,9 +30,15 @@ export default function MyPage() {
 
   // 편집을 위한 상태 변수들
   const [nickname, setNickname] = useState("");
+  const [originalNickname, setOriginalNickname] = useState(""); // 추가: 원래 닉네임 저장
   const [birthDate, setBirthDate] = useState("");
   const [sex, setSex] = useState("남성");
   const [mbti, setMbti] = useState("");
+
+  // 닉네임 중복 확인 관련 상태 추가
+  const [isNicknameChecked, setIsNicknameChecked] = useState(false);
+  const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
+  const [checkingNickname, setCheckingNickname] = useState(false);
 
   // MBTI 목록
   const mbtiOptions = [
@@ -84,11 +88,11 @@ export default function MyPage() {
 
         const result = await response.json();
         if (result.success) {
-          // 프로필 데이터 설정 부분을 다음과 같이 수정
           setProfileData(result.data);
 
           // 편집을 위한 상태 초기화
           setNickname(result.data.nickname || "");
+          setOriginalNickname(result.data.nickname || ""); // 원래 닉네임 저장
           setBirthDate(result.data.birthDate || "");
           setSex(result.data.sex || "남성");
           setMbti(result.data.mbti || "");
@@ -97,6 +101,10 @@ export default function MyPage() {
           setImagePreview(
             result.data.profileImage || "/images/default-profile.svg"
           );
+
+          // 같은 닉네임이면 중복 확인 상태 초기화
+          setIsNicknameChecked(true);
+          setIsNicknameAvailable(true);
         }
       } catch (error) {
         console.error("프로필 조회 오류: ", error);
@@ -146,13 +154,65 @@ export default function MyPage() {
     }
   }, [profileData]);
 
-  useEffect(() => {
-    console.log("프로필 데이터 변경:", profileData);
-  }, [profileData]);
+  // 닉네임 변경 시 중복확인 상태 초기화
+  const handleNicknameChange = (e) => {
+    const newNickname = e.target.value;
+    setNickname(newNickname);
 
-  useEffect(() => {
-    console.log("이미지 미리보기 변경:", imagePreview);
-  }, [imagePreview]);
+    // 원래 닉네임과 같다면 검사 필요 없음
+    if (newNickname === originalNickname) {
+      setIsNicknameChecked(true);
+      setIsNicknameAvailable(true);
+    } else {
+      setIsNicknameChecked(false);
+      setIsNicknameAvailable(false);
+    }
+  };
+
+  // 닉네임 중복 확인 함수
+  const checkNicknameDuplicate = async () => {
+    if (!nickname.trim()) {
+      alert("닉네임을 입력해주세요.");
+      return;
+    }
+
+    setCheckingNickname(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:8081/api/account/check-nickname?nickname=${encodeURIComponent(
+          nickname
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("닉네임 확인에 실패했습니다");
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setIsNicknameChecked(true);
+        setIsNicknameAvailable(result.data);
+
+        if (result.data) {
+          alert("사용 가능한 닉네임입니다.");
+        } else {
+          alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+        }
+      }
+    } catch (error) {
+      console.error("닉네임 중복 확인 오류:", error);
+      alert("닉네임 확인 중 오류가 발생했습니다: " + error.message);
+    } finally {
+      setCheckingNickname(false);
+    }
+  };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -214,6 +274,19 @@ export default function MyPage() {
   // 프로필 업데이트
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 닉네임이 변경되었는데 중복 체크를 하지 않은 경우
+    if (nickname !== originalNickname && !isNicknameChecked) {
+      alert("닉네임 중복 확인을 해주세요.");
+      return;
+    }
+
+    // 닉네임이 중복인 경우
+    if (nickname !== originalNickname && !isNicknameAvailable) {
+      alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      return;
+    }
+
     setUpdating(true);
 
     try {
@@ -252,6 +325,12 @@ export default function MyPage() {
       if (result.success) {
         // 업데이트된 데이터로 상태 갱신
         setProfileData({ ...profileData, ...updateData });
+        // 원래 닉네임 업데이트
+        setOriginalNickname(nickname);
+        // 중복 확인 상태 초기화
+        setIsNicknameChecked(true);
+        setIsNicknameAvailable(true);
+
         alert("프로필이 성공적으로 업데이트되었습니다.");
       } else {
         throw new Error(
@@ -379,35 +458,67 @@ export default function MyPage() {
           </Box>
         )}
       </Box>
+
       {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
       <Box sx={{ display: "flex", gap: 4 }}>
         {/* 좌측 메뉴 영역 */}
         <Box sx={{ width: 240 }}>
           <List component="nav" aria-label="마이페이지 메뉴">
+            {/* MUI v5에서는 이렇게 사용 - button 속성 직접 사용 X */}
             <ListItem
-              button={true}
-              selected
-              sx={{
-                borderRadius: "8px",
-                bgcolor: "var(--action-primary-bg)", // 선택된 항목만 배경색 적용
-                mb: 1,
-              }}
+              disablePadding // 패딩을 제거해서 기존 모양 유지
+              sx={{ mb: 1 }}
             >
-              <ListItemText
-                primary="내 정보 수정"
+              <Box
                 sx={{
-                  "& .MuiListItemText-primary": {
+                  width: "100%",
+                  borderRadius: "8px",
+                  bgcolor: "var(--action-primary-bg)",
+                  py: 1.5,
+                  px: 2,
+                }}
+              >
+                <Typography
+                  sx={{
                     fontWeight: 600,
                     color: "var(--primary-200)",
+                  }}
+                >
+                  내 정보 수정
+                </Typography>
+              </Box>
+            </ListItem>
+
+            <ListItem disablePadding sx={{ mb: 1 }}>
+              <Box
+                sx={{
+                  width: "100%",
+                  py: 1.5,
+                  px: 2,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.04)",
                   },
                 }}
-              />
+              >
+                <Typography>멘토 프로필</Typography>
+              </Box>
             </ListItem>
-            <ListItem button sx={{ mb: 1 }}>
-              <ListItemText primary="멘토 프로필" />
-            </ListItem>
-            <ListItem button>
-              <ListItemText primary="회원탈퇴" />
+
+            <ListItem disablePadding>
+              <Box
+                sx={{
+                  width: "100%",
+                  py: 1.5,
+                  px: 2,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.04)",
+                  },
+                }}
+              >
+                <Typography>회원탈퇴</Typography>
+              </Box>
             </ListItem>
           </List>
         </Box>
@@ -512,18 +623,55 @@ export default function MyPage() {
                     *
                   </Box>
                 </Typography>
-                <TextField
-                  fullWidth
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  placeholder="닉네임을 입력하세요."
-                  required
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: "8px",
-                    },
-                  }}
-                />
+
+                {/* 텍스트 필드와 버튼 배치 - 가로 배열 */}
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <TextField
+                    fullWidth
+                    value={nickname}
+                    onChange={handleNicknameChange}
+                    placeholder="닉네임을 입력해주세요."
+                    required
+                    error={
+                      nickname !== originalNickname &&
+                      !isNicknameAvailable &&
+                      isNicknameChecked
+                    }
+                    helperText={
+                      nickname !== originalNickname &&
+                      !isNicknameAvailable &&
+                      isNicknameChecked
+                        ? "이미 사용 중인 닉네임입니다"
+                        : ""
+                    }
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "8px",
+                      },
+                    }}
+                  />
+
+                  {/* 중복 확인 버튼 */}
+                  <Button
+                    variant="contained"
+                    onClick={checkNicknameDuplicate}
+                    disabled={checkingNickname || !nickname.trim()}
+                    sx={{
+                      height: "56px",
+                      minWidth: "100px",
+                      bgcolor: "var(--primary-200)",
+                      "&:hover": {
+                        bgcolor: "var(--primary-300)",
+                      },
+                    }}
+                  >
+                    {checkingNickname ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      "중복 확인"
+                    )}
+                  </Button>
+                </Box>
               </Box>
 
               {/* 생년월일 필드 */}
