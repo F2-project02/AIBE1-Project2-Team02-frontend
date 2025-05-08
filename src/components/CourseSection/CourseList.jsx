@@ -1,15 +1,12 @@
 // 📄 src/components/CourseSection/CourseList.jsx
 
 import { Grid, Box } from "@mui/material";
-import { useCourseStore } from "../../store/useCourseStore";
 import CourseCard from "./CourseCard";
 import CourseCardSkeleton from "./CourseCardSkeleton";
 
-export default function CourseList() {
-  const { courses, loading } = useCourseStore();
-
+export default function CourseList({ courses = [], loading = false }) {
   const renderCourse = (course, idx) => (
-    <Grid size={{xs: 12, sm: 6, md: 4}} key={idx}>
+    <Grid item xs={12} sm={6} md={4} key={idx}>
       <Box sx={{ width: "100%" }}>
         <CourseCard data={course} />
       </Box>
@@ -17,7 +14,7 @@ export default function CourseList() {
   );
 
   const renderSkeleton = (_, idx) => (
-    <Grid size={{xs: 12, sm: 6, md: 4}} key={`skeleton-${idx}`}>
+    <Grid item xs={12} sm={6} md={4} key={`skeleton-${idx}`}>
       <Box sx={{ width: "100%" }}>
         <CourseCardSkeleton />
       </Box>
