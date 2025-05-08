@@ -60,7 +60,7 @@ export default function CourseTabs() {
             label={label}
             sx={{
               fontWeight: 500,
-              color: "var(--text-300)",
+              color: "var(--text-400)",
               "&.Mui-selected": { color: "var(--primary-200)" },
             }}
           />
