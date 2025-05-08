@@ -17,7 +17,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 export default function CourseCard({ data }) {
   const navigate = useNavigate();
 
-  // Ensure data has all required properties or provide defaults
+  // 데이터가 없는 경우 기본값 설정
   const {
     lectureId = 0,
     title = "",
@@ -31,13 +31,13 @@ export default function CourseCard({ data }) {
   } = data || {};
 
   const handleClick = () => {
-    // Store the lecture data in sessionStorage for access on the detail page
+    // 상세 페이지에서 사용할 수 있도록 데이터를 세션에 저장
     sessionStorage.setItem(`lecture_${lectureId}`, JSON.stringify(data));
-    // Navigate to the lecture detail page
+    // 상세 페이지로 이동
     navigate(`/lectures/${lectureId}`);
   };
 
-  // Ensure subcategory and region are arrays of strings
+  // subcategory와 region이 배열 형식이 되도록 보정
   const safeSubcategory = Array.isArray(subcategory)
     ? subcategory.map((cat) => String(cat))
     : subcategory
@@ -56,7 +56,7 @@ export default function CourseCard({ data }) {
     ? [String(region)]
     : [];
 
-  // Create display chips
+  // 뱃지에 들어갈 데이터 구성
   const sortedChips = [
     ...safeSubcategory
       .filter(Boolean)
@@ -64,11 +64,14 @@ export default function CourseCard({ data }) {
     ...safeRegion.filter(Boolean).map((label) => ({ label, type: "region" })),
   ];
 
-  const visibleChips = sortedChips.slice(0, 3);
-  const hiddenChips = sortedChips.slice(3);
+  const visibleChips = sortedChips.slice(0, 3); // 최대 3개만 노출
+  const hiddenChips = sortedChips.slice(3); // 나머지는 툴팁으로 숨김 처리
 
+  // 가격을 만원 단위로 포맷 그 이하면 원
   function formatPriceKRW(price) {
-    return `${Math.floor(price / 10000)}만원`;
+    return price < 10000
+      ? `${price.toLocaleString()}원`
+      : `${Math.floor(price / 10000).toLocaleString()}만원`;
   }
 
   return (
