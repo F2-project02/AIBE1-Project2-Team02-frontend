@@ -1,20 +1,19 @@
-// src/components/Messages/MessageRowMobile.jsx
-
 import { Box, Typography, Checkbox } from "@mui/material";
-import { format } from "date-fns";
+import { formatDateFromArray } from "../../../utils/messageDate";
 
 export default function MessageRowMobile({
-  message,
+  messageId,
+  nickname,
+  content,
+  createdAt,
+  onClick,
   isSelected,
   onSelect,
-  onClick,
 }) {
   const handleSelectClick = (e) => {
     e.stopPropagation();
-    onSelect(message.messageId);
+    onSelect(messageId);
   };
-
-  const formattedDate = format(new Date(message.sentDate), "yyyy.MM.dd");
 
   return (
     <Box
@@ -24,7 +23,7 @@ export default function MessageRowMobile({
       py={2}
       borderBottom="1px solid var(--bg-200)"
       bgcolor={isSelected ? "var(--bg-200)" : "var(--bg-100)"}
-      onClick={() => onClick(message.messageId)}
+      onClick={() => onClick(messageId)}
       sx={{
         transition: "background-color 0.2s ease",
         "&:hover": {
@@ -49,17 +48,17 @@ export default function MessageRowMobile({
             }}
           />
           <Typography fontWeight={600} fontSize={14} color="var(--text-100)">
-            {message.nickname}
+            {nickname}
           </Typography>
         </Box>
         <Typography fontSize={13} color="var(--text-400)">
-          {formattedDate}
+          {createdAt ? formatDateFromArray(createdAt) : "-"}
         </Typography>
       </Box>
 
       {/* 둘째 줄: 메시지 내용 */}
       <Typography fontSize={14} color="var(--text-300)" mt={1} noWrap>
-        {message.content}
+        {content}
       </Typography>
     </Box>
   );
