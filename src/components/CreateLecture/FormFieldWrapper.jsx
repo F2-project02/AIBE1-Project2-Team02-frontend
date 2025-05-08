@@ -1,7 +1,11 @@
 // src/components/CreateLecture/FormFieldWrapper.jsx
 import { Box, Typography } from "@mui/material";
 
-export default function FormFieldWrapper({ label, children, required = false }) {
+export default function FormFieldWrapper({
+  label,
+  children,
+  required = false,
+}) {
   return (
     <Box sx={{ mb: 3 }}>
       {label && (
