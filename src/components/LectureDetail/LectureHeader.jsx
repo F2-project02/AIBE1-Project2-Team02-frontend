@@ -1,4 +1,4 @@
-// 📄 src/components/LectureDetail/LectureHeader.jsx
+// src/components/LectureDetail/LectureHeader.jsx
 
 import {
   Box,
@@ -11,8 +11,12 @@ import {
 } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
+import LectureEditControls from "./LectureEditControls";
+import useLecturePermission from "../../hooks/useLecturePermission";
 
 export default function LectureHeader({ lecture }) {
+  const { hasPermission } = useLecturePermission(lecture);
+
   if (!lecture) {
     return null;
   }
@@ -33,36 +37,41 @@ export default function LectureHeader({ lecture }) {
 
   return (
     <Box sx={{ mb: 6 }}>
-      {/* 상단 태그 + 토글 */}
-      <Stack direction="row" alignItems="center" spacing={2} mb={1.5}>
-        <Stack direction="row" spacing={1}>
-          <Chip
-            label={categorySubject}
-            size="small"
-            sx={{
-              backgroundColor: "var(--action-primary-bg)",
-              color: "var(--primary-300)",
-              borderRadius: "8px",
-              fontWeight: 500,
-              fontSize: "0.75rem",
-              px: 1,
-            }}
-          />
-          <Chip
-            label={isClosed ? "마감됨" : "모집중"}
-            size="small"
-            sx={{
-              backgroundColor: isClosed
-                ? "var(--action-red-bg)"
-                : "var(--action-green-bg)",
-              color: isClosed ? "var(--action-red)" : "var(--action-green)",
-              borderRadius: "8px",
-              fontWeight: 500,
-              fontSize: "0.75rem",
-              px: 1,
-            }}
-          />
-        </Stack>
+      {/* 상단 수정/삭제 버튼 */}
+      {hasPermission && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <LectureEditControls lecture={lecture} />
+        </Box>
+      )}
+
+      {/* 상단 태그 */}
+      <Stack direction="row" alignItems="center" spacing={1} mb={1.5}>
+        <Chip
+          label={categorySubject}
+          size="small"
+          sx={{
+            backgroundColor: "var(--action-primary-bg)",
+            color: "var(--primary-300)",
+            borderRadius: "8px",
+            fontWeight: 500,
+            fontSize: "0.75rem",
+            px: 1,
+          }}
+        />
+        <Chip
+          label={isClosed ? "마감됨" : "모집중"}
+          size="small"
+          sx={{
+            backgroundColor: isClosed
+              ? "var(--action-red-bg)"
+              : "var(--action-green-bg)",
+            color: isClosed ? "var(--action-red)" : "var(--action-green)",
+            borderRadius: "8px",
+            fontWeight: 500,
+            fontSize: "0.75rem",
+            px: 1,
+          }}
+        />
       </Stack>
 
       {/* 과외 제목 */}

@@ -8,6 +8,7 @@ import CreateLecture from "../pages/CreateLecture";
 import CourseSearchPage from "../pages/CourseSearchPage";
 import MyPage from "../pages/MyPage";
 import LectureInquiries from "../pages/LectureInquiries";
+import EditLecturePage from "../pages/EditLecturePage";
 
 export default function AppRouter() {
   return (
@@ -15,6 +16,7 @@ export default function AppRouter() {
       <Route path="/" element={<Home />} />
       <Route path="/register" element={<CreateLecture />} />
       <Route path="/lectures/:lectureId" element={<LectureDetailPage />} />
+      <Route path="/lectures/:lectureId/edit" element={<EditLecturePage />} />
       <Route path="/questions" element={<LectureInquiries />} />
       <Route path="/messages" element={<MessageInbox />} />
       <Route path="/search" element={<CourseSearchPage />} />

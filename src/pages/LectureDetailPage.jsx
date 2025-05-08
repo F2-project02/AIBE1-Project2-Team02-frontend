@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Stack, Typography, CircularProgress, Alert } from "@mui/material";
 import { getLecture } from "../lib/api/lectureApi";
+import { useUserStore } from "../store/useUserStore";
 
 // Real components
 import LectureHeader from "../components/LectureDetail/LectureHeader";
@@ -19,6 +20,7 @@ export default function LectureDetailPage() {
   const [lecture, setLecture] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { userId } = useUserStore();
 
   // 강의 데이터 가져오기
   useEffect(() => {
@@ -58,6 +60,9 @@ export default function LectureDetailPage() {
 
   // API에서 받은 데이터를 프론트엔드 형식으로 변환
   const formatLectureData = (data) => {
+    // API 응답 로깅 (디버깅 용도)
+    console.log("Raw API Response:", data);
+
     // timeSlots 처리 - 문자열이면 JSON으로 파싱
     let timeSlots = [];
     if (data.timeSlots) {
@@ -93,14 +98,14 @@ export default function LectureDetailPage() {
       sub: data.subcategory || "",
     };
 
-    // 임시 멘토 정보 (실제로는 API에서 가져와야 함)
+    // 멘토 정보 구성
     const mentor = {
       nickname: data.mentorNickname || "멘토",
-      profileImage: "/images/default-profile.svg", // 기본값
-      isCertified: false, // 기본값
-      rating: 0, // 기본값
-      education: "",
-      major: "",
+      profileImage: data.mentorProfileImage || "/images/default-profile.svg",
+      isCertified: data.isCertified || false,
+      rating: data.averageRating || 0,
+      education: data.education || "",
+      major: data.major || "",
     };
 
     return {
@@ -118,6 +123,7 @@ export default function LectureDetailPage() {
       regions,
       mentor,
       reviews: [], // 리뷰는 별도 API에서 로드
+      authorUserId: data.authorUserId,
     };
   };
 
