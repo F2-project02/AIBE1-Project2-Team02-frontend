@@ -43,7 +43,6 @@ export default function MentorCtaCard() {
             fontWeight: 600,
             color: "var(--text-200)",
             letterSpacing: 0.46,
-            fontFamily: "Pretendard",
           }}
         >
           누구나 멘토가 될 수 있어요.
@@ -54,7 +53,6 @@ export default function MentorCtaCard() {
             fontWeight: 500,
             color: "var(--text-300)",
             letterSpacing: 0.46,
-            fontFamily: "Pretendard",
           }}
         >
           지식과 경험을 나누고, 의미 있는 인사이트를 전해주세요!

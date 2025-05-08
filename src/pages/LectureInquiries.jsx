@@ -13,7 +13,7 @@ function LectureInquiries() {
   const isRegisteredTab = activeTab === "registered";
 
   return (
-    <Box sx={{ py: 6, px: 2, maxWidth: 1200, mx: "auto" }}>
+    <Box sx={{ mt: 4, maxWidth: 1200, mx: "auto" }}>
       {/* 상단 탭 영역 */}
       <Box sx={{ mb: 3, display: "flex", alignItems: "center", gap: 21 }}>
         <InquiryTabs

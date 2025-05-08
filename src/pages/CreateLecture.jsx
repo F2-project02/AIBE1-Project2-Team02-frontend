@@ -191,17 +191,18 @@ export default function CreateLecture() {
         }}
       >
         <TabPanel value={currentTab} index={0}>
-          <BasicInfoForm onNext={handleBasicInfoNext} />
+          <BasicInfoForm onNext={handleBasicInfoNext}   showToast={(msg) => showToast(msg, warnGif, "error")} />
         </TabPanel>
 
         <TabPanel value={currentTab} index={1}>
-          <CurriculumForm onNext={handleCurriculumNext} />
+          <CurriculumForm onNext={handleCurriculumNext}   showToast={(msg) => showToast(msg, warnGif, "error")} />
         </TabPanel>
 
         <TabPanel value={currentTab} index={2}>
           <ScheduleAndLocationForm
             onSubmit={handleScheduleSubmit}
             isLoading={isLoading}
+            showToast={(msg) => showToast(msg, warnGif, "error")}
           />
         </TabPanel>
       </Paper>
