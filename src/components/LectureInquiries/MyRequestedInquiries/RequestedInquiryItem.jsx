@@ -40,12 +40,29 @@ export default function RequestedInquiryItem({ data }) {
   const visibleChips = sortedChips.slice(0, 3);
   const hiddenChips = sortedChips.slice(3);
 
-  const formatPriceKRW = (price) => `1회  ${Math.floor(price / 10000)}만원`;
+  // 가격을 만원 단위로 포맷 그 이하면 원
+  function formatPriceKRW(price) {
+    return price < 10000
+      ? `${price.toLocaleString()}원`
+      : `${Math.floor(price / 10000).toLocaleString()}만원`;
+  }
 
   const statusMap = {
-    PENDING: { label: "매칭 대기", bg: "#FFF3CD", color: "#B68900" },
-    APPROVED: { label: "매칭 성공", bg: "#E6F4F1", color: "#1D8F81" },
-    REJECTED: { label: "매칭 실패", bg: "#FCE9E9", color: "#D36A6A" },
+    PENDING: {
+      label: "매칭 대기",
+      bg: "var(--action-green-bg)",
+      color: "var(--action-green)",
+    },
+    APPROVED: {
+      label: "매칭 성공",
+      bg: "var(--action-primary-bg)",
+      color: "var(--primary-200)",
+    },
+    REJECTED: {
+      label: "매칭 실패",
+      bg: "var(--action-red-bg)",
+      color: "var(--action-red)",
+    },
   };
 
   return (
@@ -169,8 +186,8 @@ export default function RequestedInquiryItem({ data }) {
             sx={{
               bgcolor: statusMap[status].bg,
               color: statusMap[status].color,
-              fontWeight: 500,
-              fontSize: 14,
+              fontWeight: 600,
+              fontSize: 13,
               borderRadius: "8px",
               px: 1.5,
               height: 30,

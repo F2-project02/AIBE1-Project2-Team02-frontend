@@ -1,63 +1,39 @@
 // 📄 src/components/CourseSection/CourseTabs.jsx
 import { Tabs, Tab, Box } from "@mui/material";
-import { useCourseStore } from "../../store/useCourseStore";
-import { useEffect, useState } from "react";
-import { dummyLectures } from "../../constants/mock/dummyLectures";
-import { mapLecturesToCourseCards } from "../../utils/mapLecturesToCourseCards";
 
 const categories = [
-  "교육/입시",
-  "IT/개발",
-  "취업/N잡",
-  "자격",
-  "학위",
-  "예체능",
-  "라이프스타일",
+  { label: "전체", value: null },
+  { label: "교육/입시", value: "교육/입시" },
+  { label: "취업/N잡", value: "취업/N잡" },
+  { label: "IT/개발", value: "IT/개발" },
+  { label: "자격", value: "자격" },
+  { label: "학위", value: "학위" },
+  { label: "예체능", value: "예체능" },
+  { label: "라이프스타일", value: "라이프스타일" },
 ];
 
-export default function CourseTabs() {
-  const { selectedCategory, setSelectedCategory, setLoading, setCourses } =
-    useCourseStore();
+export default function CourseTabs({ selected, onSelect }) {
+  const tabIndex = categories.findIndex((cat) => cat.value === selected);
 
-  const [tabIndex, setTabIndex] = useState(
-    categories.indexOf(selectedCategory)
-  );
-
-  const handleChange = async (event, newValue) => {
-    const selected = categories[newValue];
-    setTabIndex(newValue);
-    setSelectedCategory(selected);
-    setLoading(true);
-
-    setTimeout(() => {
-      const filtered = dummyLectures.filter(
-        (lecture) => lecture.category.parent === selected
-      );
-
-      setCourses(mapLecturesToCourseCards(filtered.slice(0, 3)));
-      setLoading(false);
-    }, 1000);
+  const handleChange = (_, newValue) => {
+    const selectedCategory = categories[newValue].value;
+    onSelect(selectedCategory);
   };
-
-  useEffect(() => {
-    handleChange(null, tabIndex);
-    // eslint-disable-next-line
-  }, []);
 
   return (
     <Box sx={{ width: "100%", borderBottom: "none" }}>
       <Tabs
-        value={tabIndex}
+        value={tabIndex === -1 ? 0 : tabIndex}
         onChange={handleChange}
         variant="scrollable"
         scrollButtons="auto"
         textColor="inherit"
         TabIndicatorProps={{ style: { backgroundColor: "var(--primary-200)" } }}
       >
-        {categories.map((label) => (
+        {categories.map((cat) => (
           <Tab
-            key={label}
-            label={label}
+            key={cat.value}
+            label={cat.label}
             sx={{
               fontWeight: 500,
               color: "var(--text-400)",
