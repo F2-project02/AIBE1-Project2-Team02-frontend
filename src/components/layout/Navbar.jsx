@@ -20,6 +20,7 @@ import MobileMenu from "./MobileMenu";
 import logo from "../../assets/navbar-logo.svg";
 import byeGif from "../../assets/bye.gif";
 import LogoutConfirmDialog from "../common/LogoutConfirmDialog";
+import CustomToast from "../common/CustomToast";
 import { useUserStore } from "../../store/useUserStore";
 import { useLoginModalStore } from "../../store/useLoginModalStore";
 
@@ -31,7 +32,18 @@ export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
   const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
 
   const navigate = useNavigate();
 
@@ -43,7 +55,7 @@ export default function Navbar() {
     logout();
     handleMenuClose();
     setLogoutDialogOpen(false);
-    setToastOpen(true);
+    showToast("다음에 또 만나요! 안녕히가세요!", byeGif, "info");
     navigate("/");
   };
 
@@ -178,7 +190,10 @@ export default function Navbar() {
           },
         }}
       >
-        <MobileMenu onClose={handleToggleMenu} onLogoutWithToast={() => setToastOpen(true)} />
+        <MobileMenu
+          onClose={handleToggleMenu}
+          onLogoutWithToast={() => setToastOpen(true)}
+        />
       </Drawer>
 
       {/* 로그아웃 확인 모달 */}
@@ -189,24 +204,12 @@ export default function Navbar() {
       />
 
       {/* 토스트 알림 */}
-      <Snackbar
+      <CustomToast
         open={toastOpen}
-        autoHideDuration={3000}
         onClose={() => setToastOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        message={
-          <Box display="flex" alignItems="center" gap={1.5}>
-            <Box
-              component="img"
-              src={byeGif}
-              alt="bye"
-              sx={{ width: 30, height: 30 }}
-            />
-            <Typography fontSize="0.9rem" fontWeight={500}>
-              다음에 또 만나요! 안녕히가세요!
-            </Typography>
-          </Box>
-        }
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
       />
     </Box>
   );

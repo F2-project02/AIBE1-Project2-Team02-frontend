@@ -6,11 +6,14 @@ import CreateLectureTab from "../components/CreateLecture/CreateLectureTabs";
 import BasicInfoForm from "../components/CreateLecture/BasicInfoForm";
 import CurriculumForm from "../components/CreateLecture/CurriculumForm";
 import ScheduleAndLocationForm from "../components/CreateLecture/ScheduleAndLocationForm";
+import CustomToast from "../components/common/CustomToast";
 import UnauthorizedView from "../components/CreateLecture/UnauthorizedView";
 import { useUserStore } from "../store/useUserStore";
 import { useLectureStore } from "../store/useLectureStore";
 import { createLecture } from "../lib/api/lectureApi";
 import { mapLectureFormToApi } from "../utils/lectureDataMapper";
+import createLectureGif from "../assets/createlecture.gif";
+import warnGif from "../assets/warn.gif";
 
 function TabPanel({ children, value, index }) {
   return (
@@ -26,6 +29,18 @@ export default function CreateLecture() {
   const { formData, isLoading, error, setError, setIsLoading, setFormData } =
     useLectureStore();
 
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
+
   // 탭 변경 시 데이터 유효성 검증
   const handleTabChange = (newValue) => {
     // 현재 탭에서 다음 탭으로 이동할 때만 유효성 검사
@@ -40,17 +55,17 @@ export default function CreateLecture() {
           !formData.price ||
           !formData.description
         ) {
-          alert("필수 항목을 모두 입력해주세요.");
+          showToast("필수 항목을 모두 입력해주세요.", warnGif, "error");
           return;
         }
         if (!formData.categoryId) {
-          alert("카테고리를 완전히 선택해주세요.");
+          showToast("카테고리를 완전히 선택해주세요.", warnGif, "error");
           return;
         }
       } else if (currentTab === 1) {
         // 커리큘럼 탭 유효성 검사
         if (!formData.curriculum) {
-          alert("커리큘럼을 입력해주세요.");
+          showToast("커리큘럼을 입력해주세요.", warnGif, "error");
           return;
         }
       }
@@ -80,17 +95,21 @@ export default function CreateLecture() {
         !formData.description ||
         !formData.curriculum
       ) {
-        alert("기본 정보와 커리큘럼을 모두 입력해주세요.");
+        showToast(
+          "기본 정보와 커리큘럼을 모두 입력해주세요.",
+          warnGif,
+          "error"
+        );
         return;
       }
 
       if (formData.timeSlots.length === 0) {
-        alert("최소 하나의 시간대를 입력해주세요.");
+        showToast("최소 하나의 시간대를 입력해주세요.", warnGif, "error");
         return;
       }
 
       if (formData.regions.length === 0) {
-        alert("최소 하나의 지역을 선택해주세요.");
+        showToast("최소 하나의 지역을 선택해주세요.", warnGif, "error");
         return;
       }
 
@@ -104,15 +123,20 @@ export default function CreateLecture() {
       const response = await createLecture(apiData);
 
       if (response.success) {
-        alert("과외가 성공적으로 등록되었습니다!");
-        window.location.href = "/";
+        showToast("과외가 성공적으로 등록되었어요!", createLectureGif);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
+        return;
       } else {
         throw new Error(response.message || "과외 등록에 실패했습니다.");
       }
     } catch (err) {
       console.error("Error creating lecture:", err);
-      alert(
-        "과외 등록에 실패했습니다. 모든 필수 항목을 입력했는지 확인해주세요."
+      showToast(
+        "과외 등록에 실패했습니다. 모든 필수 항목을 입력했는지 확인해주세요.",
+        warnGif,
+        "error"
       );
     } finally {
       setIsLoading(false);
@@ -131,7 +155,14 @@ export default function CreateLecture() {
     <Box sx={{ mt: 4, mb: 4 }}>
       {/* 개발 모드 안내 */}
       {import.meta.env.DEV && (
-        <Box sx={{ mb: 3, p: 2, bgcolor: "var(--action-primary-bg)", borderRadius: "8px" }}>
+        <Box
+          sx={{
+            mb: 3,
+            p: 2,
+            bgcolor: "var(--action-primary-bg)",
+            borderRadius: "8px",
+          }}
+        >
           <Typography variant="body2" color="var(--primary-300)">
             ※ 현재 개발 모드입니다. 임시 토큰이 설정되었습니다.
           </Typography>
@@ -139,7 +170,13 @@ export default function CreateLecture() {
       )}
 
       {/* 상단 타이틀 */}
-      <Typography variant="h5" fontWeight={600} color="var(--text-100)" mt={4} mb={4}>
+      <Typography
+        variant="h5"
+        fontWeight={600}
+        color="var(--text-100)"
+        mt={4}
+        mb={4}
+      >
         새 과외 등록
       </Typography>
 
@@ -168,6 +205,13 @@ export default function CreateLecture() {
           />
         </TabPanel>
       </Paper>
+      <CustomToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
+      />
     </Box>
   );
 }

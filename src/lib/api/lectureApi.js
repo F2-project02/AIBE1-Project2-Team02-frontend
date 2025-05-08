@@ -7,10 +7,12 @@ import axiosInstance from "../axiosInstance";
  */
 export const createLecture = async (lectureData) => {
   try {
-    // 개발 환경에서는 dev 엔드포인트 사용
-    const endpoint = import.meta.env.DEV
-      ? "/api/lectures/dev"
-      : "/api/lectures";
+    const endpoint = "/api/lectures"; //개발용 ,로그인구현되면 배포용으로 갈아끼우기
+
+    // 개발 환경에서는 dev 엔드포인트 사용 (배포용)
+    // const endpoint = import.meta.env.DEV
+    //   ? "/api/lectures/dev"
+    //   : "/api/lectures";
     const response = await axiosInstance.post(endpoint, lectureData);
     return response.data;
   } catch (error) {
@@ -20,11 +22,17 @@ export const createLecture = async (lectureData) => {
 };
 
 /**
- * 강의 목록 조회 API
+ * 강의 필터 조회 API
  */
 export const getLectures = async (params = {}) => {
   try {
-    const response = await axiosInstance.get("/api/lectures", { params });
+    // 배열 파라미터(regions)를 처리하기 위한 axios의 paramsSerializer 옵션을 설정
+    const response = await axiosInstance.get("/api/lectures", {
+      params,
+      paramsSerializer: {
+        indexes: null, // 이렇게 설정하면 배열 파라미터가 regions=item1&regions=item2 형식으로 전송됨
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("강의 목록 조회 에러:", error);
