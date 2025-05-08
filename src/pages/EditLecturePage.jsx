@@ -16,12 +16,12 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { getLecture, updateLecture } from "../lib/api/lectureApi";
 import { useUserStore } from "../store/useUserStore";
-import useLecturePermission from "../hooks/useLecturePermission";
+import { useLectureStore } from "../store/useLectureStore";
+import { mapLectureFormToApi } from "../utils/lectureDataMapper";
+import CreateLectureTab from "../components/CreateLecture/CreateLectureTabs";
 import BasicInfoForm from "../components/CreateLecture/BasicInfoForm";
 import CurriculumForm from "../components/CreateLecture/CurriculumForm";
 import ScheduleAndLocationForm from "../components/CreateLecture/ScheduleAndLocationForm";
-import { useLectureStore } from "../store/useLectureStore";
-import { mapLectureFormToApi } from "../utils/lectureDataMapper";
 
 function TabPanel({ children, value, index }) {
   return (
@@ -39,15 +39,13 @@ export default function EditLecturePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const { userId, role } = useUserStore();
   const { formData, setFormData, resetFormData } = useLectureStore();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "info",
   });
-
-  // 권한 체크
-  const { hasPermission } = useLecturePermission(lecture);
 
   // 컴포넌트 마운트 시 강의 데이터 로드
   useEffect(() => {
@@ -58,19 +56,11 @@ export default function EditLecturePage() {
 
         const response = await getLecture(lectureId);
         if (response.success && response.data) {
-          // 백엔드 응답 로깅
-          console.log("Raw lecture data:", response.data);
-
-          // 권한 확인을 위해 필요한 authorUserId 추가
-          const enhancedData = {
-            ...response.data,
-            authorUserId: response.data.authorUserId,
-          };
-
-          setLecture(enhancedData);
+          console.log("API 응답 데이터:", response.data);
+          setLecture(response.data);
 
           // 폼 초기값 설정
-          initializeFormData(enhancedData);
+          initializeFormData(response.data);
         } else {
           throw new Error(response.message || "강의를 찾을 수 없습니다.");
         }
@@ -106,6 +96,12 @@ export default function EditLecturePage() {
         } else {
           timeSlots = data.timeSlots;
         }
+
+        // UI 작업을 위해 각 슬롯에 ID 추가
+        timeSlots = timeSlots.map((slot, index) => ({
+          ...slot,
+          id: Date.now() + index,
+        }));
       } catch (e) {
         console.error("Error parsing timeSlots:", e);
       }
@@ -115,28 +111,43 @@ export default function EditLecturePage() {
     let regions = [];
     if (data.regions) {
       try {
+        // regions가 문자열이면 파싱
         if (typeof data.regions === "string") {
-          regions = JSON.parse(data.regions);
+          const parsedRegions = JSON.parse(data.regions);
+          regions = Array.isArray(parsedRegions)
+            ? parsedRegions
+            : [parsedRegions];
         } else {
-          regions = data.regions.map((region) => {
-            if (typeof region === "string") {
-              // 문자열 형태의 리전 처리
-              return { regionName: region };
-            } else {
-              // 객체 형태의 리전 처리
-              return {
-                regionCode: region.regionCode,
-                regionName:
-                  region.displayName ||
-                  `${region.sido} ${region.sigungu} ${region.dong}`.trim(),
-              };
-            }
-          });
+          regions = Array.isArray(data.regions) ? data.regions : [data.regions];
         }
+
+        // regions 데이터 정규화 - regionCode 추가 보장
+        regions = regions.map((region, index) => {
+          if (typeof region === "string") {
+            // 문자열 형태의 지역 (예: "서울시 강남구")
+            return {
+              displayName: region,
+              regionName: region,
+              // API 요청시 필요한 regionCode 필드 추가
+              regionCode: `temp-${index}`, // 임시 코드 생성 (API에서 무시될 수 있음)
+            };
+          } else if (region.regionCode) {
+            // regionCode가 있는 경우 (정상)
+            return region;
+          } else {
+            // 객체이지만 regionCode가 없는 경우
+            return {
+              ...region,
+              regionCode: `temp-${index}`,
+            };
+          }
+        });
       } catch (e) {
         console.error("Error parsing regions:", e);
       }
     }
+
+    console.log("변환된 regions 데이터:", regions);
 
     // 폼 데이터 초기화
     setFormData({
@@ -153,12 +164,18 @@ export default function EditLecturePage() {
     });
   };
 
+  // 권한 체크
+  const hasPermission = () => {
+    if (!lecture || !userId) return false;
+    return role === "ADMIN" || lecture.authorUserId === userId;
+  };
+
   // 탭 변경 처리
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (newValue) => {
     setCurrentTab(newValue);
   };
 
-  // 탭 이동 처리 함수들
+  // 다음 단계로 이동
   const handleBasicInfoNext = () => {
     setCurrentTab(1);
   };
@@ -250,7 +267,7 @@ export default function EditLecturePage() {
   };
 
   // 권한 없음 상태
-  if (!loading && !hasPermission) {
+  if (!loading && !hasPermission()) {
     return (
       <Box sx={{ mt: 8, p: 3, textAlign: "center" }}>
         <Alert severity="warning" sx={{ mb: 2 }}>
@@ -289,9 +306,6 @@ export default function EditLecturePage() {
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-        <Typography variant="body1" sx={{ mb: 3 }}>
-          강의 정보를 불러오는데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.
-        </Typography>
         <Button
           variant="contained"
           startIcon={<ChevronLeftIcon />}
@@ -330,60 +344,26 @@ export default function EditLecturePage() {
       )}
 
       {/* 탭 메뉴 */}
-      <Box
-        sx={{
-          borderBottom: 1,
-          borderColor: "divider",
-          mb: 3,
-        }}
-      >
-        <Tabs
-          value={currentTab}
-          onChange={handleTabChange}
-          sx={{
-            minHeight: 48,
-            "& .MuiTab-root": {
-              textTransform: "none",
-              fontSize: 16,
-              fontWeight: 600,
-              color: "var(--text-400)",
-              padding: "12px 24px",
-              "&.Mui-selected": {
-                color: "var(--primary-200)",
-              },
-            },
-          }}
-        >
-          <Tab label="기본 정보" />
-          <Tab label="커리큘럼" />
-          <Tab label="일정 및 지역" />
-        </Tabs>
-      </Box>
+      <CreateLectureTab value={currentTab} onChange={handleTabChange} />
 
       {/* 탭 패널 */}
       <Paper
         elevation={0}
         sx={{
           p: 4,
-          borderRadius: 2,
           backgroundColor: "var(--bg-100)",
         }}
       >
         <TabPanel value={currentTab} index={0}>
-          <BasicInfoForm onNext={handleBasicInfoNext} isEditing={true} />
+          <BasicInfoForm onNext={handleBasicInfoNext} />
         </TabPanel>
 
         <TabPanel value={currentTab} index={1}>
-          <CurriculumForm onNext={handleCurriculumNext} isEditing={true} />
+          <CurriculumForm onNext={handleCurriculumNext} />
         </TabPanel>
 
         <TabPanel value={currentTab} index={2}>
-          <ScheduleAndLocationForm
-            onSubmit={handleSubmit}
-            isLoading={saving}
-            isEditing={true}
-            onCancel={handleCancel}
-          />
+          <ScheduleAndLocationForm onSubmit={handleSubmit} isLoading={saving} />
         </TabPanel>
       </Paper>
 
