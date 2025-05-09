@@ -81,8 +81,16 @@ export default function MyPage() {
       case "profile":
         return (
           <>
-            <ProfileImageUploader />
-            <ProfileForm />
+            <ProfileImageUploader
+              imagePreview={imagePreview}
+              onImageUpdate={handleProfileImageUpdate}
+            />
+            {profileData && (
+              <ProfileForm
+                profileData={profileData}
+                onProfileUpdate={handleProfileUpdate}
+              />
+            )}
           </>
         );
       case "mentor":
