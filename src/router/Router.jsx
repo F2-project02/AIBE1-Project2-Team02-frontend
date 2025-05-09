@@ -6,7 +6,6 @@ import LectureDetailPage from "../pages/LectureDetailPage";
 import MessageInbox from "../pages/MessageInbox";
 import CreateLecture from "../pages/CreateLecture";
 import CourseSearchPage from "../pages/CourseSearchPage";
-import TestCourseSearchPage from "../pages/TestCourseSearchPage";
 import MyPage from "../pages/MyPage";
 import LectureInquiries from "../pages/LectureInquiries";
 import EditLecturePage from "../pages/EditLecturePage";
@@ -21,7 +20,6 @@ export default function AppRouter() {
       <Route path="/questions" element={<LectureInquiries />} />
       <Route path="/messages" element={<MessageInbox />} />
       <Route path="/search" element={<CourseSearchPage />} />
-      <Route path="/test" element={<TestCourseSearchPage />}/>
       <Route path="/mypage" element={<MyPage />} />
     </Routes>
   );

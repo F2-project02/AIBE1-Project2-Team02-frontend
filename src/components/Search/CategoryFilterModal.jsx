@@ -240,7 +240,7 @@ export default function CategoryFilterModal({
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: 16,
-              color: "#fff",
+              color: "var(--bg-100)",
             }}
           >
             선택 완료

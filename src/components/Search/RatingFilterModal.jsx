@@ -1,11 +1,11 @@
+// 📄 src/components/Search/RatingFilterModal.jsx
 import {
   Dialog,
   Box,
   Typography,
-  TextField,
-  Button,
   IconButton,
-  InputAdornment,
+  Slider,
+  Button,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -14,32 +14,27 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import GradientButton from "../Button/GradientButton";
 import { useState, useEffect } from "react";
 
-export default function PriceFilterModal({
+export default function RatingFilterModal({
   open,
   onClose,
+  initialRating = 0,
   onSubmit,
-  initialRange = [0, 300000],
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [minPrice, setMinPrice] = useState(initialRange[0]);
-  const [maxPrice, setMaxPrice] = useState(initialRange[1]);
+  const [rating, setRating] = useState(initialRating);
 
   useEffect(() => {
-    if (open) {
-      setMinPrice(initialRange[0]);
-      setMaxPrice(initialRange[1]);
-    }
-  }, [open]);
+    if (open) setRating(initialRating);
+  }, [open, initialRating]);
 
   const handleReset = () => {
-    setMinPrice(0);
-    setMaxPrice(300000);
+    setRating(0);
   };
 
-  const handleSubmit = () => {
-    onSubmit([minPrice, maxPrice]);
+  const handleComplete = () => {
+    onSubmit(rating);
     onClose();
   };
 
@@ -67,7 +62,7 @@ export default function PriceFilterModal({
         {/* 헤더 */}
         <Box position="relative" textAlign="center" mb={3}>
           <Typography fontSize={24} fontWeight={600}>
-            수업료 필터
+            평점
           </Typography>
           <IconButton
             onClick={onClose}
@@ -83,72 +78,34 @@ export default function PriceFilterModal({
           </IconButton>
         </Box>
 
+        {/* 본문 */}
         <Box mt={1}>
           <Typography fontSize={14} color="var(--text-300)" mb={3}>
-            1회당 희망 수업료
+            이 평점 이상인 과외만 검색할게요
           </Typography>
 
-          {/* 입력 필드 */}
-          <Box display="flex" alignItems="center" gap={2}>
-            <Box flex={1}>
-              <Typography
-                fontSize={13}
-                fontWeight={600}
-                color="var(--primary-100)"
-                mb={0.5}
-              >
-                최소 금액
-              </Typography>
-              <TextField
-                fullWidth
-                type="number"
-                value={minPrice}
-                onChange={(e) => setMinPrice(Number(e.target.value))}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">원</InputAdornment>
-                  ),
-                }}
-                variant="standard"
-                sx={{
-                  input: {
-                    fontWeight: 500,
-                    fontSize: 18,
-                  },
-                }}
-              />
-            </Box>
-            <Typography fontSize={20} color="var(--text-200)">
-              ~
+          <Slider
+            value={rating}
+            onChange={(_, val) => setRating(val)}
+            step={0.5}
+            marks
+            min={0}
+            max={5}
+            valueLabelDisplay="auto"
+            sx={{
+              mt: 4,
+              color: "var(--primary-100)",
+            }}
+          />
+
+          <Box textAlign="center" mt={2}>
+            <Typography
+              variant="h4"
+              fontWeight={700}
+              color="var(--primary-100)"
+            >
+              {rating.toFixed(1)}점 이상
             </Typography>
-            <Box flex={1}>
-              <Typography
-                fontSize={13}
-                fontWeight={600}
-                color="var(--primary-100)"
-                mb={0.5}
-              >
-                최대 금액
-              </Typography>
-              <TextField
-                fullWidth
-                type="number"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">원</InputAdornment>
-                  ),
-                }}
-                variant="standard"
-                sx={{
-                  input: {
-                    fontWeight: 500,
-                    fontSize: 18,
-                  },
-                }}
-              />
-            </Box>
           </Box>
         </Box>
 
@@ -171,7 +128,7 @@ export default function PriceFilterModal({
             초기화
           </Button>
           <GradientButton
-            onClick={handleSubmit}
+            onClick={handleComplete}
             sx={{
               flex: 2,
               height: 52,
