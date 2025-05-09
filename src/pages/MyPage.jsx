@@ -354,16 +354,20 @@ export default function MyPage() {
     }
 
     // 생년월일 유효성 검사 추가
-    if (birthDate) {
-      if (birthDate.length !== 8) {
-        alert("생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.");
-        return;
-      }
 
-      if (!isValidDate(birthDate)) {
-        alert("유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.");
-        return;
-      }
+    if (!birthDate || birthDate.trim() === "") {
+      alert("생년월일을 입력해주세요.");
+      return;
+    }
+
+    if (birthDate.length !== 8) {
+      alert("생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.");
+      return;
+    }
+
+    if (!isValidDate(birthDate)) {
+      alert("유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.");
+      return;
     }
 
     setUpdating(true);
@@ -757,6 +761,9 @@ export default function MyPage() {
               <Box sx={{ mb: 3 }}>
                 <Typography fontWeight={600} sx={{ mb: 1 }}>
                   생년월일
+                  <Box component="span" sx={{ color: "red" }}>
+                    *
+                  </Box>
                 </Typography>
                 <TextField
                   fullWidth
