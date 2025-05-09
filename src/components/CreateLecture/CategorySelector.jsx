@@ -1,6 +1,6 @@
 // 📄 src/components/CreateLecturCategorySelector.jsx
 import CustomSelect from "../common/CustomSelect";
-import CategorySelectorSkeleton from "./CategorySelectorSkeleton";
+import CategorySelectorSkeleton from "./skeletons/CategorySelectorSkeleton";
 import { Box, MenuItem } from "@mui/material";
 
 export default function CategorySelector({
