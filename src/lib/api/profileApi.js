@@ -193,3 +193,31 @@ export const updateMentorProfile = async (formData) => {
     throw new Error(result.message || "멘토 프로필 업데이트 실패");
   }
 };
+
+// 회원 탈퇴 API
+export const deleteAccount = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("인증 토큰이 없습니다");
+  }
+
+  const baseUrl = getBaseUrl();
+
+  const response = await fetch(`${baseUrl}/api/account/profile`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("회원 탈퇴 요청이 실패했습니다");
+  }
+
+  const result = await response.json();
+  if (result.success) {
+    return result.data;
+  } else {
+    throw new Error(result.message || "회원 탈퇴 실패");
+  }
+};
