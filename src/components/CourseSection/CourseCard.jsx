@@ -69,11 +69,12 @@ export default function CourseCard({ data }) {
 
   // 가격을 만원 단위로 포맷 그 이하면 원
   function formatPriceKRW(price) {
+    if (price === 0) return "무료";
     return price < 10000
       ? `${price.toLocaleString()}원`
       : `${Math.floor(price / 10000).toLocaleString()}만원`;
   }
-
+  
   return (
     <Card
       onClick={handleClick}
