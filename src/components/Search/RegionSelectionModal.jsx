@@ -1,5 +1,4 @@
-// src/components/CreateLecture/RegionSelectionModal.jsx
-
+// 📄 src/components/Search/RegionSelectionModal.jsx
 import {
   Dialog,
   Box,
@@ -7,12 +6,14 @@ import {
   IconButton,
   Chip,
   Button,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CheckIcon from "@mui/icons-material/Check";
 import { useEffect, useState, useMemo } from "react";
-import { RegionApiService } from "../Search/RegionApiService";
+import { RegionApiService } from "./RegionApiService";
 import GradientButton from "../Button/GradientButton";
 
 export default function RegionSelectionModal({
@@ -26,6 +27,9 @@ export default function RegionSelectionModal({
   selectedDistrict,
   setSelectedDistrict,
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [dongs, setDongs] = useState([]);
@@ -41,7 +45,9 @@ export default function RegionSelectionModal({
   }, [dongs]);
 
   useEffect(() => {
-    if (open) RegionApiService.getSidos().then(setProvinces);
+    if (open) {
+      RegionApiService.getSidos().then(setProvinces);
+    }
   }, [open]);
 
   const handleProvinceClick = async (sido) => {
@@ -49,16 +55,16 @@ export default function RegionSelectionModal({
     setSelectedDistrict("");
     setDongs([]);
     setLoading(true);
-    const res = await RegionApiService.getSigungus(sido);
-    setDistricts(res);
+    const sigungus = await RegionApiService.getSigungus(sido);
+    setDistricts(sigungus);
     setLoading(false);
   };
 
   const handleDistrictClick = async (sigungu) => {
     setSelectedDistrict(sigungu);
     setLoading(true);
-    const res = await RegionApiService.getDongs(selectedProvince, sigungu);
-    setDongs(res);
+    const dongList = await RegionApiService.getDongs(selectedProvince, sigungu);
+    setDongs(dongList);
     setLoading(false);
   };
 
@@ -94,20 +100,33 @@ export default function RegionSelectionModal({
   const isDongSelected = (dong) =>
     selectedDongs.some((d) => d.regionCode === dong.regionCode);
 
+  const currentItems = dongs;
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <Box p={4} bgcolor="#fefefe">
-        <Box position="relative" display="flex" alignItems="center" mb={3}>
-          <IconButton onClick={onClose} sx={{ position: "absolute", right: 0 }}>
+      <Box p={4} height="100vh" bgcolor="#fefefe">
+        {/* Header */}
+        <Box
+          position="relative"
+          display="flex"
+          alignItems="center"
+          height={48}
+          mb={3}
+        >
+          <IconButton
+            onClick={onClose}
+            sx={{ position: "absolute", right: 0, color: "var(--text-400)" }}
+          >
             <CloseIcon />
           </IconButton>
           <Box flex={1} textAlign="center">
-            <Typography fontSize={24} fontWeight={600}>
-              지역 선택
+            <Typography fontSize={24} fontWeight={600} color="var(--text-100)">
+              지역 필터
             </Typography>
           </Box>
         </Box>
 
+        {/* 3단 선택 영역 */}
         <Box display="flex" height={320} gap={2}>
           <RegionColumn
             label="시/도"
@@ -131,6 +150,7 @@ export default function RegionSelectionModal({
           />
         </Box>
 
+        {/* 선택된 지역 */}
         <Box mt={4}>
           <Typography fontWeight={500} fontSize={16} mb={1}>
             선택 지역 {selectedDongs.length}
@@ -148,7 +168,9 @@ export default function RegionSelectionModal({
                   fontSize: 13,
                   "& .MuiChip-deleteIcon": {
                     color: "var(--primary-100)",
-                    "&:hover": { color: "var(--primary-200)" },
+                    "&:hover": {
+                      color: "var(--primary-200)",
+                    },
                   },
                 }}
               />
@@ -156,7 +178,8 @@ export default function RegionSelectionModal({
           </Box>
         </Box>
 
-        <Box display="flex" gap={2} mt={6}>
+        {/* 하단 버튼 */}
+        <Box display="flex" gap={2} mt={8}>
           <Button
             startIcon={<RestartAltIcon />}
             onClick={handleReset}
@@ -167,11 +190,14 @@ export default function RegionSelectionModal({
               px: 2,
               color: "var(--text-300)",
               whiteSpace: "nowrap",
-              "&:hover": { backgroundColor: "var(--bg-200)" },
+              "&:hover": {
+                backgroundColor: "var(--bg-200)",
+              },
             }}
           >
             초기화
           </Button>
+
           <GradientButton
             onClick={handleComplete}
             sx={{
@@ -192,26 +218,31 @@ export default function RegionSelectionModal({
   );
 }
 
-function RegionColumn({ label, items, selected, onClick }) {
+// 📦 공통 컴포넌트: RegionColumn
+function RegionColumn({ label, items, selected, onClick, disabled }) {
   return (
     <Box
       flex={1}
       display="flex"
       flexDirection="column"
+      overflow="auto"
       sx={{
         p: 1.5,
         borderRadius: 2,
         backgroundColor: "#fefefe",
         height: "100%",
         gap: 1,
-        overflowY: "auto",
         scrollbarWidth: "none",
-        "&::-webkit-scrollbar": { display: "none" },
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
       <Typography fontWeight={600} fontSize={16}>
         {label}
       </Typography>
+
       {items.length === 0 ? (
         <Typography color="var(--text-300)" fontSize={14}>
           이전 항목을 먼저 선택해주세요
@@ -228,13 +259,15 @@ function RegionColumn({ label, items, selected, onClick }) {
                 py: 1.5,
                 borderRadius: "8px",
                 cursor: "pointer",
-                backgroundColor: "transparent",
+                backgroundColor: "transparent", // 선택 시에도 bg 없음
                 color: isSelected ? "var(--primary-100)" : "var(--text-300)",
                 fontWeight: 500,
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                "&:hover": { backgroundColor: "var(--bg-200)" },
+                "&:hover": {
+                  backgroundColor: "var(--bg-200)",
+                },
               }}
             >
               <Typography>{item}</Typography>
@@ -247,6 +280,7 @@ function RegionColumn({ label, items, selected, onClick }) {
   );
 }
 
+// 📦 공통 컴포넌트: DongColumn
 function DongColumn({ label, items, loading, selectedList, onClick }) {
   return (
     <Box
@@ -261,17 +295,21 @@ function DongColumn({ label, items, loading, selectedList, onClick }) {
         gap: 1,
         overflowY: "auto",
         scrollbarWidth: "none",
-        "&::-webkit-scrollbar": { display: "none" },
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
       <Typography fontWeight={600} fontSize={16}>
         {label}
       </Typography>
+
       {loading ? (
-        <Typography fontSize={14}></Typography>
+        <Box py={4} textAlign="center">
+        </Box>
       ) : items.length === 0 ? (
-        <Typography color="var(--text-300)" fontSize={14}>
-        </Typography>
+        <Typography color="var(--text-300)" fontSize={14}></Typography>
       ) : (
         items.map((dong) => {
           const isSelected = selectedList.some(
@@ -292,7 +330,9 @@ function DongColumn({ label, items, loading, selectedList, onClick }) {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                "&:hover": { backgroundColor: "var(--bg-200)" },
+                "&:hover": {
+                  backgroundColor: "var(--bg-200)",
+                },
               }}
             >
               <Typography>{dong.dong || `${dong.sigungu} 전체`}</Typography>

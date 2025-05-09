@@ -65,7 +65,6 @@ export default function EditLecturePage() {
 
         const response = await getLecture(lectureId);
         if (response.success && response.data) {
-          console.log("API 응답 데이터:", response.data);
           setLecture(response.data);
 
           // 폼 초기값 설정
@@ -163,8 +162,6 @@ export default function EditLecturePage() {
         console.error("Error parsing regions:", e);
       }
     }
-
-    console.log("변환된 regions 데이터:", regions);
 
     // 폼 데이터 초기화
     setFormData({

@@ -10,20 +10,31 @@ import {
   Breadcrumbs,
   Link,
   Divider,
+  Switch,
+  FormControlLabel,
+  Tooltip,
 } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
 import LectureEditControls from "./LectureEditControls";
 import useLecturePermission from "../../hooks/useLecturePermission";
-import { getLectureReviews } from "../../lib/api/lectureApi";
 import { useUserStore } from "../../store/useUserStore";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
+import {
+  getLectureReviews,
+  updateLectureStatus,
+} from "../../lib/api/lectureApi";
 
 export default function LectureHeader({ lecture }) {
   const { hasPermission } = useLecturePermission(lecture);
   const { profileImage: userProfileImage } = useUserStore();
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [isClosedState, setIsClosedState] = useState(
+    lecture?.isClosed || false
+  );
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [statusError, setStatusError] = useState("");
 
   // 리뷰 데이터를 가져와 평점 정보 업데이트
   useEffect(() => {
@@ -46,6 +57,43 @@ export default function LectureHeader({ lecture }) {
     fetchRatingData();
   }, [lecture?.mentorId]);
 
+  // lecture prop이 변경될 때 isClosedState 상태 업데이트
+  useEffect(() => {
+    if (lecture) {
+      setIsClosedState(lecture.isClosed || false);
+    }
+  }, [lecture]);
+
+  // 상태 변경 핸들러
+  const handleStatusChange = async (event) => {
+    const newStatus = event.target.checked;
+    setIsUpdating(true);
+    setStatusError("");
+
+    try {
+      const response = await updateLectureStatus(lecture.lectureId, newStatus);
+
+      if (response.success) {
+        setIsClosedState(newStatus);
+        console.log(
+          `강의 상태가 ${newStatus ? "마감됨" : "모집중"}으로 변경되었습니다.`
+        );
+      } else {
+        // 에러 처리
+        setStatusError(response.message || "상태 변경에 실패했습니다.");
+        // 상태 롤백
+        setIsClosedState(isClosedState);
+      }
+    } catch (error) {
+      console.error("상태 변경 오류:", error);
+      setStatusError("상태 변경 중 오류가 발생했습니다.");
+      // 상태 롤백
+      setIsClosedState(isClosedState);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   if (!lecture) {
     return null;
   }
@@ -55,13 +103,20 @@ export default function LectureHeader({ lecture }) {
   const categoryParent = lecture?.category?.parent || "교육";
   const categoryMiddle = lecture?.category?.middle || "일반";
   const lectureTitle = lecture?.title || "강의 제목";
+
+  // 멘토 정보 추출
   const mentorNickname = lecture?.mentor?.nickname || "멘토";
   const mentorEducation = lecture?.mentor?.education || "";
   const mentorMajor = lecture?.mentor?.major || "";
   const mentorProfileImage =
     lecture?.mentor?.profileImage || "/images/default-profile.svg";
   const mentorIsCertified = lecture?.mentor?.isCertified || false;
+  const mentorSex = lecture?.mentor?.sex || "";
+  const mentorMbti = lecture?.mentor?.mbti || "";
   const isClosed = lecture?.isClosed || false;
+
+  // 추가 멘토 정보 표시 여부
+  const hasAdditionalInfo = mentorSex || mentorMbti;
 
   // CourseCard와 동일한 방식으로 별점 표시
   const ratingValue = parseFloat(averageRating).toFixed(1);
@@ -90,19 +145,52 @@ export default function LectureHeader({ lecture }) {
             }}
           />
           <Chip
-            label={isClosed ? "마감됨" : "모집중"}
+            label={isClosedState ? "마감됨" : "모집중"}
             size="small"
             sx={{
-              backgroundColor: isClosed
+              backgroundColor: isClosedState
                 ? "var(--action-red-bg)"
                 : "var(--action-green-bg)",
-              color: isClosed ? "var(--action-red)" : "var(--action-green)",
+              color: isClosedState
+                ? "var(--action-red)"
+                : "var(--action-green)",
               borderRadius: "8px",
               fontWeight: 500,
               fontSize: "0.75rem",
               px: 1,
             }}
           />
+
+          {/* 상태 변경 토글 - 권한이 있는 경우에만 표시 */}
+          {hasPermission && (
+            <Tooltip
+              title={
+                isUpdating
+                  ? "변경 중..."
+                  : isClosedState
+                  ? "모집중으로 변경"
+                  : "마감으로 변경"
+              }
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isClosedState}
+                    onChange={handleStatusChange}
+                    disabled={isUpdating}
+                    size="small"
+                    color="primary"
+                  />
+                }
+                label={
+                  <Typography variant="caption" color="var(--text-300)">
+                    {isClosedState ? "마감" : "모집중"}
+                  </Typography>
+                }
+                sx={{ ml: 0 }}
+              />
+            </Tooltip>
+          )}
         </Stack>
 
         {/* 수정/삭제 버튼 (권한이 있을 때만 표시) */}
@@ -172,6 +260,19 @@ export default function LectureHeader({ lecture }) {
             {mentorEducation}
             {mentorMajor ? ` ${mentorMajor}` : ""}
           </Typography>
+
+          {/* 추가 정보 - 성별, MBTI */}
+          {hasAdditionalInfo && (
+            <Typography
+              variant="body2"
+              color="var(--text-400)"
+              sx={{ mt: 0.5 }}
+            >
+              {mentorSex ? `성별:${mentorSex},` : ""}
+              {mentorSex && mentorMbti ? "" : ""}
+              {mentorMbti ? `MBTI: ${mentorMbti}` : ""}
+            </Typography>
+          )}
         </Box>
 
         {/* 별점 - CourseCard와 동일한 스타일 */}

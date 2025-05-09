@@ -98,16 +98,24 @@ export default function LectureDetailPage() {
       sub: data.subcategory || "",
     };
 
-    // 멘토 정보 구성
+    // 멘토 정보 구성 (mentorInfo 객체가 존재하는 경우)
+    const mentorInfo = data.mentorInfo || {};
+
     const mentor = {
       nickname: data.mentorNickname || "멘토",
-      profileImage: data.mentorProfileImage || "/images/default-profile.svg",
-      isCertified: data.isCertified || false,
+      profileImage: mentorInfo.profileImage || "/images/default-profile.svg",
+      isCertified: mentorInfo.isCertified || false,
       rating: data.averageRating || 0,
-      education: data.education || "",
-      major: data.major || "",
+      education: mentorInfo.education || "",
+      major: mentorInfo.major || "",
+      sex: mentorInfo.sex || "",
+      mbti: mentorInfo.mbti || "",
+      content: mentorInfo.content || "",
+      appealFileUrl: mentorInfo.appealFileUrl || "",
+      tag: mentorInfo.tag || "",
     };
 
+    // 변환된 데이터 반환
     return {
       lectureId: data.lectureId,
       title: data.lectureTitle,

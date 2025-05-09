@@ -11,16 +11,18 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Tooltip,
 } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import RoomIcon from "@mui/icons-material/Room";
 import { useUserStore } from "../../store/useUserStore";
 import LectureApplyModal from "./LectureApplyModal";
-import axiosInstance from "../../lib/axiosInstance";
+import useLecturePermission from "../../hooks/useLecturePermission";
 
 export default function LectureInfoBox({ lecture }) {
-  const { role, myLectureIds = [] } = useUserStore();
+  const { isLoggedIn } = useUserStore();
+  const { hasPermission, isOwner } = useLecturePermission(lecture);
   const [openApply, setOpenApply] = useState(false);
   const [isClosed, setIsClosed] = useState(lecture?.isClosed || false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
@@ -30,14 +32,9 @@ export default function LectureInfoBox({ lecture }) {
     severity: "info",
   });
 
-  // 로그인한 사용자가 멘토인지 확인
-  const isMentor = role === "MENTOR";
-
-  // 로그인한 사용자가 강의 작성자인지 확인 (강의 ID 기준)
-  const isOwner =
-    Array.isArray(myLectureIds) &&
-    lecture?.lectureId &&
-    myLectureIds.includes(lecture.lectureId);
+  // 디버깅용 로그
+  console.log("작성자 여부(isOwner):", isOwner);
+  console.log("강의 마감 여부(isClosed):", lecture?.isClosed);
 
   // 안전 확인 및 기본값 설정
   if (!lecture) {
@@ -56,52 +53,6 @@ export default function LectureInfoBox({ lecture }) {
       </Box>
     );
   }
-
-  // 강의 상태 변경 핸들러
-  const handleStatusChange = async (event) => {
-    const newStatus = event.target.checked;
-
-    try {
-      setUpdatingStatus(true);
-
-      // API 호출하여 강의 상태 변경
-      const response = await axiosInstance.patch(
-        `/api/lectures/${lecture.lectureId}/status`,
-        null, // body는 비어있음
-        { params: { isClosed: newStatus } } // 쿼리 파라미터로 전달
-      );
-
-      if (response.data?.success) {
-        // 상태 업데이트
-        setIsClosed(newStatus);
-
-        // 성공 메시지
-        setSnackbar({
-          open: true,
-          message: newStatus
-            ? "강의가 마감되었습니다."
-            : "강의가 오픈되었습니다.",
-          severity: "success",
-        });
-      } else {
-        throw new Error(response.data?.message || "상태 변경에 실패했습니다.");
-      }
-    } catch (err) {
-      console.error("강의 상태 변경 오류:", err);
-
-      // 에러 메시지
-      setSnackbar({
-        open: true,
-        message: err.message || "상태 변경 중 문제가 발생했습니다.",
-        severity: "error",
-      });
-
-      // 실패 시 원래 상태로 복원
-      setIsClosed(!newStatus);
-    } finally {
-      setUpdatingStatus(false);
-    }
-  };
 
   // 스낵바 닫기
   const handleCloseSnackbar = () => {
@@ -126,6 +77,19 @@ export default function LectureInfoBox({ lecture }) {
     return [...new Set(days)].join(", ") || "요일 정보 없음";
   };
 
+  // 신청하기 버튼 클릭 핸들러
+  const handleApplyClick = () => {
+    if (lecture.isClosed) {
+      setSnackbar({
+        open: true,
+        message: "이미 마감된 강의입니다.",
+        severity: "warning",
+      });
+    } else {
+      setOpenApply(true);
+    }
+  };
+
   return (
     <>
       <Box
@@ -138,32 +102,6 @@ export default function LectureInfoBox({ lecture }) {
           width: "100%",
         }}
       >
-        {/* 상태 표시 (멘토 본인만 보임) */}
-        {isMentor && isOwner && (
-          <Box sx={{ mb: 2 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isClosed}
-                  onChange={handleStatusChange}
-                  disabled={updatingStatus}
-                />
-              }
-              label={
-                <Typography variant="body2" color="var(--text-300)">
-                  {isClosed ? "마감됨" : "모집중"}
-                  {updatingStatus && (
-                    <CircularProgress
-                      size={16}
-                      sx={{ ml: 1, verticalAlign: "middle" }}
-                    />
-                  )}
-                </Typography>
-              }
-            />
-          </Box>
-        )}
-
         {/* 가격 */}
         <Typography
           variant="h6"
@@ -220,7 +158,6 @@ export default function LectureInfoBox({ lecture }) {
         <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
           {regions && regions.length > 0
             ? regions
-
                 .map((r) => {
                   if (typeof r === "string") return r;
                   return [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ");
@@ -229,26 +166,31 @@ export default function LectureInfoBox({ lecture }) {
             : "지역 정보 없음"}
         </Typography>
 
-        {/* 버튼 (멘토 본인이 아니어야 보임) */}
-        {(!isMentor || !isOwner) && (
+        {/* 액션 버튼 - 작성자가 아닌 경우에만 버튼들 표시 */}
+        {isLoggedIn && !isOwner && (
           <Stack spacing={1.5} mt={4}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={() => setOpenApply(true)}
-              sx={{
-                background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
-                color: "#fff",
-                fontWeight: 600,
-                borderRadius: "12px",
-                py: 1.5,
-                ":hover": {
-                  background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
-                },
-              }}
-            >
-              수업 신청하기
-            </Button>
+            {/* 모집중인 경우에만 신청하기 버튼 표시 */}
+            {!lecture.isClosed && (
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleApplyClick}
+                sx={{
+                  background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
+                  color: "#fff",
+                  fontWeight: 600,
+                  borderRadius: "12px",
+                  py: 1.5,
+                  ":hover": {
+                    background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
+                  },
+                }}
+              >
+                수업 신청하기
+              </Button>
+            )}
+
+            {/* 찜하기 버튼은 항상 표시 */}
             <Button
               fullWidth
               variant="outlined"
