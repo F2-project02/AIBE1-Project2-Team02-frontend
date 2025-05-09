@@ -1,6 +1,6 @@
 // 📄 src/components/LectureDetail/LectureTabs.jsx
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
 import LectureInfo from "./LectureInfo";
 import CurriculumSection from "./CurriculumSection";
@@ -23,8 +23,46 @@ const tabList = [
 export default function LectureTabs({ lecture, loading }) {
   const [tabIndex, setTabIndex] = useState(0);
 
+  // 현재 선택된 탭 컴포넌트 렌더링
+  const renderTabContent = () => {
+    // 로딩 중인 경우 스켈레톤 표시
+    if (loading) {
+      switch (tabIndex) {
+        case 0:
+          return <LectureInfoSkeleton />;
+        case 1:
+          return <CurriculumSectionSkeleton />;
+        case 2:
+          return <MentorProfileSkeleton />;
+        case 3:
+          return <ReviewSectionSkeleton />;
+        default:
+          return <LectureInfoSkeleton />;
+      }
+    }
+
+    // 로딩 완료된 경우 실제 컴포넌트 표시
+    switch (tabIndex) {
+      case 0:
+        return <LectureInfo lecture={lecture} />;
+      case 1:
+        return (
+          <CurriculumSection
+            lecture={lecture}
+            curriculum={lecture?.curriculum}
+          />
+        );
+      case 2:
+        return <MentorProfile mentor={lecture?.mentor} />;
+      case 3:
+        return <ReviewSection lecture={lecture} />;
+      default:
+        return <LectureInfo lecture={lecture} />;
+    }
+  };
+
   return (
-    <Box sx={{ mt: 6, width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       <Tabs
         value={tabIndex}
         onChange={(e, newValue) => setTabIndex(newValue)}
@@ -52,35 +90,7 @@ export default function LectureTabs({ lecture, loading }) {
         ))}
       </Tabs>
 
-      <Box sx={{ mt: 4 }}>
-        {tabIndex === 0 &&
-          (loading ? (
-            <LectureInfoSkeleton />
-          ) : (
-            <LectureInfo description={lecture.description} />
-          ))}
-
-        {tabIndex === 1 &&
-          (loading ? (
-            <CurriculumSectionSkeleton />
-          ) : (
-            <CurriculumSection curriculum={lecture.curriculum} />
-          ))}
-
-        {tabIndex === 2 &&
-          (loading ? (
-            <MentorProfileSkeleton />
-          ) : (
-            <MentorProfile mentor={lecture.mentor} />
-          ))}
-
-        {tabIndex === 3 &&
-          (loading ? (
-            <ReviewSectionSkeleton />
-          ) : (
-            <ReviewSection reviews={lecture.reviews} />
-          ))}
-      </Box>
+      <Box sx={{ mt: 4 }}>{renderTabContent()}</Box>
     </Box>
   );
 }
