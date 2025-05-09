@@ -6,7 +6,6 @@ import {
   IconButton,
   Chip,
   Button,
-  CircularProgress,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -21,7 +20,12 @@ export default function RegionSelectionModal({
   open,
   onClose,
   onSubmit,
-  selectedRegions = [],
+  selectedDongs,
+  setSelectedDongs,
+  selectedProvince,
+  setSelectedProvince,
+  selectedDistrict,
+  setSelectedDistrict,
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -29,9 +33,6 @@ export default function RegionSelectionModal({
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [dongs, setDongs] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedDongs, setSelectedDongs] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const uniqueDongs = useMemo(() => {
@@ -46,12 +47,6 @@ export default function RegionSelectionModal({
   useEffect(() => {
     if (open) {
       RegionApiService.getSidos().then(setProvinces);
-      const valid = selectedRegions.map((r) => ({
-        ...r,
-        displayName:
-          r.displayName || `${r.sido} ${r.sigungu} ${r.dong || ""}`.trim(),
-      }));
-      setSelectedDongs(valid);
     }
   }, [open]);
 
@@ -97,6 +92,16 @@ export default function RegionSelectionModal({
     setSelectedDongs([]);
   };
 
+  const handleComplete = () => {
+    onSubmit(selectedDongs);
+    onClose();
+  };
+
+  const isDongSelected = (dong) =>
+    selectedDongs.some((d) => d.regionCode === dong.regionCode);
+
+  const currentItems = dongs;
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <Box p={4} height="100vh" bgcolor="#fefefe">
@@ -122,7 +127,7 @@ export default function RegionSelectionModal({
         </Box>
 
         {/* 3단 선택 영역 */}
-        <Box display="flex" height={300} gap={2}>
+        <Box display="flex" height={320} gap={2}>
           <RegionColumn
             label="시/도"
             items={provinces}
@@ -174,7 +179,7 @@ export default function RegionSelectionModal({
         </Box>
 
         {/* 하단 버튼 */}
-        <Box display="flex" gap={2} mt={4}>
+        <Box display="flex" gap={2} mt={8}>
           <Button
             startIcon={<RestartAltIcon />}
             onClick={handleReset}
@@ -194,7 +199,7 @@ export default function RegionSelectionModal({
           </Button>
 
           <GradientButton
-            onClick={() => onSubmit(selectedDongs)}
+            onClick={handleComplete}
             sx={{
               flexGrow: 1,
               height: 52,
@@ -302,7 +307,6 @@ function DongColumn({ label, items, loading, selectedList, onClick }) {
 
       {loading ? (
         <Box py={4} textAlign="center">
-          <CircularProgress size={20} />
         </Box>
       ) : items.length === 0 ? (
         <Typography color="var(--text-300)" fontSize={14}></Typography>

@@ -14,23 +14,26 @@ import GradientButton from "../Button/GradientButton";
 import { useEffect, useState } from "react";
 import { CategoryService } from "../../lib/api/categoryApi";
 
-export default function CategoryFilterMobile({ open, onClose, onSelect }) {
+export default function CategoryFilterMobile({
+  open,
+  onClose,
+  onSelect,
+  selectedItems,
+  setSelectedItems,
+  selectedParent,
+  setSelectedParent,
+  selectedMiddle,
+  setSelectedMiddle,
+}) {
   const [tab, setTab] = useState(0); // 0: 대, 1: 중, 2: 소
   const [parentCategories, setParentCategories] = useState([]);
   const [middleCategories, setMiddleCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  const [selectedParent, setSelectedParent] = useState("");
-  const [selectedMiddle, setSelectedMiddle] = useState("");
-  const [selectedItems, setSelectedItems] = useState([]);
-
   useEffect(() => {
     if (open) {
       CategoryService.getParentCategories().then(setParentCategories);
       setTab(0);
-      setSelectedParent("");
-      setSelectedMiddle("");
-      setSelectedItems([]);
     }
   }, [open]);
 
@@ -121,7 +124,6 @@ export default function CategoryFilterMobile({ open, onClose, onSelect }) {
           <Box width={40} />
         </Box>
 
-        {/* 탭 */}
         <Tabs value={tab} onChange={handleTabChange} variant="fullWidth">
           <Tab label="대분류" />
           <Tab label="중분류" disabled={!selectedParent} />
@@ -134,21 +136,14 @@ export default function CategoryFilterMobile({ open, onClose, onSelect }) {
           overflow="auto"
           py={2}
           sx={{
-            height: "auto",
             maxHeight: "calc(100vh - 280px)",
             scrollbarWidth: "thin",
             "&::-webkit-scrollbar": {
               width: "6px",
             },
             "&::-webkit-scrollbar-thumb": {
-              backgroundColor: "rgba(91, 141, 239, 0.3)", // primary 계열 연한 색
+              backgroundColor: "rgba(91, 141, 239, 0.3)",
               borderRadius: "4px",
-            },
-            "&::-webkit-scrollbar-thumb:hover": {
-              backgroundColor: "rgba(91, 141, 239, 0.5)",
-            },
-            "&::-webkit-scrollbar-track": {
-              backgroundColor: "transparent",
             },
           }}
         >

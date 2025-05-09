@@ -1,3 +1,4 @@
+// 📄 src/components/Search/RegionSelectionMobile.jsx
 import {
   Dialog,
   Box,
@@ -6,7 +7,6 @@ import {
   Chip,
   Tabs,
   Tab,
-  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -19,30 +19,22 @@ export default function RegionSelectionMobile({
   open,
   onClose,
   onSubmit,
-  selectedRegions = [],
+  selectedDongs,
+  setSelectedDongs,
+  selectedProvince,
+  setSelectedProvince,
+  selectedDistrict,
+  setSelectedDistrict,
 }) {
-  const [tab, setTab] = useState(0); // 0: 시도, 1: 시군구, 2: 읍면동
+  const [tab, setTab] = useState(0);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [dongs, setDongs] = useState([]);
-
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [selectedDongs, setSelectedDongs] = useState([]);
-
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (open) {
       RegionApiService.getSidos().then(setProvinces);
-      const valid = selectedRegions.map((r) => ({
-        ...r,
-        displayName:
-          r.displayName || `${r.sido} ${r.sigungu} ${r.dong || ""}`.trim(),
-      }));
-      setSelectedDongs(valid);
-      setSelectedProvince("");
-      setSelectedDistrict("");
       setTab(0);
     }
   }, [open]);
@@ -154,7 +146,7 @@ export default function RegionSelectionMobile({
         >
           {loading ? (
             <Box p={3} textAlign="center">
-              <CircularProgress size={24} />
+              
             </Box>
           ) : tab < 2 ? (
             currentItems.map((item) => (

@@ -178,7 +178,6 @@ export default function PriceFilterModal({
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: 16,
-              color: "#fff",
             }}
           >
             선택 완료

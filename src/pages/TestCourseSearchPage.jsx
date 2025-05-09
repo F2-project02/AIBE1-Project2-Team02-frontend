@@ -30,6 +30,14 @@ const TestCourseSearchPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // 카테고리 필터 관련 상태
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  // 지역 필터 관련 상태
+  const [selectedDongs, setSelectedDongs] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+
   // 검색 & 필터 상태
   const [keyword, setKeyword] = useState("");
   const [search, setSearch] = useState("");
@@ -37,7 +45,7 @@ const TestCourseSearchPage = () => {
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
   const [regionDialogOpen, setRegionDialogOpen] = useState(false);
 
-  const [selectedCategory, setSelectedCategory] = useState(null); // 최종 적용된 소분류만
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 300000]);
   const [ratingRange, setRatingRange] = useState(0);
@@ -263,40 +271,19 @@ const TestCourseSearchPage = () => {
         </Box>
       )}
 
-      {/* 공통 지역 필터 모달 */}
-      {isMobile ? (
-        <RegionSelectionMobile
-          open={regionDialogOpen}
-          onClose={() => setRegionDialogOpen(false)}
-          onSubmit={handleRegionSelect}
-          selectedRegions={selectedRegions}
-        />
-      ) : (
-        <RegionSelectionModal
-          open={regionDialogOpen}
-          onClose={() => setRegionDialogOpen(false)}
-          onSubmit={handleRegionSelect}
-          selectedRegions={selectedRegions}
-        />
-      )}
-
-      {/* 공통 카테고리 필터 모달 */}
+      {/* 공통 카테고리 모달 */}
       {isMobile ? (
         <CategoryFilterMobile
           open={categoryDialogOpen}
           onClose={() => setCategoryDialogOpen(false)}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
           selectedParent={selectedParent}
           setSelectedParent={setSelectedParent}
           selectedMiddle={selectedMiddle}
           setSelectedMiddle={setSelectedMiddle}
-          selectedSubs={selectedSubs}
-          setSelectedSubs={setSelectedSubs}
-          onSelect={(selectedList) => {
-            if (selectedList.length > 0) {
-              setSelectedCategory(selectedList);
-            } else {
-              setSelectedCategory(null);
-            }
+          onSelect={(list) => {
+            setSelectedCategory(list);
             setCategoryDialogOpen(false);
           }}
         />
@@ -304,23 +291,53 @@ const TestCourseSearchPage = () => {
         <CategoryFilterModal
           open={categoryDialogOpen}
           onClose={() => setCategoryDialogOpen(false)}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
           selectedParent={selectedParent}
           setSelectedParent={setSelectedParent}
           selectedMiddle={selectedMiddle}
           setSelectedMiddle={setSelectedMiddle}
-          selectedSubs={selectedSubs}
-          setSelectedSubs={setSelectedSubs}
-          onSelect={(selectedList) => {
-            if (selectedList.length > 0) {
-              setSelectedCategory(selectedList);
-            } else {
-              setSelectedCategory(null);
-            }
+          onSelect={(list) => {
+            setSelectedCategory(list);
             setCategoryDialogOpen(false);
           }}
         />
       )}
 
+      {/* 공통 지역 모달 */}
+      {isMobile ? (
+        <RegionSelectionMobile
+          open={regionDialogOpen}
+          onClose={() => setRegionDialogOpen(false)}
+          selectedDongs={selectedDongs}
+          setSelectedDongs={setSelectedDongs}
+          selectedProvince={selectedProvince}
+          setSelectedProvince={setSelectedProvince}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          onSubmit={(list) => {
+            setSelectedRegions(list);
+            setRegionDialogOpen(false);
+          }}
+        />
+      ) : (
+        <RegionSelectionModal
+          open={regionDialogOpen}
+          onClose={() => setRegionDialogOpen(false)}
+          selectedDongs={selectedDongs}
+          setSelectedDongs={setSelectedDongs}
+          selectedProvince={selectedProvince}
+          setSelectedProvince={setSelectedProvince}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          onSubmit={(list) => {
+            setSelectedRegions(list);
+            setRegionDialogOpen(false);
+          }}
+        />
+      )}
+
+      {/* 공통 수강료 */}
       <PriceFilterModal
         open={priceDialogOpen}
         onClose={() => setPriceDialogOpen(false)}
@@ -330,7 +347,6 @@ const TestCourseSearchPage = () => {
           setPage(1);
         }}
       />
-
       {/* 레이아웃 */}
       <SearchLayout
         sidebar={
@@ -369,7 +385,6 @@ const TestCourseSearchPage = () => {
           </>
         }
       />
-
       {/* 모바일 Drawer에는 showKeyword false 고정 */}
       {isMobile && (
         <MobileFilterDrawer

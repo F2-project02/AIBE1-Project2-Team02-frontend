@@ -1,5 +1,4 @@
 // 📄 src/components/Search/CategoryFilterModal.jsx
-
 import {
   Dialog,
   Box,
@@ -19,13 +18,19 @@ import { useEffect, useState } from "react";
 import { CategoryService } from "../../lib/api/categoryApi";
 import GradientButton from "../Button/GradientButton";
 
-export default function CategoryFilterModal({ open, onClose, onSelect }) {
+export default function CategoryFilterModal({
+  open,
+  onClose,
+  onSelect,
+  selectedItems,
+  setSelectedItems,
+  selectedParent,
+  setSelectedParent,
+  selectedMiddle,
+  setSelectedMiddle,
+}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [selectedParent, setSelectedParent] = useState("");
-  const [selectedMiddle, setSelectedMiddle] = useState("");
 
   const [parentCategories, setParentCategories] = useState([]);
   const [middleCategories, setMiddleCategories] = useState([]);
@@ -114,15 +119,12 @@ export default function CategoryFilterModal({ open, onClose, onSelect }) {
           height={48}
           mb={3}
         >
-          {/* 닫기 버튼 */}
           <IconButton
             onClick={onClose}
             sx={{ position: "absolute", right: 0, color: "var(--text-400)" }}
           >
             <CloseIcon />
           </IconButton>
-
-          {/* 가운데 제목 */}
           <Box flex={1} textAlign="center">
             <Typography fontSize={24} fontWeight={600} color="var(--text-100)">
               과목 필터
@@ -201,7 +203,7 @@ export default function CategoryFilterModal({ open, onClose, onSelect }) {
                   "& .MuiChip-deleteIcon": {
                     color: "var(--primary-100)",
                     "&:hover": {
-                      color: "var(--primary-200)", // hover 시 색상 조정
+                      color: "var(--primary-200)",
                     },
                   },
                 }}
@@ -211,7 +213,7 @@ export default function CategoryFilterModal({ open, onClose, onSelect }) {
         </Box>
 
         {/* 하단 버튼 */}
-        <Box display="flex" gap={2} mt={4}>
+        <Box display="flex" gap={2} mt={6}>
           <Button
             startIcon={<RestartAltIcon />}
             onClick={handleReset}
