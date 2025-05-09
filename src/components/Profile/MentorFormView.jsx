@@ -1,6 +1,5 @@
 // src/components/Profile/MentorFormView.jsx
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -9,19 +8,71 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
+import {
+  fetchMentorProfile,
+  updateMentorProfile,
+} from "../../lib/api/profileApi";
 
 export default function MentorFormView() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [mentorProfile, setMentorProfile] = useState(null);
   const [content, setContent] = useState("");
+  const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // 멘토 프로필 로드
+  useEffect(() => {
+    const loadMentorProfile = async () => {
+      console.log("멘토 프로필 로드 시작");
+      setIsLoading(true);
+      try {
+        const data = await fetchMentorProfile();
+        console.log("멘토 프로필 데이터 수신:", data);
+
+        setMentorProfile(data);
+        console.log("MentorProfile 상태 업데이트:", data);
+
+        // 컨텐츠 설정
+        console.log("content 설정 전:", data.content);
+        setContent(data.content || "");
+        console.log("content 설정 후:", data.content);
+
+        // 파일 미리보기 설정
+        if (data.appealFileUrl) {
+          console.log("파일 URL:", data.appealFileUrl);
+          setFilePreview(data.appealFileUrl);
+        }
+
+        // 모든 데이터 처리 완료
+        console.log("데이터 처리 완료");
+      } catch (error) {
+        console.error("멘토 프로필 로드 중 오류 발생:", error);
+        setError(`멘토 프로필을 불러오는데 실패했습니다: ${error.message}`);
+      } finally {
+        setIsLoading(false);
+        console.log("로딩 상태 종료");
+      }
+    };
+
+    loadMentorProfile();
+  }, []);
+
+  // 컴포넌트 상태 디버깅
+  console.log("컴포넌트 렌더링:", {
+    isLoading,
+    mentorProfile,
+    content,
+    filePreview,
+    error,
+  });
 
   // 파일 선택 핸들러
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      // 파일 미리보기 생성
+      setFile(selectedFile);
       const reader = new FileReader();
       reader.onloadend = () => {
         setFilePreview(reader.result);
@@ -31,11 +82,34 @@ export default function MentorFormView() {
   };
 
   // 폼 제출 핸들러
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("폼 제출 시작");
+
+    if (!content || content.length < 10) {
+      setError("자기소개는 최소 10자 이상 작성해주세요.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("content", content);
+      if (file) {
+        formData.append("appealFile", file);
+      }
+
+      console.log("멘토 프로필 업데이트 요청");
+      await updateMentorProfile(formData);
+      console.log("멘토 프로필 업데이트 성공");
+
+      setSuccess(true);
+    } catch (error) {
+      console.error("멘토 프로필 업데이트 중 오류:", error);
+      setError(`멘토 프로필 업데이트 실패: ${error.message}`);
+    }
   };
 
-  // 로딩 중
+  // 로딩 중 UI
   if (isLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
@@ -47,7 +121,7 @@ export default function MentorFormView() {
     );
   }
 
-  // 오류 발생 시
+  // 오류 발생 시 UI
   if (error) {
     return (
       <Box
@@ -67,6 +141,34 @@ export default function MentorFormView() {
           sx={{ mb: 2, whiteSpace: "pre-wrap" }}
         >
           {error}
+        </Typography>
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => window.location.reload()}
+        >
+          다시 시도하기
+        </Button>
+      </Box>
+    );
+  }
+
+  // 데이터 유효성 검사
+  if (!mentorProfile) {
+    return (
+      <Box
+        sx={{
+          p: 4,
+          textAlign: "center",
+          bgcolor: "var(--bg-200)",
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h6" color="warning.main" gutterBottom>
+          멘토 프로필 데이터가 없습니다
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          데이터를 불러왔지만 프로필 정보가 존재하지 않습니다.
         </Typography>
         <Button
           variant="outlined"
@@ -164,7 +266,8 @@ export default function MentorFormView() {
             <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
               선택된 파일:
             </Typography>
-            {filePreview.includes("data:image") ? (
+            {filePreview.includes("data:image") ||
+            filePreview.includes("http") ? (
               <img
                 src={filePreview}
                 alt="미리보기"
@@ -184,7 +287,9 @@ export default function MentorFormView() {
                   borderRadius: "4px",
                 }}
               >
-                <Typography>선택된 파일</Typography>
+                <Typography>
+                  {file ? file.name : "현재 업로드된 파일"}
+                </Typography>
               </Box>
             )}
           </Box>

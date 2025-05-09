@@ -5,6 +5,7 @@ import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageUploader from "../components/Profile/ProfileImageUploader";
 import MyPageSidebar from "../components/Profile/MyPageSidebar";
 import ProfileForm from "../components/Profile/ProfileForm";
+import MentorFormView from "../components/Profile/MentorFormView";
 import { fetchProfileData, fetchMentorProfile } from "../lib/api/profileApi";
 
 export default function MyPage() {
@@ -94,7 +95,7 @@ export default function MyPage() {
           </>
         );
       case "mentor":
-        return;
+        return <MentorFormView onProfileUpdate={() => {}} />;
       case "delete":
         return;
       default:

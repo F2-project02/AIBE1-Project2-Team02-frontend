@@ -42,22 +42,30 @@ export const fetchMentorProfile = async () => {
   }
 
   const baseUrl = getBaseUrl();
+  console.log("API 호출 URL:", `${baseUrl}/api/account/mentor/profile`);
 
-  const response = await fetch(`${baseUrl}/api/account/mentor/profile`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await fetch(`${baseUrl}/api/account/mentor/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error("멘토 프로필 정보를 가져오는데 실패했습니다");
-  }
+    if (!response.ok) {
+      throw new Error(`요청 실패: ${response.status}`);
+    }
 
-  const result = await response.json();
-  if (result.success) {
-    return result.data;
-  } else {
-    throw new Error(result.message || "멘토 프로필 조회 실패");
+    const result = await response.json();
+    console.log("API 응답 결과:", result);
+
+    if (result.success) {
+      return result.data;
+    } else {
+      throw new Error(result.message || "멘토 프로필 조회 실패");
+    }
+  } catch (error) {
+    console.error("멘토 프로필 API 오류:", error);
+    throw error;
   }
 };
 
@@ -154,5 +162,34 @@ export const updateProfile = async (profileData) => {
     return result.data;
   } else {
     throw new Error(result.message || "프로필 업데이트 실패");
+  }
+};
+
+// 멘토 프로필 업데이트 API
+export const updateMentorProfile = async (formData) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("인증 토큰이 없습니다");
+  }
+
+  const baseUrl = getBaseUrl();
+
+  const response = await fetch(`${baseUrl}/api/account/mentor/profile`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData, // FormData 객체 직접 전달
+  });
+
+  if (!response.ok) {
+    throw new Error("멘토 프로필 업데이트 요청이 실패했습니다");
+  }
+
+  const result = await response.json();
+  if (result.success) {
+    return result.data;
+  } else {
+    throw new Error(result.message || "멘토 프로필 업데이트 실패");
   }
 };
