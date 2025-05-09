@@ -6,13 +6,27 @@ import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../store/useUserStore";
 import { useLoginModalStore } from "../../store/useLoginModalStore";
 import LogoutConfirmDialog from "../common/LogoutConfirmDialog";
+import CustomToast from "../common/CustomToast";
 import menuItems from "./menuItems";
+import warnGif from "../../assets/warn.gif";
 
 export default function MobileMenu({ onClose, onLogoutWithToast }) {
   const { isLoggedIn, profileImage, nickname, logout } = useUserStore();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { open } = useLoginModalStore();
   const navigate = useNavigate();
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
 
   const handleLoginClick = () => {
     onClose();
@@ -26,9 +40,17 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
 
   const handleLogout = () => {
     logout();
-    onLogoutWithToast?.(); // Toast 열기
+    onLogoutWithToast?.();
     onClose?.();
     navigate("/");
+  };
+
+  const handleMenuClick = (path, requiresLogin) => {
+    if (requiresLogin && !isLoggedIn) {
+      showToast("로그인이 필요한 서비스예요!", warnGif, "info");
+    } else {
+      handleNavigate(path);
+    }
   };
 
   const menuButtonStyle = {
@@ -64,7 +86,6 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
         </Button>
       ) : (
         <Box display="flex" flexDirection="column" gap={2}>
-          {/* 프로필 섹션 */}
           <Box display="flex" alignItems="center" gap={1.5}>
             <img
               src={profileImage}
@@ -76,7 +97,6 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
             </Typography>
           </Box>
 
-          {/* 마이페이지 버튼 */}
           <Button
             onClick={() => handleNavigate("/mypage")}
             {...menuButtonStyle}
@@ -84,7 +104,6 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
             마이페이지
           </Button>
 
-          {/* 로그아웃 버튼 */}
           <Button
             onClick={() => setLogoutDialogOpen(true)}
             {...menuButtonStyle}
@@ -96,7 +115,6 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
             로그아웃
           </Button>
 
-          {/* 로그아웃 확인 다이얼로그 */}
           <LogoutConfirmDialog
             open={logoutDialogOpen}
             onClose={() => setLogoutDialogOpen(false)}
@@ -106,16 +124,34 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
       )}
 
       <Divider sx={{ my: 2 }} />
+      {menuItems.map(({ label, path, requiresLogin }) => {
+        const isAccessible = !requiresLogin || isLoggedIn;
 
-      {menuItems.map(({ label, path }) => (
-        <Button
-          key={path}
-          onClick={() => handleNavigate(path)}
-          {...menuButtonStyle}
-        >
-          {label}
-        </Button>
-      ))}
+        return (
+          <Button
+            key={path}
+            onClick={() => handleMenuClick(path, requiresLogin)}
+            {...menuButtonStyle}
+            sx={{
+              ...menuButtonStyle.sx,
+              color: isAccessible ? "var(--text-100)" : "var(--text-300)",
+              opacity: isAccessible ? 1 : 0.7,
+              cursor: isAccessible ? "pointer" : "default",
+            }}
+          >
+            {label}
+          </Button>
+        );
+      })}
+
+      {/* 비활성화 탭 경고 토스트 */}
+      <CustomToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
+      />
     </Box>
   );
 }
