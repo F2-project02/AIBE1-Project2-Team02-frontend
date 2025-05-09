@@ -11,7 +11,7 @@ import UnauthorizedView from "../components/CreateLecture/UnauthorizedView";
 import { useUserStore } from "../store/useUserStore";
 import { useLectureStore } from "../store/useLectureStore";
 import { createLecture } from "../lib/api/lectureApi";
-import { accountApi } from "../lib/api/accountApi"; // 새로 추가한 API import
+import { accountApi } from "../lib/api/accountApi";
 import { mapLectureFormToApi } from "../utils/lectureDataMapper";
 import createLectureGif from "../assets/createlecture.gif";
 import warnGif from "../assets/warn.gif";
@@ -217,11 +217,17 @@ export default function CreateLecture() {
         }}
       >
         <TabPanel value={currentTab} index={0}>
-          <BasicInfoForm onNext={handleBasicInfoNext}   showToast={(msg) => showToast(msg, warnGif, "error")} />
+          <BasicInfoForm
+            onNext={handleBasicInfoNext}
+            showToast={(msg) => showToast(msg, warnGif, "error")}
+          />
         </TabPanel>
 
         <TabPanel value={currentTab} index={1}>
-          <CurriculumForm onNext={handleCurriculumNext}   showToast={(msg) => showToast(msg, warnGif, "error")} />
+          <CurriculumForm
+            onNext={handleCurriculumNext}
+            showToast={(msg) => showToast(msg, warnGif, "error")}
+          />
         </TabPanel>
 
         <TabPanel value={currentTab} index={2}>
