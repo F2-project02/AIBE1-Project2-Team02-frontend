@@ -124,7 +124,7 @@ export default function ScheduleAndLocationForm({
         과외 일정
       </Typography>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="var(--text-300)" sx={{ mb: 3 }}>
         과외가 가능한 요일과 시간을 선택해주세요.
       </Typography>
 
@@ -139,7 +139,7 @@ export default function ScheduleAndLocationForm({
 
       {/* 시간대 설정 */}
       <FormFieldWrapper label="시간대 설정">
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography variant="body2" color="var(--text-300)" sx={{ mb: 2 }}>
           먼저 요일을 선택한 후 시간대를 추가하세요.
         </Typography>
 
@@ -179,7 +179,7 @@ export default function ScheduleAndLocationForm({
         과외 지역
       </Typography>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="var(--text-300)" sx={{ mb: 3 }}>
         과외가 진행될 지역을 선택해주세요.
       </Typography>
 

@@ -268,10 +268,9 @@ function DongColumn({ label, items, loading, selectedList, onClick }) {
         {label}
       </Typography>
       {loading ? (
-        <Typography fontSize={14}>불러오는 중...</Typography>
+        <Typography fontSize={14}></Typography>
       ) : items.length === 0 ? (
         <Typography color="var(--text-300)" fontSize={14}>
-          선택 가능한 항목이 없습니다
         </Typography>
       ) : (
         items.map((dong) => {

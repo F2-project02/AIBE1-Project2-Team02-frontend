@@ -23,7 +23,7 @@ export default function CurriculumForm({ onNext, showToast }) {
         과외 커리큘럼
       </Typography>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body2" color="var(--text-300)" sx={{ mb: 4 }}>
         과외 커리큘럼을 자세히 설명해주세요.
       </Typography>
 
