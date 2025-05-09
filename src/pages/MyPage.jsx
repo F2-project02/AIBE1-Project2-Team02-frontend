@@ -46,7 +46,11 @@ export default function MyPage() {
 
   // 프로필 정보 업데이트 함수
   const handleProfileUpdate = (updatedData) => {
-    setProfileData({ ...profileData, ...updatedData });
+    setProfileData({
+      ...profileData,
+      ...updatedData,
+      regions: updatedData.regions || profileData.regions,
+    });
   };
 
   if (loading) {

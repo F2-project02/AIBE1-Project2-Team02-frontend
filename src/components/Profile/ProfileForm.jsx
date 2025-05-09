@@ -10,8 +10,10 @@ import {
   Button,
   CircularProgress,
   MenuItem,
+  Chip,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
+import RegionSelectionModal from "../../components/CreateLecture/RegionSelectionModal";
 
 // MBTI 목록
 const mbtiOptions = [
@@ -42,11 +44,15 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   const [mbti, setMbti] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  // 닉네임 중복 확인 관련 상태
+  // 지역 관련 상태 추가
+
+  // 닉네임 중복 확인, 생년월일, 지역 관련 상태
   const [isNicknameChecked, setIsNicknameChecked] = useState(false);
   const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
   const [checkingNickname, setCheckingNickname] = useState(false);
   const [birthDateError, setBirthDateError] = useState("");
+  const [selectedRegions, setSelectedRegions] = useState([]);
+  const [regionDialogOpen, setRegionDialogOpen] = useState(false);
 
   // 프로필 데이터 로드 시 초기화
   useEffect(() => {
@@ -57,11 +63,21 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       setSex(profileData.sex || "남성");
       setMbti(profileData.mbti || "");
 
+      if (profileData.regions && profileData.regions.length > 0) {
+        setSelectedRegions(profileData.regions);
+      }
+
       // 같은 닉네임이면 중복 확인 상태 초기화
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
     }
   }, [profileData]);
+
+  // 지역 선택 처리 함수
+  const handleRegionSelect = (regions) => {
+    setSelectedRegions(regions);
+    setRegionDialogOpen(false);
+  };
 
   // 닉네임 변경 시 중복확인 상태 초기화
   const handleNicknameChange = (e) => {
@@ -201,6 +217,12 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       return;
     }
 
+    // 지역 유효성 검사
+    if (selectedRegions.length === 0) {
+      alert("최소 한 개 이상의 지역을 선택해주세요.");
+      return;
+    }
+
     setUpdating(true);
 
     try {
@@ -210,12 +232,16 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
         birthDate,
         sex,
         mbti,
+        regionCodes: selectedRegions.map((region) => region.regionCode),
       };
 
       await updateProfile(updateData);
 
       // 부모 컴포넌트에 업데이트 알림
-      onProfileUpdate(updateData);
+      onProfileUpdate({
+        ...updateData,
+        regions: selectedRegions,
+      });
 
       // 원래 닉네임 업데이트
       setOriginalNickname(nickname);
@@ -332,25 +358,95 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
         </RadioGroup>
       </Box>
 
-      {/* 지역 필드 */}
-      <Box sx={{ mb: 3 }}>
+      {/* 지역 필드 - 수정된 버전 */}
+      <Box sx={{ mb: 4 }}>
         <Typography fontWeight={600} sx={{ mb: 1 }}>
           지역{" "}
           <Box component="span" sx={{ color: "red" }}>
             *
           </Box>
         </Typography>
-        <TextField
-          fullWidth
-          value="지역 정보 표시 예정"
-          disabled
-          sx={{
-            "& .MuiOutlinedInput-root": {
+
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          {/* 지역 선택 버튼 - 다른 입력 필드와 높이 맞춤 */}
+          <Box
+            onClick={() => setRegionDialogOpen(true)}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              px: 3,
+              height: "56px", // 다른 입력 필드와 높이 맞춤
+              width: "100%",
+              maxWidth: "170px",
+              bgcolor: "#f9f9f9",
               borderRadius: "8px",
-            },
-          }}
-        />
+              cursor: "pointer",
+              color: "#666",
+              border: "1px solid #e0e0e0",
+            }}
+          >
+            <Typography fontWeight={400} color="#757575">
+              지역
+            </Typography>
+            <Typography fontWeight={300} color="#9e9e9e" ml="auto">
+              ›
+            </Typography>
+          </Box>
+
+          {/* 선택된 지역 표시 - 연한 파란색 배경의 X 버튼 */}
+          {selectedRegions.map((region, idx) => (
+            <Chip
+              key={idx}
+              label={region.displayName || `${region.sido} ${region.sigungu}`}
+              deleteIcon={
+                <Box
+                  component="div"
+                  sx={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    backgroundColor: "#E3EAFF", // 연한 파란색 배경
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#5B8DEF", // 파란색 X 표시
+                    fontWeight: "bold",
+                    fontSize: "14px",
+                  }}
+                >
+                  ×
+                </Box>
+              }
+              onDelete={() => {
+                const newRegions = [...selectedRegions];
+                newRegions.splice(idx, 1);
+                setSelectedRegions(newRegions);
+              }}
+              sx={{
+                height: "40px",
+                borderRadius: "50px",
+                backgroundColor: "white",
+                border: "1px solid #5B8DEF",
+                color: "#5B8DEF",
+                fontWeight: 500,
+                "& .MuiChip-label": {
+                  paddingLeft: 1.5,
+                  paddingRight: 1,
+                },
+              }}
+            />
+          ))}
+        </Box>
       </Box>
+
+      {/* 지역 선택 모달 */}
+      <RegionSelectionModal
+        open={regionDialogOpen}
+        onClose={() => setRegionDialogOpen(false)}
+        onSubmit={handleRegionSelect}
+        selectedRegions={selectedRegions}
+      />
 
       {/* MBTI 필드 */}
       <Box sx={{ mb: 4 }}>
