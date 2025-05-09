@@ -162,7 +162,7 @@ export default function BasicInfoForm({ onNext, showToast }) {
       <FormFieldWrapper label="회당 수강료" required>
         <CustomTextField
           type="number"
-          value={formData.price || ""}
+          value={formData.price ?? ""}
           onChange={(e) => {
             const value = e.target.value;
             const numeric = Number(value);
