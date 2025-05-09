@@ -125,7 +125,7 @@ export default function MessageTable({
               bgcolor="var(--bg-100)"
             >
               <Typography
-                color="text.secondary"
+                color="var(--text-300)"
                 fontSize="14px"
                 textAlign="center"
               >
@@ -207,7 +207,7 @@ export default function MessageTable({
                       bgcolor="var(--bg-100)"
                     >
                       <Typography
-                        color="text.secondary"
+                        color="var(--text-300)"
                         fontSize="14px"
                         textAlign="center"
                       >

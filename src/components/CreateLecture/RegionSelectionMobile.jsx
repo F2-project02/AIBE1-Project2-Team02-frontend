@@ -146,11 +146,11 @@ export default function RegionSelectionMobile({
         >
           {loading ? (
             <Box p={3} textAlign="center">
-              <Typography color="text.secondary"></Typography>
+              <Typography color="var(--text-300)"></Typography>
             </Box>
           ) : currentItems.length === 0 ? (
             <Box p={3} textAlign="center">
-              <Typography color="text.secondary"></Typography>
+              <Typography color="var(--text-300)"></Typography>
             </Box>
           ) : (
             currentItems.map((item) => {
