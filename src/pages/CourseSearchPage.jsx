@@ -86,8 +86,6 @@ const CourseSearchPage = () => {
               return region.sido || region.displayName;
             }
           });
-
-          console.log("검색에 사용되는 지역들:", params.regions);
         }
 
         // 가격 범위
@@ -149,8 +147,6 @@ const CourseSearchPage = () => {
     if (!lectures || !Array.isArray(lectures)) return [];
 
     return lectures.map((lecture) => {
-      console.log("강의 원본 데이터:", lecture); // 디버깅용
-
       let regionList = [];
 
       // regions가 존재하는 경우 (null, undefined가 아닌 경우)
