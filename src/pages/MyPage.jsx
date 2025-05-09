@@ -40,6 +40,8 @@ export default function MyPage() {
   const [isNicknameAvailable, setIsNicknameAvailable] = useState(false);
   const [checkingNickname, setCheckingNickname] = useState(false);
 
+  const [birthDateError, setBirthDateError] = useState("");
+
   // MBTI 목록
   const mbtiOptions = [
     "ISTJ",
@@ -271,6 +273,70 @@ export default function MyPage() {
     }
   };
 
+  // 유효한 날짜인지 확인하는 함수
+  const isValidDate = (dateString) => {
+    // 길이가 8자가 아니면 유효하지 않음
+    if (dateString.length !== 8) return false;
+
+    // YYYY, MM, DD로 분리
+    const year = parseInt(dateString.substring(0, 4), 10);
+    const month = parseInt(dateString.substring(4, 6), 10);
+    const day = parseInt(dateString.substring(6, 8), 10);
+
+    // 현재 연도 구하기
+    const currentYear = new Date().getFullYear();
+
+    // 연도 범위 체크 (예: 1900년부터 현재 연도까지)
+    if (year < 1900 || year > currentYear) return false;
+
+    // 월 체크 (1-12)
+    if (month < 1 || month > 12) return false;
+
+    // 각 월의 마지막 날짜
+    const lastDayOfMonth = new Date(year, month, 0).getDate();
+
+    // 일 체크 (1부터 해당 월의 마지막 날짜까지)
+    if (day < 1 || day > lastDayOfMonth) return false;
+
+    return true;
+  };
+
+  // 생년월일 변경 핸들러
+  const handleBirthDateChange = (e) => {
+    const value = e.target.value;
+
+    // 숫자만 입력 다능하도록 함
+    if (value && !/^\d*$/.test(value)) {
+      setBirthDateError("숫자만 입력 가능합니다");
+      return;
+    }
+
+    if (value.length > 8) {
+      setBirthDateError("YYYYMMDD 형식의 8자리로 입력해주세요");
+      return;
+    }
+
+    setBirthDate(value);
+
+    // 비어있을 때는 에러 메시지 없음
+    if (value.length === 0) {
+      setBirthDateError("");
+      return;
+    }
+
+    // 8자리일 때는 유효한 날짜인지 확인
+    if (value.length === 8) {
+      if (!isValidDate(value)) {
+        setBirthDateError("유효하지 않은 날짜입니다.");
+      } else {
+        setBirthDateError("");
+      }
+    } else {
+      // 8자리가 아닐 때는 입력 중인 상태로 간주
+      setBirthDateError("YYYYMMDD 형식의 8자리로 입력해주세요");
+    }
+  };
+
   // 프로필 업데이트
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -285,6 +351,19 @@ export default function MyPage() {
     if (nickname !== originalNickname && !isNicknameAvailable) {
       alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
       return;
+    }
+
+    // 생년월일 유효성 검사 추가
+    if (birthDate) {
+      if (birthDate.length !== 8) {
+        alert("생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.");
+        return;
+      }
+
+      if (!isValidDate(birthDate)) {
+        alert("유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.");
+        return;
+      }
     }
 
     setUpdating(true);
@@ -682,8 +761,11 @@ export default function MyPage() {
                 <TextField
                   fullWidth
                   value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
+                  onChange={handleBirthDateChange}
                   placeholder="생년월일을 입력하세요. (YYYYMMDD)"
+                  error={!!birthDateError}
+                  helperText={birthDateError}
+                  inputProps={{ maxLength: 8 }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: "8px",
