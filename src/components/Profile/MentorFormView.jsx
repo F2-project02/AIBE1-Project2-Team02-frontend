@@ -11,7 +11,9 @@ import {
 import {
   fetchMentorProfile,
   updateMentorProfile,
+  applyMentorProfile,
 } from "../../lib/api/profileApi";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function MentorFormView() {
   const [isLoading, setIsLoading] = useState(true);
@@ -21,10 +23,20 @@ export default function MentorFormView() {
   const [filePreview, setFilePreview] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [contentError, setContentError] = useState("");
 
-  // 멘토 프로필 로드
+  const { role, updateRole } = useUserStore();
+  const isMentor = role === "MENTOR";
+
+  // 멘토 프로필 로드 (멘토인 경우만)
   useEffect(() => {
     const loadMentorProfile = async () => {
+      if (!isMentor) {
+        // 멘티인 경우 로딩 완료 처리
+        setIsLoading(false);
+        return;
+      }
+
       console.log("멘토 프로필 로드 시작");
       setIsLoading(true);
       try {
@@ -57,7 +69,7 @@ export default function MentorFormView() {
     };
 
     loadMentorProfile();
-  }, []);
+  }, [isMentor]);
 
   // 컴포넌트 상태 디버깅
   console.log("컴포넌트 렌더링:", {
@@ -66,6 +78,7 @@ export default function MentorFormView() {
     content,
     filePreview,
     error,
+    isMentor,
   });
 
   // 파일 선택 핸들러
@@ -86,9 +99,12 @@ export default function MentorFormView() {
     e.preventDefault();
     console.log("폼 제출 시작");
 
+    // 자기소개 유효성 검사
     if (!content || content.length < 10) {
-      setError("자기소개는 최소 10자 이상 작성해주세요.");
+      setContentError("자기소개는 최소 10자 이상 작성해주세요.");
       return;
+    } else {
+      setContentError("");
     }
 
     try {
@@ -98,14 +114,35 @@ export default function MentorFormView() {
         formData.append("appealFile", file);
       }
 
-      console.log("멘토 프로필 업데이트 요청");
-      await updateMentorProfile(formData);
-      console.log("멘토 프로필 업데이트 성공");
+      if (isMentor) {
+        // 멘토인 경우: 프로필 업데이트
+        console.log("멘토 프로필 업데이트 요청");
+        await updateMentorProfile(formData);
+        console.log("멘토 프로필 업데이트 성공");
+      } else {
+        // 멘티인 경우: 멘토 신청
+        console.log("멘토 신청 요청");
+        await applyMentorProfile(formData);
+        console.log("멘토 신청 성공");
+        updateRole("MENTOR"); // 역할 업데이트
+
+        // 약간의 지연 후 새로고침하여 멘토 UI 표시
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      }
 
       setSuccess(true);
     } catch (error) {
-      console.error("멘토 프로필 업데이트 중 오류:", error);
-      setError(`멘토 프로필 업데이트 실패: ${error.message}`);
+      console.error(
+        isMentor ? "멘토 프로필 업데이트 중 오류:" : "멘토 신청 중 오류:",
+        error
+      );
+      setError(
+        `${isMentor ? "멘토 프로필 업데이트" : "멘토 신청"} 실패: ${
+          error.message
+        }`
+      );
     }
   };
 
@@ -115,14 +152,14 @@ export default function MentorFormView() {
       <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
         <CircularProgress />
         <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-          멘토 프로필 불러오는 중...
+          {isMentor ? "멘토 프로필 불러오는 중..." : "준비 중..."}
         </Typography>
       </Box>
     );
   }
 
-  // 오류 발생 시 UI
-  if (error) {
+  // 오류 발생 시 UI (멘토만 해당)
+  if (error && isMentor) {
     return (
       <Box
         sx={{
@@ -153,8 +190,8 @@ export default function MentorFormView() {
     );
   }
 
-  // 데이터 유효성 검사
-  if (!mentorProfile) {
+  // 데이터 유효성 검사 (멘토만 해당)
+  if (!mentorProfile && isMentor) {
     return (
       <Box
         sx={{
@@ -187,10 +224,19 @@ export default function MentorFormView() {
         멘토 프로필
       </Typography>
 
+      {/* 멘티를 위한 안내 메시지 */}
+      {!isMentor && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          멘토 정보를 입력하고 저장하면 멘토 활동을 시작할 수 있습니다.
+        </Alert>
+      )}
+
       {/* 성공 메시지 */}
       {success && (
         <Alert severity="success" sx={{ mb: 3 }}>
-          멘토 프로필이 성공적으로 업데이트되었습니다.
+          {isMentor
+            ? "멘토 프로필이 성공적으로 업데이트되었습니다."
+            : "멘토 신청이 완료되었습니다. 페이지가 새로고침됩니다."}
         </Alert>
       )}
 
@@ -210,6 +256,8 @@ export default function MentorFormView() {
           onChange={(e) => setContent(e.target.value)}
           placeholder="본인의 경력, 역량 등을 자세히 소개해주세요. (최소 10자)"
           required
+          error={!!contentError}
+          helperText={contentError}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: "8px",
@@ -221,7 +269,7 @@ export default function MentorFormView() {
       {/* 어필 파일 업로드 */}
       <Box sx={{ mb: 3 }}>
         <Typography fontWeight={600} sx={{ mb: 1 }}>
-          포트폴리오
+          포트폴리오 {!isMentor && "(선택사항)"}
         </Typography>
         <Box
           sx={{
@@ -309,7 +357,7 @@ export default function MentorFormView() {
           fontWeight: 600,
         }}
       >
-        프로필 수정하기
+        {isMentor ? "프로필 수정하기" : "멘토 신청하기"}
       </Button>
     </Box>
   );

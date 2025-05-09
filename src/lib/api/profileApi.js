@@ -221,3 +221,31 @@ export const deleteAccount = async () => {
     throw new Error(result.message || "회원 탈퇴 실패");
   }
 };
+
+export const applyMentorProfile = async (formData) => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("인증 토큰이 없습니다");
+  }
+
+  const baseUrl = getBaseUrl();
+
+  const response = await fetch(`${baseUrl}/api/account/mentor/apply`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("멘토 신청에 실패했습니다");
+  }
+
+  const result = await response.json();
+  if (result.success) {
+    return result.data;
+  } else {
+    throw new Error(result.message || "멘토 신청 실패");
+  }
+};
