@@ -1,129 +1,118 @@
-// src/pages/CourseSearchPage.jsx
 import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  TextField,
-  Grid,
-  InputAdornment,
-  CircularProgress,
-  Drawer,
-  IconButton,
-  Divider,
   Pagination,
-  Slider,
-  Stack,
-  FormControlLabel,
-  Checkbox,
-  Button,
-  Dialog,
+  useMediaQuery,
+  useTheme,
+  TextField,
+  IconButton,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import CloseIcon from "@mui/icons-material/Close";
-import GradientButton from "../components/Button/GradientButton";
-import CourseCard from "../components/CourseSection/CourseCard";
-import CourseCardSkeleton from "../components/CourseSection/CourseCardSkeleton";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
+
 import { getLectures } from "../lib/api/lectureApi";
-import { categoryApi } from "../lib/api/categoryApi";
-import { regionApi } from "../lib/api/regionApi";
-import RegionSelectionModal from "../components/CreateLecture/RegionSelectionModal";
-import CategoryFilterDialog from "../components/Search/CategoryFilterDialog";
+
+// 🔍 모달 및 필터 컴포넌트
+import CategoryFilterModal from "../components/Search/CategoryFilterModal";
+import CategoryFilterMobile from "../components/Search/CategoryFilterMobile";
+import PriceFilterModal from "../components/Search/PriceFilterModal";
+import RatingFilterModal from "../components/Search/RatingFilterModal";
+import CertifiedMentorFilterModal from "../components/Search/CertifiedMentorFilterModal";
+import RegionSelectionModal from "../components/Search/RegionSelectionModal";
+import RegionSelectionMobile from "../components/Search/RegionSelectionMobile";
+
+// 🔍 레이아웃 및 목록
+import SearchLayout from "../components/Search/SearchLayout";
+import SidebarFilters from "../components/Search/SidebarFilters";
+import MobileFilterDrawer from "../components/Search/MobileFilterDrawer";
+import CourseList from "../components/CourseSection/CourseList";
 
 const CourseSearchPage = () => {
-  // State for search and filtering
-  const [keyword, setKeyword] = useState("");
-  const [search, setSearch] = useState("");
-  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
-  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
-  const [regionDialogOpen, setRegionDialogOpen] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // State for filtering criteria
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  // 📌 필터 상태 관리
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 300000]);
   const [ratingRange, setRatingRange] = useState(0);
   const [isCertified, setIsCertified] = useState(false);
 
-  // State for results
+  // 🗺️ 지역 필터 상세
+  const [selectedDongs, setSelectedDongs] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+
+  // 📂 3단 카테고리
+  const [selectedParent, setSelectedParent] = useState("");
+  const [selectedMiddle, setSelectedMiddle] = useState("");
+  const [selectedSubs, setSelectedSubs] = useState([]);
+
+  // 🔍 검색 상태
+  const [keyword, setKeyword] = useState("");
+  const [search, setSearch] = useState("");
+
+  // 📦 강의 데이터
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
 
-  // Effect to search for courses when filters change
+  // 📱 모달/Drawer 열림 여부
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [regionDialogOpen, setRegionDialogOpen] = useState(false);
+  const [priceDialogOpen, setPriceDialogOpen] = useState(false);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [certifiedDialogOpen, setCertifiedDialogOpen] = useState(false);
+
+  // 📡 강의 목록 요청
   useEffect(() => {
     const searchCourses = async () => {
       if (loading) return;
-
       setLoading(true);
 
       try {
-        // Prepare parameters for API call
         const params = {
           keyword: search,
-          page: page - 1, // API uses 0-based indexing
+          page: page - 1,
           size: 10,
         };
 
-        // 카테고리 처리
-        if (selectedCategory) {
-          const categoryParts = selectedCategory.split(" > ");
-          const lastCategory = categoryParts[categoryParts.length - 1];
-          params.category = lastCategory;
-        }
+        if (selectedCategory) params.category = selectedCategory;
 
-        // 지역 처리 - 복수 지역 지원
-        if (selectedRegions && selectedRegions.length > 0) {
-          // 각 지역별로 가장 구체적인 단위를 사용 (동 > 시군구 > 시도 순)
+        if (selectedRegions.length > 0) {
           params.regions = selectedRegions.map((region) => {
-            if (region.dong && region.dong.trim() !== "") {
-              return region.dong;
-            } else if (region.sigungu) {
-              return region.sigungu;
-            } else {
-              return region.sido || region.displayName;
-            }
+            if (region.dong?.trim()) return region.dong;
+            if (region.sigungu) return region.sigungu;
+            return region.sido || region.displayName;
           });
         }
 
-        // 가격 범위
         if (priceRange[0] > 0 || priceRange[1] < 300000) {
           params.minPrice = priceRange[0];
           params.maxPrice = priceRange[1];
         }
 
-        // 최소 평점
-        if (ratingRange > 0) {
-          params.minRating = ratingRange;
-        }
+        if (ratingRange > 0) params.minRating = ratingRange;
+        if (isCertified) params.isCertified = true;
 
-        // 인증 멘토만
-        if (isCertified) {
-          params.isCertified = true;
-        }
-
-        console.log("검색 매개변수:", params);
-
-        // 실제 API 호출
         const response = await getLectures(params);
 
         if (response.success && response.data) {
-          const lecturesData = response.data;
-
-          setCourses(mapApiResponseToCards(lecturesData.content));
-          setTotalPages(lecturesData.totalPages);
-          setTotalResults(lecturesData.totalElements);
+          const { content, totalPages, totalElements } = response.data;
+          setCourses(mapApiResponseToCards(content));
+          setTotalPages(totalPages);
+          setTotalResults(totalElements);
         } else {
-          // 에러 핸들링
-          console.error("강의 검색 결과가 성공적이지 않습니다:", response);
           setCourses([]);
           setTotalPages(1);
           setTotalResults(0);
         }
       } catch (error) {
-        console.error("강의 검색 중 오류 발생:", error);
+        console.error("강의 검색 오류:", error);
         setCourses([]);
         setTotalPages(1);
         setTotalResults(0);
@@ -143,25 +132,20 @@ const CourseSearchPage = () => {
     isCertified,
   ]);
 
+  // API 응답 → 카드 데이터 매핑
   const mapApiResponseToCards = (lectures) => {
-    if (!lectures || !Array.isArray(lectures)) return [];
+    if (!Array.isArray(lectures)) return [];
 
     return lectures.map((lecture) => {
       let regionList = [];
-
-      // regions가 존재하는 경우 (null, undefined가 아닌 경우)
       if (lecture.regions) {
-        // 이미 배열인 경우
         if (Array.isArray(lecture.regions)) {
           regionList = lecture.regions;
-        }
-        // JSON 문자열인 경우 파싱 시도
-        else if (typeof lecture.regions === "string") {
+        } else if (typeof lecture.regions === "string") {
           try {
             const parsed = JSON.parse(lecture.regions);
             regionList = Array.isArray(parsed) ? parsed : [parsed];
-          } catch (e) {
-            // 파싱 실패하면 원본 문자열 사용
+          } catch {
             regionList = [lecture.regions];
           }
         }
@@ -181,529 +165,248 @@ const CourseSearchPage = () => {
     });
   };
 
-  // Handle search submission
+  // 🔎 검색 제출
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setSearch(keyword);
     setPage(1);
   };
 
-  // Handle category selection
-  const handleCategorySelect = (categoryString) => {
-    setSelectedCategory(categoryString);
-    setCategoryDialogOpen(false);
-  };
-
-  // Handle region selection
-  const handleRegionSelect = (selectedRegions) => {
-    setSelectedRegions(selectedRegions);
+  // 📍 지역 선택 핸들러
+  const handleRegionSelect = (selected) => {
+    setSelectedRegions(selected);
     setRegionDialogOpen(false);
+    setPage(1);
   };
 
-  // Reset all filters
+  // 🔄 필터 초기화
   const handleResetFilters = () => {
     setSelectedCategory(null);
     setSelectedRegions([]);
     setPriceRange([0, 300000]);
     setRatingRange(0);
     setIsCertified(false);
-  };
-
-  // Apply filters and close drawer
-  const handleApplyFilters = () => {
-    setPage(1); // Reset to first page when filters change
-    setFilterDrawerOpen(false);
-  };
-
-  // Format price display
-  const formatPrice = (value) => {
-    return `${value.toLocaleString()}원`;
+    setSelectedParent("");
+    setSelectedMiddle("");
+    setSelectedSubs([]);
   };
 
   return (
-    <Box sx={{ mt: 4, mb: 8 }}>
-      {/* 페이지 제목 */}
-      <Typography variant="h5" fontWeight={600} gutterBottom>
-        과외 찾기
-      </Typography>
-
-      {/* 검색바 */}
-      <Box
-        component="form"
-        onSubmit={handleSearchSubmit}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          mt: 3,
-          mb: 4,
-        }}
-      >
-        <TextField
-          fullWidth
-          placeholder="과외 키워드를 검색해보세요"
-          variant="outlined"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon color="action" />
-              </InputAdornment>
-            ),
-            sx: {
-              borderRadius: "16px",
-              backgroundColor: "white",
-            },
-          }}
-        />
-
-        <Button
-          variant="contained"
-          onClick={() => setFilterDrawerOpen(true)}
-          sx={{
-            ml: 2,
-            borderRadius: "16px",
-            height: 56,
-            minWidth: 56,
-            backgroundColor: "var(--bg-200)",
-            color: "var(--text-300)",
-            "&:hover": {
-              backgroundColor: "var(--bg-300)",
-            },
-          }}
-        >
-          <FilterListIcon />
-        </Button>
-      </Box>
-
-      {/* 현재 적용된 필터 표시 */}
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 1,
-          mb: 3,
-          visibility:
-            selectedCategory ||
-            selectedRegions.length > 0 ||
-            priceRange[0] > 0 ||
-            priceRange[1] < 300000 ||
-            ratingRange > 0 ||
-            isCertified
-              ? "visible"
-              : "hidden",
-        }}
-      >
-        {selectedCategory && (
-          <Box
-            sx={{
-              backgroundColor: "var(--action-primary-bg)",
-              color: "var(--primary-200)",
-              px: 2,
-              py: 0.5,
-              borderRadius: "20px",
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {selectedCategory}
-            <CloseIcon
-              sx={{ ml: 0.5, fontSize: 16, cursor: "pointer" }}
-              onClick={() => setSelectedCategory(null)}
-            />
-          </Box>
-        )}
-
-        {selectedRegions.length > 0 && (
-          <Box
-            sx={{
-              backgroundColor: "var(--action-yellow-bg)",
-              color: "var(--action-yellow)",
-              px: 2,
-              py: 0.5,
-              borderRadius: "20px",
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {selectedRegions.length > 1
-              ? `${selectedRegions[0].displayName} 외 ${
-                  selectedRegions.length - 1
-                }개`
-              : selectedRegions[0].displayName}
-            <CloseIcon
-              sx={{ ml: 0.5, fontSize: 16, cursor: "pointer" }}
-              onClick={() => setSelectedRegions([])}
-            />
-          </Box>
-        )}
-
-        {(priceRange[0] > 0 || priceRange[1] < 300000) && (
-          <Box
-            sx={{
-              backgroundColor: "var(--action-green-bg)",
-              color: "var(--action-green)",
-              px: 2,
-              py: 0.5,
-              borderRadius: "20px",
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {`${formatPrice(priceRange[0])} ~ ${formatPrice(priceRange[1])}`}
-            <CloseIcon
-              sx={{ ml: 0.5, fontSize: 16, cursor: "pointer" }}
-              onClick={() => setPriceRange([0, 300000])}
-            />
-          </Box>
-        )}
-
-        {ratingRange > 0 && (
-          <Box
-            sx={{
-              backgroundColor: "var(--action-primary-bg)",
-              color: "var(--primary-200)",
-              px: 2,
-              py: 0.5,
-              borderRadius: "20px",
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {`${ratingRange}점 이상`}
-            <CloseIcon
-              sx={{ ml: 0.5, fontSize: 16, cursor: "pointer" }}
-              onClick={() => setRatingRange(0)}
-            />
-          </Box>
-        )}
-
-        {isCertified && (
-          <Box
-            sx={{
-              backgroundColor: "var(--action-red-bg)",
-              color: "var(--action-red)",
-              px: 2,
-              py: 0.5,
-              borderRadius: "20px",
-              fontSize: 14,
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            인증 멘토만
-            <CloseIcon
-              sx={{ ml: 0.5, fontSize: 16, cursor: "pointer" }}
-              onClick={() => setIsCertified(false)}
-            />
-          </Box>
-        )}
-      </Box>
-
-      {/* 검색 결과 정보 */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 3,
-        }}
-      >
-        <Typography variant="body2" color="var(--text-300)">
-          총 <strong>{totalResults.toLocaleString()}</strong>개의 과외가
-          있습니다
-        </Typography>
-
-        {/* 여기에 정렬 옵션을 추가할 수 있습니다 */}
-      </Box>
-
-      {/* 검색 결과 */}
-      {loading ? (
-        <Grid container spacing={3}>
-          {Array(10)
-            .fill(null)
-            .map((_, idx) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={`skeleton-${idx}`}>
-                <CourseCardSkeleton />
-              </Grid>
-            ))}
-        </Grid>
-      ) : courses.length > 0 ? (
-        <Grid container spacing={3}>
-          {courses.map((course) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={course.lectureId}>
-              <CourseCard data={course} />
-            </Grid>
-          ))}
-        </Grid>
-      ) : (
+    <>
+      {/* 📱 모바일 상단: 검색창 + 필터 버튼 */}
+      {isMobile && (
         <Box
-          sx={{
-            py: 10,
-            textAlign: "center",
-            backgroundColor: "var(--bg-200)",
-            borderRadius: 2,
-          }}
+          position="sticky"
+          top={0}
+          zIndex={100}
+          bgcolor="var(--bg-100)"
+          py={1.5}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
         >
-          <Typography variant="h6" color="var(--text-300)">
-            검색 결과가 없습니다
-          </Typography>
-          <Typography variant="body2" color="var(--text-400)" sx={{ mt: 1 }}>
-            다른 검색어나 필터를 사용해보세요
-          </Typography>
-        </Box>
-      )}
-
-      {/* 페이지네이션 */}
-      {totalPages > 1 && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(_, newPage) => setPage(newPage)}
-            color="primary"
-            shape="rounded"
+          <TextField
+            fullWidth
+            placeholder="키워드 검색"
+            variant="outlined"
+            size="small"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearchSubmit(e)}
+            sx={{
+              flex: 1,
+              mr: 2,
+              bgcolor: "var(--bg-200)",
+              borderRadius: "8px",
+              height: 44,
+              "& .MuiOutlinedInput-root": {
+                height: "100%",
+                borderRadius: "8px",
+                fontSize: "0.95rem",
+                "& fieldset": { border: "none" },
+              },
+              "& input": {
+                color: "var(--text-100)",
+                "&::placeholder": { color: "var(--text-300)", opacity: 1 },
+              },
+            }}
           />
-        </Box>
-      )}
-
-      {/* 필터 드로어 */}
-      <Drawer
-        anchor="right"
-        open={filterDrawerOpen}
-        onClose={() => setFilterDrawerOpen(false)}
-        PaperProps={{
-          sx: {
-            width: { xs: "100%", sm: 400 },
-            p: 3,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 3,
-          }}
-        >
-          <Typography variant="h6" fontWeight={600}>
-            상세 필터
-          </Typography>
-          <IconButton onClick={() => setFilterDrawerOpen(false)}>
-            <CloseIcon />
+          <IconButton
+            onClick={() => setMobileFilterOpen(true)}
+            sx={{
+              width: 44,
+              height: 44,
+              bgcolor: "var(--bg-200)",
+              borderRadius: "8px",
+              "&:hover": { bgcolor: "var(--bg-300)" },
+            }}
+          >
+            <FilterAltIcon sx={{ color: "var(--text-300)" }} />
           </IconButton>
         </Box>
+      )}
 
-        <Divider sx={{ mb: 3 }} />
+      {/* 모달들 */}
+      {isMobile ? (
+        <CategoryFilterMobile
+          open={categoryDialogOpen}
+          onClose={() => setCategoryDialogOpen(false)}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+          selectedParent={selectedParent}
+          setSelectedParent={setSelectedParent}
+          selectedMiddle={selectedMiddle}
+          setSelectedMiddle={setSelectedMiddle}
+          onSelect={(list) => {
+            setSelectedCategory(list);
+            setCategoryDialogOpen(false);
+          }}
+        />
+      ) : (
+        <CategoryFilterModal
+          open={categoryDialogOpen}
+          onClose={() => setCategoryDialogOpen(false)}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+          selectedParent={selectedParent}
+          setSelectedParent={setSelectedParent}
+          selectedMiddle={selectedMiddle}
+          setSelectedMiddle={setSelectedMiddle}
+          onSelect={(list) => {
+            setSelectedCategory(list);
+            setCategoryDialogOpen(false);
+          }}
+        />
+      )}
 
-        {/* 카테고리 필터 */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            과목 카테고리
-          </Typography>
+      {isMobile ? (
+        <RegionSelectionMobile
+          open={regionDialogOpen}
+          onClose={() => setRegionDialogOpen(false)}
+          selectedDongs={selectedDongs}
+          setSelectedDongs={setSelectedDongs}
+          selectedProvince={selectedProvince}
+          setSelectedProvince={setSelectedProvince}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          onSubmit={handleRegionSelect}
+        />
+      ) : (
+        <RegionSelectionModal
+          open={regionDialogOpen}
+          onClose={() => setRegionDialogOpen(false)}
+          selectedDongs={selectedDongs}
+          setSelectedDongs={setSelectedDongs}
+          selectedProvince={selectedProvince}
+          setSelectedProvince={setSelectedProvince}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          onSubmit={handleRegionSelect}
+        />
+      )}
 
-          <Button
-            variant="outlined"
-            fullWidth
-            onClick={() => setCategoryDialogOpen(true)}
-            sx={{
-              justifyContent: "flex-start",
-              textTransform: "none",
-              py: 1.5,
-              borderColor: "var(--bg-300)",
-              color: selectedCategory ? "var(--text-100)" : "var(--text-400)",
-              fontWeight: selectedCategory ? 600 : 400,
-              "&:hover": {
-                borderColor: "var(--primary-100)",
-                backgroundColor: "var(--bg-100)",
-              },
+      <PriceFilterModal
+        open={priceDialogOpen}
+        onClose={() => setPriceDialogOpen(false)}
+        initialRange={priceRange}
+        onSubmit={(range) => {
+          setPriceRange(range);
+          setPage(1);
+        }}
+      />
+
+      <RatingFilterModal
+        open={ratingDialogOpen}
+        onClose={() => setRatingDialogOpen(false)}
+        initialRating={ratingRange}
+        onSubmit={(val) => {
+          setRatingRange(val);
+          setPage(1);
+        }}
+      />
+
+      <CertifiedMentorFilterModal
+        open={certifiedDialogOpen}
+        onClose={() => setCertifiedDialogOpen(false)}
+        initialChecked={isCertified}
+        onSubmit={(checked) => {
+          setIsCertified(checked);
+          setPage(1);
+        }}
+      />
+
+      {/* 데스크탑 레이아웃 */}
+      <SearchLayout
+        sidebar={
+          <SidebarFilters
+            showKeyword={!isMobile}
+            onKeywordChange={(val) => setKeyword(val)}
+            onKeywordSubmit={(val) => {
+              setSearch(val);
+              setPage(1);
             }}
-          >
-            {selectedCategory || "과목을 선택해주세요"}
-          </Button>
-        </Box>
-
-        {/* 지역 필터 */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            지역 선택
-          </Typography>
-
-          <Button
-            variant="outlined"
-            fullWidth
-            onClick={() => setRegionDialogOpen(true)}
-            sx={{
-              justifyContent: "flex-start",
-              textTransform: "none",
-              py: 1.5,
-              borderColor: "var(--bg-300)",
-              color:
-                selectedRegions.length > 0
-                  ? "var(--text-100)"
-                  : "var(--text-400)",
-              fontWeight: selectedRegions.length > 0 ? 600 : 400,
-              "&:hover": {
-                borderColor: "var(--primary-100)",
-                backgroundColor: "var(--bg-100)",
-              },
-            }}
-          >
-            {selectedRegions.length > 0
-              ? selectedRegions.length > 1
-                ? `${selectedRegions[0].displayName} 외 ${
-                    selectedRegions.length - 1
-                  }개`
-                : selectedRegions[0].displayName
-              : "지역을 선택해주세요"}
-          </Button>
-        </Box>
-
-        {/* 가격 범위 필터 */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            수업료 범위
-          </Typography>
-
-          <Box sx={{ px: 2 }}>
-            <Slider
-              value={priceRange}
-              onChange={(e, newValue) => setPriceRange(newValue)}
-              valueLabelDisplay="auto"
-              valueLabelFormat={formatPrice}
-              min={0}
-              max={300000}
-              step={10000}
-              sx={{
-                color: "var(--primary-100)",
-                "& .MuiSlider-thumb": {
-                  "&:hover, &.Mui-focusVisible": {
-                    boxShadow: "0px 0px 0px 8px var(--action-primary-bg)",
-                  },
-                },
-              }}
-            />
-
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}
-            >
-              <Typography variant="body2" color="var(--text-300)">
-                {formatPrice(priceRange[0])}
-              </Typography>
-              <Typography variant="body2" color="var(--text-300)">
-                {formatPrice(priceRange[1])}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* 평점 필터 */}
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            최소 평점
-          </Typography>
-
-          <Box sx={{ px: 2 }}>
-            <Slider
-              value={ratingRange}
-              onChange={(e, newValue) => setRatingRange(newValue)}
-              valueLabelDisplay="auto"
-              min={0}
-              max={5}
-              step={0.5}
-              marks={[
-                { value: 0, label: "0" },
-                { value: 1, label: "1" },
-                { value: 2, label: "2" },
-                { value: 3, label: "3" },
-                { value: 4, label: "4" },
-                { value: 5, label: "5" },
-              ]}
-              sx={{
-                color: "var(--primary-100)",
-                "& .MuiSlider-thumb": {
-                  "&:hover, &.Mui-focusVisible": {
-                    boxShadow: "0px 0px 0px 8px var(--action-primary-bg)",
-                  },
-                },
-              }}
-            />
-          </Box>
-        </Box>
-
-        {/* 인증 멘토 필터 */}
-        <Box sx={{ mb: 5 }}>
-          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-            멘토 인증
-          </Typography>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isCertified}
-                onChange={(e) => setIsCertified(e.target.checked)}
-                sx={{
-                  color: "var(--primary-100)",
-                  "&.Mui-checked": {
-                    color: "var(--primary-100)",
-                  },
-                }}
-              />
-            }
-            label="인증된 멘토만 보기"
+            onOpenCategory={() => setCategoryDialogOpen(true)}
+            onOpenRegion={() => setRegionDialogOpen(true)}
+            onOpenPrice={() => setPriceDialogOpen(true)}
+            onOpenRating={() => setRatingDialogOpen(true)}
+            onOpenCertified={() => setCertifiedDialogOpen(true)}
           />
-        </Box>
+        }
+        content={
+          <>
+            <Typography variant="body2" color="var(--text-300)" sx={{ mb: 2 }}>
+              총 <strong>{totalResults}</strong>개의 과외가 있습니다
+            </Typography>
 
-        {/* 필터 버튼 영역 */}
-        <Box sx={{ display: "flex", gap: 2, mt: "auto" }}>
-          <Button
-            variant="outlined"
-            fullWidth
-            onClick={handleResetFilters}
-            sx={{
-              py: 1.5,
-              borderColor: "var(--bg-300)",
-              color: "var(--text-300)",
-              "&:hover": {
-                borderColor: "var(--bg-300)",
-                backgroundColor: "var(--bg-200)",
-              },
+            <CourseList courses={courses} loading={loading} />
+
+            {totalPages > 1 && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+                <Pagination
+                  count={totalPages}
+                  page={page}
+                  onChange={(_, newPage) => setPage(newPage)}
+                  shape="rounded"
+                />
+              </Box>
+            )}
+          </>
+        }
+      />
+
+      {/* 모바일 필터 Drawer */}
+      {isMobile && (
+        <MobileFilterDrawer
+          open={mobileFilterOpen}
+          onClose={() => setMobileFilterOpen(false)}
+        >
+          <SidebarFilters
+            showKeyword={false}
+            onKeywordChange={(val) => setKeyword(val)}
+            onOpenCategory={() => {
+              setCategoryDialogOpen(true);
+              setMobileFilterOpen(false);
             }}
-          >
-            초기화
-          </Button>
-
-          <GradientButton
-            fullWidth
-            onClick={handleApplyFilters}
-            sx={{ py: 1.5 }}
-          >
-            필터 적용
-          </GradientButton>
-        </Box>
-      </Drawer>
-
-      {/* 카테고리 선택 모달 */}
-      <CategoryFilterDialog
-        open={categoryDialogOpen}
-        onClose={() => setCategoryDialogOpen(false)}
-        initialSelection={selectedCategory}
-        onSelect={handleCategorySelect}
-      />
-
-      {/* 지역 선택 모달 */}
-      <RegionSelectionModal
-        open={regionDialogOpen}
-        onClose={() => setRegionDialogOpen(false)}
-        onSubmit={handleRegionSelect}
-        selectedRegions={selectedRegions}
-      />
-    </Box>
+            onOpenRegion={() => {
+              setRegionDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
+            onOpenPrice={() => {
+              setPriceDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
+            onOpenRating={() => {
+              setRatingDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
+            onOpenCertified={() => {
+              setCertifiedDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
+          />
+        </MobileFilterDrawer>
+      )}
+    </>
   );
 };
 
