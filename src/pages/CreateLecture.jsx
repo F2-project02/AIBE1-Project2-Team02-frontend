@@ -26,7 +26,7 @@ function TabPanel({ children, value, index }) {
 
 export default function CreateLecture() {
   const [currentTab, setCurrentTab] = useState(0);
-  const { isLoggedIn } = useUserStore();
+  const { isLoggedIn, role } = useUserStore();
   const { formData, isLoading, error, setError, setIsLoading } =
     useLectureStore();
 
@@ -188,8 +188,11 @@ export default function CreateLecture() {
     );
   }
 
-  // 로그인 , 멘토권한 둘중 하나라도 없으면 막기
-  if (!isLoggedIn || !isMentor) {
+  // 권한 체크: 로그인 상태이고 MENTOR 또는 ADMIN 역할이어야 함
+  const hasPermission = isLoggedIn && (isMentor || role === "ADMIN");
+
+  // 권한이 없으면 접근 불가 페이지 표시
+  if (!hasPermission) {
     return <UnauthorizedView />;
   }
 
