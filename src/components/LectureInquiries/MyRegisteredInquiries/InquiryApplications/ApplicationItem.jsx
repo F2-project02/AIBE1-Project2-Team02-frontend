@@ -56,7 +56,7 @@ export default function ApplicationItem({ data }) {
           />
           <Box>
             <Typography fontWeight={600}>{nickname}</Typography>
-            <Typography fontSize={13} color="text.secondary">
+            <Typography fontSize={13} color="var(--text-300)">
               {createdAt}
             </Typography>
           </Box>

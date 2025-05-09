@@ -70,7 +70,7 @@ export default function ProfileCard({
 
         {/* 학교/지역 - 멘토일 때만 표시 */}
         {profileData?.role === "MENTOR" && mentorProfile && (
-          <Typography variant="body2" color="text.secondary" fontSize="0.85rem">
+          <Typography variant="body2" color="var(--text-300)" fontSize="0.85rem">
             {mentorProfile.education} {mentorProfile.major}
           </Typography>
         )}
