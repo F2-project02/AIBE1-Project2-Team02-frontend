@@ -8,20 +8,81 @@ import {
   Stack,
   Avatar,
   Typography,
+  Alert,
+  Snackbar,
+  CircularProgress,
 } from "@mui/material";
 import { useState } from "react";
 import { useUserStore } from "../../store/useUserStore";
+import axiosInstance from "../../lib/axiosInstance";
 
-export default function ReviewForm() {
+export default function ReviewForm({ lectureId, onReviewAdded }) {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const { nickname, profileImage, userId } = useUserStore();
 
-  const { nickname, profileImage } = useUserStore();
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      setError("리뷰 내용을 입력해주세요.");
+      return;
+    }
 
-  const handleSubmit = () => {
-    console.log("작성한 후기:", { rating, content });
-    setContent("");
-    setRating(5);
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 리뷰 작성 API 호출
+      const response = await axiosInstance.post(
+        `/api/lectures/${lectureId}/reviews`,
+        {
+          content: content,
+          rating: rating,
+        }
+      );
+
+      if (response.data?.success) {
+        // 성공 메시지 표시
+        setSuccess(true);
+        // 입력값 초기화
+        setContent("");
+        setRating(5);
+        // 부모 컴포넌트에 리뷰 추가 알림
+        if (onReviewAdded) {
+          onReviewAdded({
+            content,
+            rating,
+            createdAt: new Date().toISOString(),
+            writer: {
+              userId,
+              nickname,
+              profileImage,
+            },
+          });
+        }
+      } else {
+        throw new Error(response.data?.message || "리뷰 작성에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error("리뷰 작성 오류:", err);
+      setError(
+        err.message || "리뷰 작성 중 문제가 발생했습니다. 다시 시도해주세요."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 성공 메시지 닫기
+  const handleCloseSuccess = () => {
+    setSuccess(false);
+  };
+
+  // 에러 메시지 닫기
+  const handleCloseError = () => {
+    setError(null);
   };
 
   return (
@@ -62,6 +123,7 @@ export default function ReviewForm() {
         placeholder="여러분의 수업 후기를 남겨주세요!"
         value={content}
         onChange={(e) => setContent(e.target.value)}
+        disabled={loading}
         sx={{
           backgroundColor: "#fefefe",
           borderColor: "var(--bg-200)",
@@ -77,7 +139,7 @@ export default function ReviewForm() {
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={!content.trim()}
+          disabled={loading || !content.trim()}
           sx={{
             backgroundColor: "var(--primary-100)",
             borderRadius: "8px",
@@ -90,9 +152,45 @@ export default function ReviewForm() {
             },
           }}
         >
-          등록하기
+          {loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "등록하기"
+          )}
         </Button>
       </Box>
+
+      {/* 성공 메시지 Snackbar */}
+      <Snackbar
+        open={success}
+        autoHideDuration={5000}
+        onClose={handleCloseSuccess}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseSuccess}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          리뷰가 성공적으로 등록되었습니다!
+        </Alert>
+      </Snackbar>
+
+      {/* 에러 메시지 Snackbar */}
+      <Snackbar
+        open={!!error}
+        autoHideDuration={5000}
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleCloseError}
+          severity="error"
+          sx={{ width: "100%" }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
