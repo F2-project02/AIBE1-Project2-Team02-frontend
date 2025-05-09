@@ -15,6 +15,8 @@ export default function MyPage() {
     "/images/default-profile.svg"
   );
 
+  const [activeTab, setActiveTab] = useState("profile");
+
   useEffect(() => {
     const loadProfileData = async () => {
       setLoading(true);
@@ -53,6 +55,11 @@ export default function MyPage() {
     });
   };
 
+  // 탭 변경 핸들러
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+  };
+
   if (loading) {
     return (
       <Box
@@ -68,6 +75,25 @@ export default function MyPage() {
     );
   }
 
+  // 현재 탭에 맞는 컴포넌트 렌더링
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "profile":
+        return (
+          <>
+            <ProfileImageUploader />
+            <ProfileForm />
+          </>
+        );
+      case "mentor":
+        return;
+      case "delete":
+        return;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box sx={{ mt: 4, mb: 8 }}>
       {/* 상단 프로필 카드 영역 */}
@@ -80,23 +106,10 @@ export default function MyPage() {
       {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
       <Box sx={{ display: "flex", gap: 4 }}>
         {/* 좌측 메뉴 영역 */}
-        <MyPageSidebar />
+        <MyPageSidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* 우측 프로필 수정 영역 */}
-        <Box sx={{ flex: 1 }}>
-          <ProfileImageUploader
-            imagePreview={imagePreview}
-            onImageUpdate={handleProfileImageUpdate}
-          />
-
-          {/* 프로필 정보 폼 */}
-          {profileData && (
-            <ProfileForm
-              profileData={profileData}
-              onProfileUpdate={handleProfileUpdate}
-            />
-          )}
-        </Box>
+        <Box sx={{ flex: 1 }}>{renderActiveTab()}</Box>
       </Box>
     </Box>
   );
