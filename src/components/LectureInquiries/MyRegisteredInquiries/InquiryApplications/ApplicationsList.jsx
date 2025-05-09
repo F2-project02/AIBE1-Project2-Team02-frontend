@@ -51,7 +51,7 @@ export default function ApplicationsList({ lectureId }) {
           minHeight: 200,
         }}
       >
-        <Typography variant="body1" color="text.secondary" align="center">
+        <Typography variant="body1" color="var(--text-300)" align="center">
           왼쪽에서 강의를 선택하면
           <br />
           신청자 목록이 여기에 표시됩니다
@@ -74,7 +74,7 @@ export default function ApplicationsList({ lectureId }) {
           minHeight: 200,
         }}
       >
-        <Typography variant="body1" color="text.secondary" align="center">
+        <Typography variant="body1" color="var(--text-300)" align="center">
           왼쪽에서 강의를 선택하면
           <br />
           신청자 목록이 여기에 표시됩니다
@@ -102,7 +102,7 @@ export default function ApplicationsList({ lectureId }) {
             textAlign: "center",
           }}
         >
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body1" color="var(--text-300)">
             아직 신청자가 없습니다
           </Typography>
         </Box>

@@ -1,4 +1,5 @@
-// 📄 src/components/Search/RegionSelectionMobile.jsx
+// src/components/CreateLecture/RegionSelectionMobile.jsx
+
 import {
   Dialog,
   Box,
@@ -13,7 +14,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CheckIcon from "@mui/icons-material/Check";
 import GradientButton from "../Button/GradientButton";
 import { useEffect, useState } from "react";
-import { RegionApiService } from "./RegionApiService";
+import { RegionApiService } from "../Search/RegionApiService";
 
 export default function RegionSelectionMobile({
   open,
@@ -132,7 +133,6 @@ export default function RegionSelectionMobile({
           overflow="auto"
           py={2}
           sx={{
-            height: "auto",
             maxHeight: "calc(100vh - 280px)",
             scrollbarWidth: "thin",
             "&::-webkit-scrollbar": {
@@ -145,36 +145,20 @@ export default function RegionSelectionMobile({
           }}
         >
           {loading ? (
-            <Box p={3} textAlign="center"></Box>
-          ) : tab < 2 ? (
-            currentItems.map((item) => (
-              <Box
-                key={item}
-                onClick={() => handleItemClick(item)}
-                sx={{
-                  cursor: "pointer",
-                  px: 3,
-                  py: 1.5,
-                  mb: 1,
-                  borderRadius: "8px",
-                  backgroundColor: "#fefefe",
-                  color: "var(--text-300)",
-                  fontWeight: 500,
-                  "&:hover": {
-                    backgroundColor: "var(--bg-200)",
-                  },
-                }}
-              >
-                <Typography>{item}</Typography>
-              </Box>
-            ))
+            <Box p={3} textAlign="center">
+              <Typography color="var(--text-300)"></Typography>
+            </Box>
+          ) : currentItems.length === 0 ? (
+            <Box p={3} textAlign="center">
+              <Typography color="var(--text-300)"></Typography>
+            </Box>
           ) : (
-            dongs.map((dong) => {
-              const selected = isDongSelected(dong);
+            currentItems.map((item) => {
+              const selected = tab === 2 && isDongSelected(item);
               return (
                 <Box
-                  key={dong.regionCode}
-                  onClick={() => handleItemClick(dong)}
+                  key={item.regionCode || item}
+                  onClick={() => handleItemClick(item)}
                   sx={{
                     cursor: "pointer",
                     px: 3,
@@ -192,7 +176,9 @@ export default function RegionSelectionMobile({
                     },
                   }}
                 >
-                  <Typography>{dong.dong || `${dong.sigungu} 전체`}</Typography>
+                  <Typography>
+                    {tab === 2 ? item.dong || `${item.sigungu} 전체` : item}
+                  </Typography>
                   {selected && <CheckIcon fontSize="small" />}
                 </Box>
               );
@@ -206,7 +192,7 @@ export default function RegionSelectionMobile({
             <Typography fontSize={14} fontWeight={500} mb={1}>
               선택된 지역
             </Typography>
-            <Box display="flex" flexWrap="wrap" gap={1}>
+            <Box display="flex" flexWrap="wrap" gap={1} >
               {selectedDongs.map((dong) => (
                 <Chip
                   key={dong.regionCode}

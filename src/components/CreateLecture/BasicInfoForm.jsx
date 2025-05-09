@@ -1,6 +1,5 @@
-// src/components/CreateLecture/BasicInfoForm.jsx
 import { useEffect, useState } from "react";
-import { Box, Typography, TextField } from "@mui/material";
+import { Box, Typography, Skeleton } from "@mui/material";
 import GradientButton from "../Button/GradientButton";
 import FormFieldWrapper from "./FormFieldWrapper";
 import CategorySelector from "./CategorySelector";
@@ -17,7 +16,7 @@ export default function BasicInfoForm({ onNext, showToast }) {
   const [middleCategories, setMiddleCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
 
-  // 컴포넌트 마운트 시 카테고리 트리 데이터 로드
+  // 카테고리 트리 데이터 로드
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
@@ -25,9 +24,9 @@ export default function BasicInfoForm({ onNext, showToast }) {
         const tree = await categoryApi.getCategoryTree();
         setCategoryTree(tree);
         setParentCategories(Object.keys(tree));
-        setLoading(false);
       } catch (error) {
         console.error("카테고리 데이터 로딩 실패:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -35,16 +34,15 @@ export default function BasicInfoForm({ onNext, showToast }) {
     fetchCategoryData();
   }, []);
 
-  // 카테고리가 변경될 때 하위 카테고리 업데이트
+  // 카테고리 선택 시 하위 카테고리 업데이트
   useEffect(() => {
     if (formData.category && categoryTree[formData.category]) {
-      const newMiddleCategories = Object.keys(
+      const newMiddle = Object.keys(
         categoryTree[formData.category].middle || {}
       );
-      setMiddleCategories(newMiddleCategories);
+      setMiddleCategories(newMiddle);
 
-      // 직접 categoryTree로 유효성 검사
-      if (!newMiddleCategories.includes(formData.middleCategory)) {
+      if (!newMiddle.includes(formData.middleCategory)) {
         setFormField("middleCategory", "");
         setFormField("subCategory", "");
         setFormField("categoryId", null);
@@ -53,41 +51,26 @@ export default function BasicInfoForm({ onNext, showToast }) {
   }, [formData.category, categoryTree]);
 
   useEffect(() => {
-    if (
-      formData.category &&
-      formData.middleCategory &&
-      categoryTree[formData.category]?.middle?.[formData.middleCategory]
-    ) {
-      const newSubCategories = Object.keys(
-        categoryTree[formData.category].middle[formData.middleCategory]
-      );
-      setSubCategories(newSubCategories);
+    const middle = formData.middleCategory;
+    const top = formData.category;
+    if (top && middle && categoryTree[top]?.middle?.[middle]) {
+      const newSubs = Object.keys(categoryTree[top].middle[middle]);
+      setSubCategories(newSubs);
 
-      if (!newSubCategories.includes(formData.subCategory)) {
+      if (!newSubs.includes(formData.subCategory)) {
         setFormField("subCategory", "");
         setFormField("categoryId", null);
       }
     }
   }, [formData.middleCategory, formData.category, categoryTree]);
 
-  // 카테고리에 따른 ID 설정 수정
+  // 최종 categoryId 설정
   useEffect(() => {
-    if (
-      formData.category &&
-      formData.middleCategory &&
-      formData.subCategory &&
-      categoryTree[formData.category]?.middle?.[formData.middleCategory]?.[
+    const id =
+      categoryTree?.[formData.category]?.middle?.[formData.middleCategory]?.[
         formData.subCategory
-      ]
-    ) {
-      const categoryId =
-        categoryTree[formData.category].middle[formData.middleCategory][
-          formData.subCategory
-        ];
-      setFormField("categoryId", categoryId);
-    } else {
-      setFormField("categoryId", null);
-    }
+      ];
+    setFormField("categoryId", id ?? null);
   }, [
     formData.category,
     formData.middleCategory,
@@ -119,18 +102,14 @@ export default function BasicInfoForm({ onNext, showToast }) {
           value={formData.title || ""}
           onChange={(e) => {
             const value = e.target.value;
-            if (value.length <= 50) {
-              setFormField("title", value);
-            } else {
-              setFormField("title", value.slice(0, 50));
-            }
+            setFormField("title", value.slice(0, 50));
           }}
           sx={{ maxWidth: "640px", width: "100%" }}
           inputProps={{ maxLength: 50 }}
         />
         <Box
           display="flex"
-          justifyContent={{ xs: "space-between", md: "space-between" }}
+          justifyContent="space-between"
           width="100%"
           maxWidth="640px"
           mt={0.5}
@@ -164,9 +143,7 @@ export default function BasicInfoForm({ onNext, showToast }) {
           type="number"
           value={formData.price ?? ""}
           onChange={(e) => {
-            const value = e.target.value;
-            const numeric = Number(value);
-            // 음수 또는 소수점 방지
+            const numeric = Number(e.target.value);
             if (
               Number.isInteger(numeric) &&
               numeric >= 0 &&
@@ -175,20 +152,13 @@ export default function BasicInfoForm({ onNext, showToast }) {
               setFormField("price", numeric);
             }
           }}
-          sx={{
-            width: {
-              xs: "100%",
-              md: "240px",
-            },
-          }}
+          sx={{ width: { xs: "100%", md: "240px" } }}
           inputProps={{
             min: 0,
             step: 5000,
-            inputMode: "numeric", // 모바일 키패드 대응
+            inputMode: "numeric",
           }}
-          inputSx={{
-            textAlign: "right",
-          }}
+          inputSx={{ textAlign: "right" }}
           InputProps={{
             endAdornment: (
               <Typography
@@ -202,7 +172,7 @@ export default function BasicInfoForm({ onNext, showToast }) {
           }}
         />
         <Typography variant="caption" color="var(--text-300)">
-        1회 수업 기준으로 원하는 금액을 입력하세요.
+          1회 수업 기준으로 원하는 금액을 입력하세요.
         </Typography>
       </FormFieldWrapper>
 
@@ -221,10 +191,7 @@ export default function BasicInfoForm({ onNext, showToast }) {
           onClick={handleNext}
           sx={{
             py: 1.5,
-            width: {
-              xs: "100%",
-              md: "240px",
-            },
+            width: { xs: "100%", md: "240px" },
           }}
           disabled={loading}
         >
