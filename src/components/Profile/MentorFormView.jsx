@@ -314,8 +314,8 @@ export default function MentorFormView() {
             <Typography variant="body2" fontWeight={500} sx={{ mb: 1 }}>
               선택된 파일:
             </Typography>
-            {filePreview.includes("data:image") ||
-            filePreview.includes("http") ? (
+            {filePreview.includes("data:image") ? (
+              // 이미지 파일인 경우 미리보기
               <img
                 src={filePreview}
                 alt="미리보기"
@@ -325,17 +325,71 @@ export default function MentorFormView() {
                   borderRadius: "4px",
                 }}
               />
+            ) : filePreview.includes("http") ? (
+              // 서버에서 가져온 URL인 경우, 파일 확장자 확인
+              filePreview.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                // 이미지 확장자인 경우
+                <img
+                  src={filePreview}
+                  alt="미리보기"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "200px",
+                    borderRadius: "4px",
+                  }}
+                />
+              ) : (
+                // 이미지가 아닌 파일(PDF 등)인 경우 다운로드 링크 제공
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    p: 2,
+                    bgcolor: "var(--bg-200)",
+                    borderRadius: "8px",
+                    border: "1px solid var(--bg-300)",
+                  }}
+                >
+                  <Typography fontWeight={500}>
+                    {filePreview.split("/").pop()} {/* 파일명만 표시 */}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    component="a"
+                    href={filePreview}
+                    target="_blank"
+                    download
+                    sx={{
+                      borderRadius: "8px",
+                      color: "var(--primary-200)",
+                      borderColor: "var(--primary-200)",
+                      fontWeight: 500,
+                      ml: 2,
+                      "&:hover": {
+                        borderColor: "var(--primary-300)",
+                        backgroundColor: "var(--action-primary-bg)",
+                      },
+                    }}
+                  >
+                    다운로드
+                  </Button>
+                </Box>
+              )
             ) : (
+              // 로컬에서 선택한 파일 - 아직 업로드되지 않았으므로 다운로드 불가
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  p: 1,
+                  p: 2,
                   bgcolor: "var(--bg-200)",
-                  borderRadius: "4px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--bg-300)",
                 }}
               >
-                <Typography>
+                <Typography fontWeight={500}>
                   {file ? file.name : "현재 업로드된 파일"}
                 </Typography>
               </Box>
