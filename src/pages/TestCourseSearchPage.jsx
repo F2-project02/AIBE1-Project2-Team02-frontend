@@ -16,6 +16,7 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { getLectures } from "../lib/api/lectureApi";
 import CategoryFilterModal from "../components/Search/CategoryFilterModal";
 import CategoryFilterMobile from "../components/Search/CategoryFilterMobile";
+import PriceFilterModal from "../components/Search/PriceFilterModal";
 
 import SearchLayout from "../components/Search/SearchLayout";
 import SidebarFilters from "../components/Search/SidebarFilters";
@@ -55,6 +56,9 @@ const TestCourseSearchPage = () => {
   const [totalResults, setTotalResults] = useState(0);
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [priceDialogOpen, setPriceDialogOpen] = useState(false);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [certifiedDialogOpen, setCertifiedDialogOpen] = useState(false);
 
   useEffect(() => {
     const searchCourses = async () => {
@@ -317,6 +321,16 @@ const TestCourseSearchPage = () => {
         />
       )}
 
+      <PriceFilterModal
+        open={priceDialogOpen}
+        onClose={() => setPriceDialogOpen(false)}
+        initialRange={priceRange}
+        onSubmit={(range) => {
+          setPriceRange(range);
+          setPage(1);
+        }}
+      />
+
       {/* 레이아웃 */}
       <SearchLayout
         sidebar={
@@ -329,6 +343,9 @@ const TestCourseSearchPage = () => {
             }}
             onOpenCategory={() => setCategoryDialogOpen(true)}
             onOpenRegion={() => setRegionDialogOpen(true)}
+            onOpenPrice={() => setPriceDialogOpen(true)}
+            onOpenRating={() => setRatingDialogOpen(true)}
+            onOpenCertified={() => setCertifiedDialogOpen(true)}
           />
         }
         content={
@@ -370,11 +387,21 @@ const TestCourseSearchPage = () => {
               setRegionDialogOpen(true);
               setMobileFilterOpen(false);
             }}
+            onOpenPrice={() => {
+              setPriceDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
+            onOpenRating={() => {
+              setRatingDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
+            onOpenCertified={() => {
+              setCertifiedDialogOpen(true);
+              setMobileFilterOpen(false);
+            }}
           />
         </MobileFilterDrawer>
       )}
-
-      
     </>
   );
 };

@@ -32,7 +32,7 @@ export default function ReviewSectionSkeleton() {
           sx={{
             mb: 3,
             p: 3,
-            backgroundColor: "#fff",
+            backgroundColor: "#fefefe",
             borderRadius: "16px",
             boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)",
           }}

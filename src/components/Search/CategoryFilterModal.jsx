@@ -222,6 +222,9 @@ export default function CategoryFilterModal({ open, onClose, onSelect }) {
               px: 2,
               color: "var(--text-300)",
               whiteSpace: "nowrap",
+              "&:hover": {
+                backgroundColor: "var(--bg-200)",
+              },
             }}
           >
             초기화

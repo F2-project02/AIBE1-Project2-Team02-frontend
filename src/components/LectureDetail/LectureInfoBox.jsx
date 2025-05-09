@@ -238,7 +238,7 @@ export default function LectureInfoBox({ lecture }) {
               onClick={() => setOpenApply(true)}
               sx={{
                 background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
-                color: "#fff",
+                color: "var(--bg-100)",
                 fontWeight: 600,
                 borderRadius: "12px",
                 py: 1.5,

@@ -14,6 +14,9 @@ export default function SidebarFilters({
   onKeywordChange,
   onOpenCategory,
   onOpenRegion,
+  onOpenPrice,
+  onOpenRating,
+  onOpenCertified,
   showKeyword = true,
 }) {
   return (
@@ -94,9 +97,11 @@ export default function SidebarFilters({
 
       <StyledFilterButton onClick={onOpenCategory}>과목</StyledFilterButton>
       <StyledFilterButton onClick={onOpenRegion}>지역</StyledFilterButton>
-      <StyledFilterButton disabled>수업료</StyledFilterButton>
-      <StyledFilterButton disabled>평점</StyledFilterButton>
-      <StyledFilterButton disabled>인증 여부</StyledFilterButton>
+      <StyledFilterButton onClick={onOpenPrice}>수업료</StyledFilterButton>
+      <StyledFilterButton onClick={onOpenRating}>평점</StyledFilterButton>
+      <StyledFilterButton onClick={onOpenCertified}>
+        인증 여부
+      </StyledFilterButton>
     </Box>
   );
 }

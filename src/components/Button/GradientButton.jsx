@@ -34,7 +34,7 @@ export default function GradientButton({
       disableElevation
       sx={{
         background: "var(--primary-gradient)", 
-        color: "#fff",
+        color: "var(--bg-100)",
         fontWeight: 600,
         textTransform: "none",
         whiteSpace: "nowrap",

@@ -185,6 +185,9 @@ export default function RegionSelectionModal({
               px: 2,
               color: "var(--text-300)",
               whiteSpace: "nowrap",
+              "&:hover": {
+                backgroundColor: "var(--bg-200)",
+              },
             }}
           >
             초기화

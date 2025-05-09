@@ -266,7 +266,6 @@ export default function RegionSelectionMobile({
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: 16,
-              color: "#fff",
             }}
             disabled={selectedDongs.length === 0}
           >
