@@ -175,8 +175,8 @@ export default function CreateLecture() {
     );
   }
 
-  // 2단계: 로그인했지만 멘토 아님 (정확히 확인된 후만)
-  if (isLoggedIn && isMentor === false) {
+  // 2단계: 로그인 안 했거나 멘토 아님
+  if (!isLoggedIn || isMentor === false) {
     return <UnauthorizedView />;
   }
 
