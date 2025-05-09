@@ -11,7 +11,6 @@ export default function Footer() {
       sx={{
         backgroundColor: "var(--bg-200)",
         color: "var(--text-300)",
-        fontFamily: "Pretendard",
         fontSize: 14,
         lineHeight: 1.6,
         py: 4,

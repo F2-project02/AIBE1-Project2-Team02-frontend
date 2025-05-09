@@ -28,6 +28,12 @@ export default function TableHeaderRow({
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={selectedAll}
             onChange={onSelectAllClick}
+            sx={{
+              color: "var(--text-300)",
+              "&.Mui-checked": {
+                color: "var(--primary-100)",
+              },
+            }}
             inputProps={{ "aria-label": "select all messages" }}
           />
         </TableCell>

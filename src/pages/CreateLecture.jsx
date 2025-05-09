@@ -1,4 +1,4 @@
-// src/pages/CreateLecture.jsx
+// src/pages/CreateLecture.jsx (수정된 부분)
 
 import { useState, useEffect } from "react";
 import { Box, Typography, Paper } from "@mui/material";
@@ -11,6 +11,7 @@ import UnauthorizedView from "../components/CreateLecture/UnauthorizedView";
 import { useUserStore } from "../store/useUserStore";
 import { useLectureStore } from "../store/useLectureStore";
 import { createLecture } from "../lib/api/lectureApi";
+import { accountApi } from "../lib/api/accountApi";
 import { mapLectureFormToApi } from "../utils/lectureDataMapper";
 import createLectureGif from "../assets/createlecture.gif";
 import warnGif from "../assets/warn.gif";
@@ -26,13 +27,48 @@ function TabPanel({ children, value, index }) {
 export default function CreateLecture() {
   const [currentTab, setCurrentTab] = useState(0);
   const { isLoggedIn } = useUserStore();
-  const { formData, isLoading, error, setError, setIsLoading, setFormData } =
+  const { formData, isLoading, error, setError, setIsLoading } =
     useLectureStore();
+
+  // 멘토 권한 상태
+  const [isMentor, setIsMentor] = useState(false);
+  // 프로필 로딩 상태
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastIcon, setToastIcon] = useState(null);
   const [toastType, setToastType] = useState("info");
+
+  // 사용자 프로필 정보 로드 및 권한 확인
+  useEffect(() => {
+    const checkMentorStatus = async () => {
+      if (isLoggedIn) {
+        try {
+          setProfileLoading(true);
+          const response = await accountApi.getProfile();
+
+          if (response.success && response.data) {
+            // 사용자 역할이 "MENTOR"인지 확인
+            setIsMentor(response.data.role === "MENTOR");
+          } else {
+            setIsMentor(false);
+          }
+        } catch (error) {
+          console.error("멘토 권한 확인 실패:", error);
+          setIsMentor(false);
+          showToast("권한 확인 중 오류가 발생했습니다.", warnGif, "error");
+        } finally {
+          setProfileLoading(false);
+        }
+      } else {
+        setProfileLoading(false);
+        setIsMentor(false);
+      }
+    };
+
+    checkMentorStatus();
+  }, [isLoggedIn]);
 
   const showToast = (message, icon = null, type = "info") => {
     setToastMessage(message);
@@ -95,7 +131,11 @@ export default function CreateLecture() {
         !formData.description ||
         !formData.curriculum
       ) {
-        showToast("기본 정보와 커리큘럼을 모두 입력해주세요.", warnGif, "error");
+        showToast(
+          "기본 정보와 커리큘럼을 모두 입력해주세요.",
+          warnGif,
+          "error"
+        );
         return;
       }
 
@@ -131,39 +171,30 @@ export default function CreateLecture() {
       console.error("Error creating lecture:", err);
       showToast(
         "과외 등록에 실패했습니다. 모든 필수 항목을 입력했는지 확인해주세요.",
-        warnGif, "error"
+        warnGif,
+        "error"
       );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 임시로 항상 true로 설정하여 테스트 가능하게 함
-  const isMentor = true;
+  // 프로필 로딩 중이면 로딩 화면 표시
+  if (profileLoading) {
+    return (
+      <Box sx={{ mt: 8, textAlign: "center" }}>
+        <Typography variant="h6">권한 확인 중...</Typography>
+      </Box>
+    );
+  }
 
-  // 테스트를 위해 항상 폼을 보여줌
-  // if (!isLoggedIn || !isMentor) {
-  //   return <UnauthorizedView />;
-  // }
+  // 로그인 , 멘토권한 둘중 하나라도 없으면 막기
+  if (!isLoggedIn || !isMentor) {
+    return <UnauthorizedView />;
+  }
 
   return (
     <Box sx={{ mt: 4, mb: 4 }}>
-      {/* 개발 모드 안내 */}
-      {import.meta.env.DEV && (
-        <Box
-          sx={{
-            mb: 3,
-            p: 2,
-            bgcolor: "var(--action-primary-bg)",
-            borderRadius: "8px",
-          }}
-        >
-          <Typography variant="body2" color="var(--primary-300)">
-            ※ 현재 개발 모드입니다. 임시 토큰이 설정되었습니다.
-          </Typography>
-        </Box>
-      )}
-
       {/* 상단 타이틀 */}
       <Typography
         variant="h5"
@@ -186,17 +217,24 @@ export default function CreateLecture() {
         }}
       >
         <TabPanel value={currentTab} index={0}>
-          <BasicInfoForm onNext={handleBasicInfoNext} />
+          <BasicInfoForm
+            onNext={handleBasicInfoNext}
+            showToast={(msg) => showToast(msg, warnGif, "error")}
+          />
         </TabPanel>
 
         <TabPanel value={currentTab} index={1}>
-          <CurriculumForm onNext={handleCurriculumNext} />
+          <CurriculumForm
+            onNext={handleCurriculumNext}
+            showToast={(msg) => showToast(msg, warnGif, "error")}
+          />
         </TabPanel>
 
         <TabPanel value={currentTab} index={2}>
           <ScheduleAndLocationForm
             onSubmit={handleScheduleSubmit}
             isLoading={isLoading}
+            showToast={(msg) => showToast(msg, warnGif, "error")}
           />
         </TabPanel>
       </Paper>

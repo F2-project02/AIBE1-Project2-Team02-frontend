@@ -7,17 +7,49 @@ import {
   Stack,
   Avatar,
   Divider,
-  Link,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+  Alert,
 } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 export default function MentorProfile({ mentor }) {
+  // 멘토 정보가 없는 경우 처리
+  if (!mentor) {
+    return (
+      <Box>
+        <Typography variant="h6" fontWeight={600} gutterBottom>
+          멘토 정보
+        </Typography>
+        <Alert severity="info" sx={{ mb: 3 }}>
+          멘토 정보를 불러올 수 없습니다.
+        </Alert>
+      </Box>
+    );
+  }
+
+  // 안전 확인 및 기본값 설정
+  const profileImage = mentor.profileImage || "/images/default-profile.svg";
+  const nickname = mentor.nickname || "멘토";
+  const isCertified = mentor.isCertified || false;
+  const rating = mentor.rating || 0;
+  const mbti = mentor.mbti || null;
+  const education = mentor.education || "";
+  const major = mentor.major || "";
+  const regions = Array.isArray(mentor.regions) ? mentor.regions : [];
+  const introduction =
+    mentor.introduction || mentor.content || "멘토 소개 내용이 없습니다.";
+
+  // HTML 내용을 안전하게 렌더링하는 함수
+  const createMarkup = (html) => {
+    if (typeof html !== "string") return { __html: "" };
+    return { __html: html };
+  };
+
+  // 소개 내용에 HTML이 포함되어 있는지 확인
+  const containsHtml =
+    typeof introduction === "string" && introduction.includes("<");
+
   return (
     <Box>
       <Typography variant="h6" fontWeight={600} gutterBottom>
@@ -26,18 +58,15 @@ export default function MentorProfile({ mentor }) {
 
       {/* 프로필 이미지 */}
       <Box display="flex" justifyContent="center" mt={2} mb={1}>
-        <Avatar
-          src={"/images/default-profile.svg"}
-          sx={{ width: 80, height: 80 }}
-        />
+        <Avatar src={profileImage} sx={{ width: 80, height: 80 }} />
       </Box>
 
       {/* 닉네임 + 인증 */}
       <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
         <Typography fontWeight={600} fontSize="1rem" color="var(--text-100)">
-          {mentor.nickname}
+          {nickname}
         </Typography>
-        {mentor.isCertified && (
+        {isCertified && (
           <ShieldIcon fontSize="small" sx={{ color: "var(--primary-100)" }} />
         )}
       </Box>
@@ -53,33 +82,37 @@ export default function MentorProfile({ mentor }) {
         <Box display="flex" alignItems="center" gap={0.5}>
           <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
           <Typography fontSize="0.85rem">
-            {mentor.rating?.toFixed(1)}
+            {typeof rating === "number" ? rating.toFixed(1) : "0.0"}
           </Typography>
         </Box>
-        <Chip
-          label={mentor.mbti || "MBTI"}
-          size="small"
-          sx={{
-            backgroundColor: "var(--action-green-bg)",
-            color: "var(--action-green)",
-            fontWeight: 600,
-            borderRadius: "8px",
-          }}
-        />
+        {mbti && (
+          <Chip
+            label={mbti}
+            size="small"
+            sx={{
+              backgroundColor: "var(--action-green-bg)",
+              color: "var(--action-green)",
+              fontWeight: 600,
+              borderRadius: "8px",
+            }}
+          />
+        )}
       </Box>
 
       {/* 학력 */}
-      <Typography
-        variant="body2"
-        textAlign="center"
-        mt={1}
-        color="var(--text-300)"
-      >
-        {mentor.education} {mentor.major && `${mentor.major}`}
-      </Typography>
+      {(education || major) && (
+        <Typography
+          variant="body2"
+          textAlign="center"
+          mt={1}
+          color="var(--text-300)"
+        >
+          {education} {major && `${major}`}
+        </Typography>
+      )}
 
       {/* 지역 */}
-      {mentor.regions && mentor.regions.length > 0 && (
+      {regions.length > 0 && (
         <Box
           display="flex"
           justifyContent="center"
@@ -87,10 +120,14 @@ export default function MentorProfile({ mentor }) {
           gap={1}
           mt={1}
         >
-          {mentor.regions.map((r) => (
+          {regions.map((r, index) => (
             <Chip
-              key={r}
-              label={r}
+              key={index}
+              label={
+                typeof r === "string"
+                  ? r
+                  : `${r.sido || ""} ${r.sigungu || ""}`.trim()
+              }
               size="small"
               sx={{
                 backgroundColor: "var(--action-primary-bg)",
@@ -100,30 +137,6 @@ export default function MentorProfile({ mentor }) {
               }}
             />
           ))}
-        </Box>
-      )}
-
-      {/* AI 멘토 분석 */}
-      {mentor.analysisComment && (
-        <Box
-          mt={3}
-          p={2}
-          borderRadius="8px"
-          sx={{
-            background:
-              "linear-gradient(90deg, rgba(255, 186, 208, 0.2) 0%, rgba(91, 141, 239, 0.2) 100%)",
-            color: "var(--text-200)",
-          }}
-        >
-          <Box display="flex" alignItems="center" gap={1} mb={0.5}>
-            <InfoOutlinedIcon fontSize="small" />
-            <Typography fontWeight={600} fontSize={14}>
-              AI 멘토 분석
-            </Typography>
-          </Box>
-          <Typography fontSize={13} fontWeight={400}>
-            {mentor.analysisComment}
-          </Typography>
         </Box>
       )}
 
@@ -141,41 +154,39 @@ export default function MentorProfile({ mentor }) {
           p: 2,
         }}
       >
-        <Typography
-          variant="body2"
-          sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
-        >
-          {mentor.content}
-        </Typography>
-      </Box>
-
-      {/* 첨부파일 */}
-      {mentor.appealFileUrl && (
-        <Box mt={2}>
-          <ListItem
-            component="a"
-            href={mentor.appealFileUrl}
-            target="_blank"
+        {/* 멘토 소개 내용 - HTML이 있으면 HTML로 렌더링, 없으면 일반 텍스트로 렌더링 */}
+        {containsHtml ? (
+          <Box
             sx={{
-              border: "1px solid var(--bg-200)",
-              borderRadius: 1,
-              px: 2,
-              py: 1,
-              backgroundColor: "#fefefe",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              color: "var(--text-200)",
+              "& img": {
+                maxWidth: "100%",
+                height: "auto",
+                borderRadius: "8px",
+                margin: "16px 0",
+              },
+              "& p": {
+                margin: "0 0 16px 0",
+              },
+              "& ul, & ol": {
+                marginBottom: "16px",
+                paddingLeft: "24px",
+              },
+              "& li": {
+                marginBottom: "8px",
+              },
             }}
+            dangerouslySetInnerHTML={createMarkup(introduction)}
+          />
+        ) : (
+          <Typography
+            variant="body2"
+            sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
           >
-            <ListItemIcon>
-              <InsertDriveFileIcon sx={{ color: "var(--primary-300)" }} />
-            </ListItemIcon>
-            <ListItemText
-              primary="document_file_name.pdf"
-              secondary="100kb · Complete"
-              primaryTypographyProps={{ fontWeight: 500 }}
-            />
-          </ListItem>
-        </Box>
-      )}
+            {introduction}
+          </Typography>
+        )}
+      </Box>
     </Box>
   );
 }

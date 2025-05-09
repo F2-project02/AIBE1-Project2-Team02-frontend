@@ -47,11 +47,11 @@ export default function MessageInbox() {
     setFilter({ filterBy, keyword });
   };
   return (
-    <Box p={4} sx={{ backgroundColor: "#fff" }}>
+    <Box mt={4} mb={8}>
       <MessageTabs value={tab} onChange={handleTabChange} />
 
       {/* 필터 */}
-      <Box mt={4} display="flex" justifyContent="flex-end">
+      <Box mt={2} display="flex" justifyContent="flex-end">
         <MessageSearchFilter onSearch={handleSearch} />
       </Box>
 
@@ -61,8 +61,8 @@ export default function MessageInbox() {
           messages={messages}
           loading={loading}
           tab={tab}
-          totalItems={totalCount} // ✅ 총 개수
-          totalPages={Math.ceil(totalCount / 10)} // ✅ 총 페이지 수
+          totalItems={totalCount} // 총 개수
+          totalPages={Math.ceil(totalCount / 10)} // 총 페이지 수
         />
       </Box>
     </Box>
