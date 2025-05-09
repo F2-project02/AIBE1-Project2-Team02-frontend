@@ -124,6 +124,7 @@ export default function LectureDetailPage() {
       mentor,
       reviews: [], // 리뷰는 별도 API에서 로드
       authorUserId: data.authorUserId,
+      mentorId: data.mentorId,
     };
   };
 

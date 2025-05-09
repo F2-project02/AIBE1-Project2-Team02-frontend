@@ -17,6 +17,7 @@ import LectureEditControls from "./LectureEditControls";
 import useLecturePermission from "../../hooks/useLecturePermission";
 import { getLectureReviews } from "../../lib/api/lectureApi";
 import { useUserStore } from "../../store/useUserStore";
+import { getRatingByMentor } from "../../lib/api/reviewApi";
 
 export default function LectureHeader({ lecture }) {
   const { hasPermission } = useLecturePermission(lecture);
@@ -26,22 +27,24 @@ export default function LectureHeader({ lecture }) {
 
   // 리뷰 데이터를 가져와 평점 정보 업데이트
   useEffect(() => {
-    const fetchReviewData = async () => {
-      if (!lecture?.lectureId) return;
+    const fetchRatingData = async () => {
+      const mentorId = lecture?.mentorId;
+      if (!mentorId) return;
 
       try {
-        const response = await getLectureReviews(lecture.lectureId);
+        const response = await getRatingByMentor({ id: mentorId });
         if (response.success && response.data) {
-          setAverageRating(response.data.averageRating || 0);
-          setReviewCount(response.data.reviewCount || 0);
+          setAverageRating(response.data.averageRating ?? 0);
+          setReviewCount(response.data.count ?? 0);
+          console.log("멘토 평점 데이터:", response.data);
         }
       } catch (error) {
-        console.error("리뷰 정보 로드 오류:", error);
+        console.log("멘토 평점 조회 에러:", error);
       }
     };
 
-    fetchReviewData();
-  }, [lecture?.lectureId]);
+    fetchRatingData();
+  }, [lecture?.mentorId]);
 
   if (!lecture) {
     return null;
