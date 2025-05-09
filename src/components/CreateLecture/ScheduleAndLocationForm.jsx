@@ -1,9 +1,17 @@
 // src/components/CreateLecture/ScheduleAndLocationForm.jsx
 
 import { useState } from "react";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RegionSelectionModal from "./RegionSelectionModal";
+import RegionSelectionMobile from "./RegionSelectionMobile";
 import GradientButton from "../Button/GradientButton";
 import SelectableButtonGroup from "../common/SelectableButtonGroup";
 import FormFieldWrapper from "./FormFieldWrapper";
@@ -14,10 +22,21 @@ import { useLectureStore } from "../../store/useLectureStore";
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
-export default function ScheduleAndLocationForm({ onSubmit, isLoading,  showToast }) {
+export default function ScheduleAndLocationForm({
+  onSubmit,
+  isLoading,
+  showToast,
+}) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const { formData, setTimeSlots, setRegions } = useLectureStore();
   const [selectedDay, setSelectedDay] = useState(null);
   const [showRegionModal, setShowRegionModal] = useState(false);
+
+  const [selectedDongs, setSelectedDongs] = useState(formData.regions);
+  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
 
   // 요일 선택
   const selectDay = (day) => {
@@ -142,6 +161,10 @@ export default function ScheduleAndLocationForm({ onSubmit, isLoading,  showToas
             borderRadius: "8px",
             color: "var(--text-400)",
             mt: 1,
+            "&:hover": {
+              backgroundColor: "var(--bg-200)",
+              borderColor: "var(--bg-300)",
+            },
           }}
           disabled={!selectedDay}
         >
@@ -201,12 +224,31 @@ export default function ScheduleAndLocationForm({ onSubmit, isLoading,  showToas
       </Box>
 
       {/* 지역 선택 모달 */}
-      <RegionSelectionModal
-        open={showRegionModal}
-        onClose={() => setShowRegionModal(false)}
-        onSubmit={handleAddRegions}
-        selectedRegions={formData.regions?.map((r) => r.name) || []}
-      />
+      {isMobile ? (
+        <RegionSelectionMobile
+          open={showRegionModal}
+          onClose={() => setShowRegionModal(false)}
+          onSubmit={handleAddRegions}
+          selectedDongs={selectedDongs}
+          setSelectedDongs={setSelectedDongs}
+          selectedProvince={selectedProvince}
+          setSelectedProvince={setSelectedProvince}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+        />
+      ) : (
+        <RegionSelectionModal
+          open={showRegionModal}
+          onClose={() => setShowRegionModal(false)}
+          onSubmit={handleAddRegions}
+          selectedDongs={selectedDongs}
+          setSelectedDongs={setSelectedDongs}
+          selectedProvince={selectedProvince}
+          setSelectedProvince={setSelectedProvince}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+        />
+      )}
     </Box>
   );
 }

@@ -11,11 +11,17 @@ export default function RegionChipList({ regions = [], onDelete }) {
           key={index}
           label={region.displayName || region.name}
           onDelete={() => onDelete(index)}
+          variant="outlined"
           sx={{
-            backgroundColor: "var(--action-primary-bg)",
-            color: "var(--primary-200)",
+            borderColor: "var(--primary-100)",
+            color: "var(--primary-100)",
+            fontSize: 14,
+            fontWeight: 500,
             "& .MuiChip-deleteIcon": {
-              color: "var(--primary-200)",
+              color: "var(--primary-100)",
+              "&:hover": {
+                color: "var(--primary-200)",
+              },
             },
           }}
         />
