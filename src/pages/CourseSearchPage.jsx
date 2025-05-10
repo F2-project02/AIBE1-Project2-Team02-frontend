@@ -81,13 +81,27 @@ const CourseSearchPage = () => {
           size: 10,
         };
 
-        if (selectedCategory) params.category = selectedCategory;
+        //카테고리 필터
+        if (selectedCategory && selectedCategory.length > 0) {
+          // 배열이 아니면 배열로 변환하고, 빈 값은 필터링
+          params.categories = Array.isArray(selectedCategory)
+            ? selectedCategory.filter(Boolean)
+            : [selectedCategory].filter(Boolean);
 
+          // 디버깅을 위한 로그
+        }
+
+        // 지역 필터
         if (selectedRegions.length > 0) {
+          // 문자열 배열 형태로 확실하게 변환
           params.regions = selectedRegions.map((region) => {
-            if (region.dong?.trim()) return region.dong;
-            if (region.sigungu) return region.sigungu;
-            return region.sido || region.displayName;
+            if (typeof region === "object") {
+              if (region.displayName) return region.displayName;
+              return `${region.sido || ""} ${region.sigungu || ""} ${
+                region.dong || ""
+              }`.trim();
+            }
+            return String(region);
           });
         }
 
@@ -112,7 +126,6 @@ const CourseSearchPage = () => {
           setTotalResults(0);
         }
       } catch (error) {
-        console.error("강의 검색 오류:", error);
         setCourses([]);
         setTotalPages(1);
         setTotalResults(0);
@@ -174,7 +187,29 @@ const CourseSearchPage = () => {
 
   // 📍 지역 선택 핸들러
   const handleRegionSelect = (selected) => {
-    setSelectedRegions(selected);
+    console.log("선택된 지역 객체:", selected);
+
+    const formattedRegions = selected.map((region) => {
+      if (typeof region === "object") {
+        if (region.displayName) return region.displayName;
+
+        if (region.sido && !region.sigungu && !region.dong) {
+          return region.sido;
+        }
+
+        if (region.sido && region.sigungu && !region.dong) {
+          return `${region.sido} ${region.sigungu}`;
+        }
+
+        return `${region.sido || ""} ${region.sigungu || ""} ${
+          region.dong || ""
+        }`.trim();
+      }
+      return String(region);
+    });
+
+    console.log("변환된 지역 리스트:", formattedRegions);
+    setSelectedRegions(formattedRegions);
     setRegionDialogOpen(false);
     setPage(1);
   };
@@ -273,7 +308,8 @@ const CourseSearchPage = () => {
           selectedMiddle={selectedMiddle}
           setSelectedMiddle={setSelectedMiddle}
           onSelect={(list) => {
-            setSelectedCategory(list);
+            const categoryArray = Array.isArray(list) ? list : [list];
+            setSelectedCategory(categoryArray.filter(Boolean));
             setCategoryDialogOpen(false);
           }}
         />

@@ -91,7 +91,12 @@ export default function CategoryFilterModal({
   };
 
   const handleComplete = () => {
-    onSelect(selectedItems);
+    const categoryArray = Array.isArray(selectedItems)
+      ? selectedItems
+      : [selectedItems];
+
+    console.log("필터 완료:", categoryArray.filter(Boolean));
+    onSelect(categoryArray.filter(Boolean));
     onClose();
   };
 

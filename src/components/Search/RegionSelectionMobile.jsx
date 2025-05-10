@@ -45,6 +45,22 @@ export default function RegionSelectionMobile({
     if (tab === 0) {
       setSelectedProvince(item);
       setTab(1);
+
+      const sidoObject = {
+        regionCode: `sido_${item}`,
+        sigungu: "",
+        dong: "",
+        displayName: item,
+      };
+
+      const alreadySelected = selectedDongs.some(
+        (d) => d.sido === item && !d.sigungu
+      );
+
+      if (!alreadySelected) {
+        setSelectedDongs((prev) => [...prev, sidoObject]);
+      }
+
       setLoading(true);
       const res = await RegionApiService.getSigungus(item);
       setDistricts(res);
@@ -52,6 +68,23 @@ export default function RegionSelectionMobile({
     } else if (tab === 1) {
       setSelectedDistrict(item);
       setTab(2);
+
+      const sigunguObject = {
+        regionCode: `sigungu_${selectedProvince}_${item}`,
+        sido: selectedProvince,
+        sigungu: item,
+        dong: "",
+        displayName: `${selectedProvince} ${item}`,
+      };
+
+      const alreadySelected = selectedDongs.some(
+        (d) => d.sido === selectedProvince && d.sigungu === item && !d.dong
+      );
+
+      if (!alreadySelected) {
+        setSelectedDongs((prev) => [...prev, sigunguObject]);
+      }
+
       setLoading(true);
       const res = await RegionApiService.getDongs(selectedProvince, item);
       setDongs(res);
@@ -85,7 +118,22 @@ export default function RegionSelectionMobile({
     selectedDongs.some((d) => d.regionCode === dong.regionCode);
 
   const handleComplete = () => {
-    onSubmit(selectedDongs);
+    if (selectedDongs.length === 0) {
+      onSubmit([]);
+      onClose();
+      return;
+    }
+
+    const regionsWithNames = selectedDongs.map((dong) => {
+      if (!dong.displayName) {
+        dong.displayName = `${dong.sido || ""} ${dong.sigungu || ""} ${
+          dong.dong || ""
+        }`.trim();
+      }
+      return dong;
+    });
+
+    onSubmit(regionsWithNames);
     onClose();
   };
 

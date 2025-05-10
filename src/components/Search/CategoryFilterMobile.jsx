@@ -82,7 +82,10 @@ export default function CategoryFilterMobile({
   };
 
   const handleComplete = () => {
-    onSelect(selectedItems);
+    const categoryArray = Array.isArray(selectedItems)
+      ? selectedItems
+      : [selectedItems];
+    onSelect(categoryArray.filter(Boolean));
     onClose();
   };
 

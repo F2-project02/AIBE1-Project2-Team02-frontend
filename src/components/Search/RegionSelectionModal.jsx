@@ -54,6 +54,23 @@ export default function RegionSelectionModal({
     setSelectedProvince(sido);
     setSelectedDistrict("");
     setDongs([]);
+
+    const sidoObject = {
+      regionCode: `sido_${sido}`,
+      sido: sido,
+      sigungu: "",
+      dong: "",
+      displayName: sido,
+    };
+
+    const alreadySelected = selectedDongs.some(
+      (d) => d.sido === sido && !d.sigungu
+    );
+
+    if (!alreadySelected) {
+      setSelectedDongs((prev) => [...prev, sidoObject]);
+    }
+
     setLoading(true);
     const sigungus = await RegionApiService.getSigungus(sido);
     setDistricts(sigungus);
@@ -62,6 +79,22 @@ export default function RegionSelectionModal({
 
   const handleDistrictClick = async (sigungu) => {
     setSelectedDistrict(sigungu);
+
+    const sigunguObject = {
+      regionCode: `sigungu_${selectedProvince}_${sigungu}`,
+      sigungu: sigungu,
+      dong: "",
+      displayName: `${selectedProvince} ${sigungu}`,
+    };
+
+    const alreadySelected = selectedDongs.some(
+      (d) => d.sido === selectedProvince && d.sigungu === sigungu && !d.dong
+    );
+
+    if (!alreadySelected) {
+      setSelectedDongs((prev) => [...prev, sigunguObject]);
+    }
+
     setLoading(true);
     const dongList = await RegionApiService.getDongs(selectedProvince, sigungu);
     setDongs(dongList);
@@ -93,7 +126,22 @@ export default function RegionSelectionModal({
   };
 
   const handleComplete = () => {
-    onSubmit(selectedDongs);
+    if (selectedDongs.length === 0) {
+      onSubmit([]);
+      onClose();
+      return;
+    }
+
+    const regionsWithNames = selectedDongs.map((dong) => {
+      if (!dong.displayName) {
+        dong.displayName = `${dong.sido || ""} ${dong.sigungu || ""} ${
+          dong.dong || ""
+        }`.trim();
+      }
+      return dong;
+    });
+
+    onSubmit(regionsWithNames);
     onClose();
   };
 
@@ -159,7 +207,10 @@ export default function RegionSelectionModal({
             {selectedDongs.map((item) => (
               <Chip
                 key={item.regionCode}
-                label={item.displayName}
+                label={
+                  item.displayName ||
+                  `${item.sido} ${item.sigungu || ""} ${item.dong || ""}`.trim()
+                }
                 onDelete={() => toggleDong(item)}
                 variant="outlined"
                 sx={{
@@ -306,8 +357,7 @@ function DongColumn({ label, items, loading, selectedList, onClick }) {
       </Typography>
 
       {loading ? (
-        <Box py={4} textAlign="center">
-        </Box>
+        <Box py={4} textAlign="center"></Box>
       ) : items.length === 0 ? (
         <Typography color="var(--text-300)" fontSize={14}></Typography>
       ) : (
