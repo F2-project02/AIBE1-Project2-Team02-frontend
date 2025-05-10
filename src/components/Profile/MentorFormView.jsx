@@ -14,6 +14,7 @@ import {
   applyMentorProfile,
 } from "../../lib/api/profileApi";
 import { useUserStore } from "../../store/useUserStore";
+import MentorFormViewSkeleton from "./skeletons/MentorFormViewSkeleton";
 
 export default function MentorFormView() {
   const [isLoading, setIsLoading] = useState(true);
@@ -148,14 +149,7 @@ export default function MentorFormView() {
 
   // 로딩 중 UI
   if (isLoading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-        <CircularProgress />
-        <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
-          {isMentor ? "멘토 프로필 불러오는 중..." : "준비 중..."}
-        </Typography>
-      </Box>
-    );
+    return <MentorFormViewSkeleton />;
   }
 
   // 오류 발생 시 UI (멘토만 해당)

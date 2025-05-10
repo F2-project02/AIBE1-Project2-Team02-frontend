@@ -1,7 +1,11 @@
 // src/components/Profile/MyPageSidebar.jsx
-import { Box, List, ListItem, Typography } from "@mui/material";
+import { Box, List, ListItem, Typography, Skeleton } from "@mui/material";
 
-export default function MyPageSidebar({ activeTab = "profile", onTabChange }) {
+export default function MyPageSidebar({
+  activeTab = "profile",
+  onTabChange,
+  isLoading = false,
+}) {
   const tabItems = [
     { id: "profile", label: "내 정보 수정" },
     { id: "mentor", label: "멘토 프로필" },
@@ -18,37 +22,50 @@ export default function MyPageSidebar({ activeTab = "profile", onTabChange }) {
             sx={{ mb: 1 }}
             onClick={() => onTabChange && onTabChange(tab.id)}
           >
-            <Box
-              sx={{
-                width: "100%",
-                borderRadius: "8px",
-                bgcolor:
-                  activeTab === tab.id
-                    ? "var(--action-primary-bg)"
-                    : "transparent",
-                py: 1.5,
-                px: 2,
-                cursor: "pointer",
-                "&:hover": {
+            {isLoading ? (
+              // 로딩 중일 때 스켈레톤 표시
+              <Skeleton
+                variant="rectangular"
+                width="100%"
+                height={48}
+                sx={{
+                  borderRadius: "8px",
+                  bgcolor: "var(--bg-200)",
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  width: "100%",
+                  borderRadius: "8px",
                   bgcolor:
                     activeTab === tab.id
                       ? "var(--action-primary-bg)"
-                      : "rgba(0, 0, 0, 0.04)",
-                },
-              }}
-            >
-              <Typography
-                sx={{
-                  fontWeight: activeTab === tab.id ? 600 : 400,
-                  color:
-                    activeTab === tab.id
-                      ? "var(--primary-200)"
-                      : "var(--text-300)",
+                      : "transparent",
+                  py: 1.5,
+                  px: 2,
+                  cursor: "pointer",
+                  "&:hover": {
+                    bgcolor:
+                      activeTab === tab.id
+                        ? "var(--action-primary-bg)"
+                        : "rgba(0, 0, 0, 0.04)",
+                  },
                 }}
               >
-                {tab.label}
-              </Typography>
-            </Box>
+                <Typography
+                  sx={{
+                    fontWeight: activeTab === tab.id ? 600 : 400,
+                    color:
+                      activeTab === tab.id
+                        ? "var(--primary-200)"
+                        : "var(--text-300)",
+                  }}
+                >
+                  {tab.label}
+                </Typography>
+              </Box>
+            )}
           </ListItem>
         ))}
       </List>
