@@ -32,4 +32,11 @@ export const useUserStore = create((set) => ({
       myLectureIds: [],
     });
   },
+
+  // 역할 업데이트
+  updateRole: (newRole) =>
+    set((state) => ({
+      ...state,
+      role: newRole,
+    })),
 }));
