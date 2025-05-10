@@ -1,12 +1,50 @@
 // src/components/Profile/ProfileCard.jsx
 
 import { Box, Typography } from "@mui/material";
+import { useState, useEffect } from "react";
+import { getRatingByMentor } from "../../lib/api/reviewApi";
 
 export default function ProfileCard({
   profileData,
   mentorProfile,
   imagePreview,
 }) {
+  const [rating, setRating] = useState(0);
+
+  // useEffect 추가
+  useEffect(() => {
+    // profileData와 mentorProfile 둘 다 존재하는지 확인
+    if (profileData?.role === "MENTOR" && mentorProfile) {
+      const fetchRating = async () => {
+        try {
+          // mentorProfile.mentorId가 정확한 필드인지 확인
+          const mentorId = mentorProfile.mentorId;
+
+          if (!mentorId) {
+            return;
+          }
+
+          const ratingData = await getRatingByMentor({
+            id: mentorId,
+          });
+
+          if (ratingData && ratingData.success && ratingData.data) {
+            const averageRating = ratingData.data.averageRating;
+            setRating(
+              averageRating != null && !isNaN(averageRating)
+                ? parseFloat(averageRating)
+                : 0
+            );
+          }
+        } catch (error) {
+          setRating("0");
+        }
+      };
+
+      fetchRating();
+    }
+  }, [profileData, mentorProfile]);
+
   if (!profileData) return null;
 
   return (
@@ -70,7 +108,11 @@ export default function ProfileCard({
 
         {/* 학교/지역 - 멘토일 때만 표시 */}
         {profileData?.role === "MENTOR" && mentorProfile && (
-          <Typography variant="body2" color="var(--text-300)" fontSize="0.85rem">
+          <Typography
+            variant="body2"
+            color="var(--text-300)"
+            fontSize="0.85rem"
+          >
             {mentorProfile.education} {mentorProfile.major}
           </Typography>
         )}
@@ -80,7 +122,7 @@ export default function ProfileCard({
       {profileData?.role === "MENTOR" && (
         <Box
           sx={{
-            ml: "auto",
+            ml: 2,
             display: "flex",
             alignItems: "center",
           }}
@@ -96,7 +138,7 @@ export default function ProfileCard({
             ★
           </Box>
           <Typography variant="body2" fontWeight={500}>
-            {profileData?.rating || "4.9"}
+            {rating > 0 ? rating.toFixed(1) : "아직 평점이 없습니다"}
           </Typography>
         </Box>
       )}
