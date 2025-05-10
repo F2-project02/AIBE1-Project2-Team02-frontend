@@ -32,6 +32,7 @@ import CourseList from "../components/CourseSection/CourseList";
 const CourseSearchPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isPriceFilterSet, setIsPriceFilterSet] = useState(false);
 
   // 📌 필터 상태 관리
   const [selectedItems, setSelectedItems] = useState([]);
@@ -126,6 +127,12 @@ const CourseSearchPage = () => {
           params.regions = [...new Set(regionsToSearch)];
 
           console.log("검색에 사용되는 지역:", params.regions);
+        }
+
+        // 가격 필터 - 명시적으로 설정된 경우 항상 적용
+        if (isPriceFilterSet) {
+          params.minPrice = priceRange[0];
+          params.maxPrice = priceRange[1];
         }
 
         if (priceRange[0] > 0 || priceRange[1] < 300000) {
@@ -310,15 +317,14 @@ const CourseSearchPage = () => {
               />
             ))}
 
-          {filters.price &&
-            (filters.price[0] > 0 || filters.price[1] < 300000) && (
-              <Chip
-                label={`${filters.price[0].toLocaleString()}원-${filters.price[1].toLocaleString()}원`}
-                size="small"
-                onDelete={() => onRemove("price")}
-                sx={{ fontSize: 12 }}
-              />
-            )}
+          {filters.priceSet && (
+            <Chip
+              label={`${filters.price[0].toLocaleString()}원-${filters.price[1].toLocaleString()}원`}
+              size="small"
+              onDelete={() => onRemove("price")}
+              sx={{ fontSize: 12 }}
+            />
+          )}
 
           {filters.rating > 0 && (
             <Chip
@@ -383,6 +389,7 @@ const CourseSearchPage = () => {
     setSelectedRegions([]);
     setSelectedDongs([]);
     setPriceRange([0, 300000]);
+    setIsPriceFilterSet(false);
     setRatingRange(0);
     setIsCertified(false);
     setSelectedParent("");
@@ -504,6 +511,7 @@ const CourseSearchPage = () => {
         initialRange={priceRange}
         onSubmit={(range) => {
           setPriceRange(range);
+          setIsPriceFilterSet(true);
           setPage(1);
         }}
       />
@@ -552,6 +560,7 @@ const CourseSearchPage = () => {
                 categories: selectedCategory,
                 regions: selectedRegions,
                 price: priceRange,
+                priceSet: isPriceFilterSet,
                 rating: ratingRange,
                 certified: isCertified,
               }}
