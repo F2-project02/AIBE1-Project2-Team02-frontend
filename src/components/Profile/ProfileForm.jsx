@@ -13,7 +13,7 @@ import {
   Chip,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
-import RegionSelectionModal from "../../components/CreateLecture/RegionSelectionModal";
+import ProfileRegionModal from "./ProfileRegionModal";
 
 // MBTI 목록
 const mbtiOptions = [
@@ -73,7 +73,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
     }
   }, [profileData]);
 
-  // 지역 선택 처리 함수
+  // 지역 선택 완료 처리 함수
   const handleRegionSelect = (regions) => {
     setSelectedRegions(regions);
     setRegionDialogOpen(false);
@@ -441,11 +441,12 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       </Box>
 
       {/* 지역 선택 모달 */}
-      <RegionSelectionModal
+      <ProfileRegionModal
         open={regionDialogOpen}
         onClose={() => setRegionDialogOpen(false)}
         onSubmit={handleRegionSelect}
         selectedRegions={selectedRegions}
+        setSelectedRegions={setSelectedRegions}
       />
 
       {/* MBTI 필드 */}

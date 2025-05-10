@@ -5,6 +5,8 @@ import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageUploader from "../components/Profile/ProfileImageUploader";
 import MyPageSidebar from "../components/Profile/MyPageSidebar";
 import ProfileForm from "../components/Profile/ProfileForm";
+import MentorFormView from "../components/Profile/MentorFormView";
+import DeleteAccountForm from "../components/Profile/DeleteAccountForm";
 import { fetchProfileData, fetchMentorProfile } from "../lib/api/profileApi";
 
 export default function MyPage() {
@@ -14,6 +16,8 @@ export default function MyPage() {
   const [imagePreview, setImagePreview] = useState(
     "/images/default-profile.svg"
   );
+
+  const [activeTab, setActiveTab] = useState("profile");
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -53,6 +57,11 @@ export default function MyPage() {
     });
   };
 
+  // 탭 변경 핸들러
+  const handleTabChange = (tabName) => {
+    setActiveTab(tabName);
+  };
+
   if (loading) {
     return (
       <Box
@@ -68,6 +77,33 @@ export default function MyPage() {
     );
   }
 
+  // 현재 탭에 맞는 컴포넌트 렌더링
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "profile":
+        return (
+          <>
+            <ProfileImageUploader
+              imagePreview={imagePreview}
+              onImageUpdate={handleProfileImageUpdate}
+            />
+            {profileData && (
+              <ProfileForm
+                profileData={profileData}
+                onProfileUpdate={handleProfileUpdate}
+              />
+            )}
+          </>
+        );
+      case "mentor":
+        return <MentorFormView onProfileUpdate={() => {}} />;
+      case "delete":
+        return <DeleteAccountForm />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Box sx={{ mt: 4, mb: 8 }}>
       {/* 상단 프로필 카드 영역 */}
@@ -80,23 +116,10 @@ export default function MyPage() {
       {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
       <Box sx={{ display: "flex", gap: 4 }}>
         {/* 좌측 메뉴 영역 */}
-        <MyPageSidebar />
+        <MyPageSidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* 우측 프로필 수정 영역 */}
-        <Box sx={{ flex: 1 }}>
-          <ProfileImageUploader
-            imagePreview={imagePreview}
-            onImageUpdate={handleProfileImageUpdate}
-          />
-
-          {/* 프로필 정보 폼 */}
-          {profileData && (
-            <ProfileForm
-              profileData={profileData}
-              onProfileUpdate={handleProfileUpdate}
-            />
-          )}
-        </Box>
+        <Box sx={{ flex: 1 }}>{renderActiveTab()}</Box>
       </Box>
     </Box>
   );
