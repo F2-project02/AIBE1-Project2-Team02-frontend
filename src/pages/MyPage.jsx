@@ -1,6 +1,6 @@
 // src/pages/MyPage.jsx
 import { useState, useEffect } from "react";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageUploader from "../components/Profile/ProfileImageUploader";
 import MyPageSidebar from "../components/Profile/MyPageSidebar";
@@ -8,6 +8,7 @@ import ProfileForm from "../components/Profile/ProfileForm";
 import MentorFormView from "../components/Profile/MentorFormView";
 import DeleteAccountForm from "../components/Profile/DeleteAccountForm";
 import { fetchProfileData, fetchMentorProfile } from "../lib/api/profileApi";
+import { useLocation } from "react-router-dom";
 
 import ProfileCardSkeleton from "../components/Profile/skeletons/ProfileCardSkeleton";
 import ProfileFormSkeleton from "../components/Profile/skeletons/ProfileFormSkeleton";
@@ -24,7 +25,10 @@ export default function MyPage() {
     "/images/default-profile.svg"
   );
 
-  const [activeTab, setActiveTab] = useState("profile");
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || "profile"
+  );
 
   useEffect(() => {
     const loadProfileData = async () => {
