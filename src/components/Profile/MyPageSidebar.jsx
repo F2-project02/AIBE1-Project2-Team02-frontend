@@ -1,62 +1,56 @@
 // src/components/Profile/MyPageSidebar.jsx
 import { Box, List, ListItem, Typography } from "@mui/material";
 
-export default function MyPageSidebar() {
+export default function MyPageSidebar({ activeTab = "profile", onTabChange }) {
+  const tabItems = [
+    { id: "profile", label: "내 정보 수정" },
+    { id: "mentor", label: "멘토 프로필" },
+    { id: "delete", label: "회원탈퇴" },
+  ];
+
   return (
     <Box sx={{ width: 240 }}>
       <List component="nav" aria-label="마이페이지 메뉴">
-        <ListItem disablePadding sx={{ mb: 1 }}>
-          <Box
-            sx={{
-              width: "100%",
-              borderRadius: "8px",
-              bgcolor: "var(--action-primary-bg)",
-              py: 1.5,
-              px: 2,
-            }}
+        {tabItems.map((tab) => (
+          <ListItem
+            key={tab.id}
+            disablePadding
+            sx={{ mb: 1 }}
+            onClick={() => onTabChange && onTabChange(tab.id)}
           >
-            <Typography
+            <Box
               sx={{
-                fontWeight: 600,
-                color: "var(--primary-200)",
+                width: "100%",
+                borderRadius: "8px",
+                bgcolor:
+                  activeTab === tab.id
+                    ? "var(--action-primary-bg)"
+                    : "transparent",
+                py: 1.5,
+                px: 2,
+                cursor: "pointer",
+                "&:hover": {
+                  bgcolor:
+                    activeTab === tab.id
+                      ? "var(--action-primary-bg)"
+                      : "rgba(0, 0, 0, 0.04)",
+                },
               }}
             >
-              내 정보 수정
-            </Typography>
-          </Box>
-        </ListItem>
-
-        <ListItem disablePadding sx={{ mb: 1 }}>
-          <Box
-            sx={{
-              width: "100%",
-              py: 1.5,
-              px: 2,
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <Typography>멘토 프로필</Typography>
-          </Box>
-        </ListItem>
-
-        <ListItem disablePadding>
-          <Box
-            sx={{
-              width: "100%",
-              py: 1.5,
-              px: 2,
-              cursor: "pointer",
-              "&:hover": {
-                bgcolor: "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <Typography>회원탈퇴</Typography>
-          </Box>
-        </ListItem>
+              <Typography
+                sx={{
+                  fontWeight: activeTab === tab.id ? 600 : 400,
+                  color:
+                    activeTab === tab.id
+                      ? "var(--primary-200)"
+                      : "var(--text-300)",
+                }}
+              >
+                {tab.label}
+              </Typography>
+            </Box>
+          </ListItem>
+        ))}
       </List>
     </Box>
   );
