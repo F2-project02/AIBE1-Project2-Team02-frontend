@@ -94,7 +94,7 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       setDeleting(true);
 
       // API에 삭제 요청
-      const response = await axiosInstance.delete(`/api/reviews/${reviewId}`);
+      const response = await axiosInstance.delete(`/api/review/${reviewId}`);
 
       if (response.data?.success) {
         // 성공적으로 삭제되면 목록 갱신
