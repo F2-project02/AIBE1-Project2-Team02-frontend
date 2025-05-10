@@ -23,30 +23,11 @@ export default function useLecturePermission(lecture) {
 
     // 강의 작성자 확인 방법 1: 강의 소유 ID 목록에 해당 강의 ID가 있는지 확인
     let ownerCheck = false;
-    if (Array.isArray(myLectureIds) && lecture?.lectureId) {
-      ownerCheck = myLectureIds.includes(lecture.lectureId);
-    }
 
     // 강의 작성자 확인 방법 2: 작성자(authorUserId)와 현재 사용자 ID 비교
     if (!ownerCheck && lecture?.authorUserId) {
       ownerCheck = lecture.authorUserId === userId;
       console.log("Author check:", lecture.authorUserId, userId, ownerCheck);
-    }
-
-    // 추가 확인 방법: mentorNickname이 현재 사용자 닉네임과 같은지 확인
-    // (닉네임은 고유하므로 이 방법도 가능함)
-    if (
-      !ownerCheck &&
-      lecture?.mentorNickname &&
-      useUserStore.getState().nickname
-    ) {
-      ownerCheck = lecture.mentorNickname === useUserStore.getState().nickname;
-      console.log(
-        "Nickname check:",
-        lecture.mentorNickname,
-        useUserStore.getState().nickname,
-        ownerCheck
-      );
     }
 
     setIsOwner(ownerCheck);
