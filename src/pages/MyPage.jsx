@@ -15,6 +15,7 @@ import ProfileFormSkeleton from "../components/Profile/skeletons/ProfileFormSkel
 import MyPageSidebarSkeleton from "../components/Profile/skeletons/MyPageSidebarSkeleton";
 import MentorFormViewSkeleton from "../components/Profile/skeletons/MentorFormViewSkeleton";
 import DeleteAccountFormSkeleton from "../components/Profile/skeletons/DeleteAccountFormSkeleton";
+import ProfileImageUploaderSkeleton from "../components/Profile/skeletons/ProfileImageUploaderSkeleton";
 
 export default function MyPage() {
   const [profileData, setProfileData] = useState(null);
@@ -82,7 +83,12 @@ export default function MyPage() {
     if (loading || tabLoading) {
       switch (activeTab) {
         case "profile":
-          return <ProfileFormSkeleton />;
+          return (
+            <>
+              <ProfileImageUploaderSkeleton />
+              <ProfileFormSkeleton />
+            </>
+          );
         case "mentor":
           return <MentorFormViewSkeleton />;
         case "delete":
