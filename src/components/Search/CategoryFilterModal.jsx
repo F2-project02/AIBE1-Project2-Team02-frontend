@@ -301,7 +301,7 @@ export default function CategoryFilterModal({
         <Box
           display="flex"
           alignItems="center"
-          px={2}
+          px={1.5}
           py={1}
           bgcolor="var(--bg-200)"
           borderRadius="8px"
@@ -407,7 +407,7 @@ export default function CategoryFilterModal({
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: 16,
-              color: "#fefefe",
+              color: "#var(--bg-100)",
             }}
             disabled={tempSelectedItems.length === 0}
           >

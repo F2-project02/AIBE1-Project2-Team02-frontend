@@ -103,16 +103,29 @@ const CourseSearchPage = () => {
 
         // 지역 필터
         if (selectedRegions.length > 0) {
-          // 문자열 배열 형태로 확실하게 변환
-          params.regions = selectedRegions.map((region) => {
-            if (typeof region === "object") {
-              if (region.displayName) return region.displayName;
-              return `${region.sido || ""} ${region.sigungu || ""} ${
-                region.dong || ""
-              }`.trim();
+          const regionsToSearch = [];
+
+          selectedDongs.forEach((region) => {
+            // 동 레벨인 경우에만 특별 처리
+            if (region.dong) {
+              // 동과 상위 시군구 추가
+              regionsToSearch.push(
+                `${region.sido} ${region.sigungu} ${region.dong}`
+              );
+              regionsToSearch.push(`${region.sido} ${region.sigungu}`);
+            } else {
+              // 시도나 시군구 레벨은 그대로 추가 (백엔드가 하위 포함 검색)
+              const regionStr = region.sigungu
+                ? `${region.sido} ${region.sigungu}`
+                : region.sido;
+              regionsToSearch.push(regionStr);
             }
-            return String(region);
           });
+
+          // 중복 제거
+          params.regions = [...new Set(regionsToSearch)];
+
+          console.log("검색에 사용되는 지역:", params.regions);
         }
 
         if (priceRange[0] > 0 || priceRange[1] < 300000) {
@@ -202,14 +215,7 @@ const CourseSearchPage = () => {
       if (typeof region === "object") {
         if (region.displayName) return region.displayName;
 
-        if (region.sido && !region.sigungu && !region.dong) {
-          return region.sido;
-        }
-
-        if (region.sido && region.sigungu && !region.dong) {
-          return `${region.sido} ${region.sigungu}`;
-        }
-
+        // 지역 문자열 생성
         return `${region.sido || ""} ${region.sigungu || ""} ${
           region.dong || ""
         }`.trim();

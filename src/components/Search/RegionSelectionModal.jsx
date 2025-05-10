@@ -276,7 +276,7 @@ export default function RegionSelectionModal({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <Box p={4} bgcolor="#fefefe">
+      <Box p={4} height="100vh" bgcolor="#fefefe">
         {/* Header */}
         <Box
           position="relative"
@@ -299,7 +299,7 @@ export default function RegionSelectionModal({
         </Box>
 
         {/* 3단 선택 영역 */}
-        <Box display="flex" gap={3} mb={4}>
+        <Box display="flex" height={320} gap={2}>
           <RegionColumn
             label="시/도"
             items={provinces}
