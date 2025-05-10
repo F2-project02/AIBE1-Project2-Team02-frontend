@@ -68,7 +68,7 @@ export default function RequestedInquiryItem({ data }) {
   return (
     <Card
       sx={{
-        width: 500,
+        width: 400,
         minHeight: 220,
         px: 2,
         py: 3,

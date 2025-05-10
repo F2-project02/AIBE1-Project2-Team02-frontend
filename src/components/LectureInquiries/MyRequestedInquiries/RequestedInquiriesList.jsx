@@ -5,6 +5,7 @@ import RequestedInquiryItem from "../MyRequestedInquiries/RequestedInquiryItem";
 import RequestedInquirySkeleton from "../MyRequestedInquiries/RequestedInquirySkeleton";
 import useInquiryStore from "../../../store/useInquiryStore";
 import { getMyRequestedInquiries } from "../../../lib/api/inquiryApi";
+import MoreButton from "../MoreButton";
 
 export default function RequestedInquiriesList() {
   const {
@@ -54,27 +55,7 @@ export default function RequestedInquiriesList() {
 
       {/* 더보기/접기 버튼 */}
       {!loading && requestedInquiries.length > 3 && (
-        <Box display="flex" justifyContent="center" mt={1}>
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{
-              backgroundColor: "var(--bg-100)",
-              borderRadius: "12px",
-              borderColor: "var(--bg-300)",
-              color: "var(--text-400)",
-              fontWeight: 600,
-              height: 30,
-              p: 1.5,
-              ":hover": {
-                backgroundColor: "var(--bg-200)",
-              },
-            }}
-            onClick={() => setIsExpanded((prev) => !prev)}
-          >
-            {isExpanded ? "접기" : "더보기"}
-          </Button>
-        </Box>
+        <MoreButton isExpanded={isExpanded} onClick={handleToggle} />
       )}
     </Stack>
   );

@@ -4,11 +4,9 @@ import MyRegisteredLectureItem from "./RegisteredInquiryItem";
 import RegisteredInquirySkeleton from "./RegisteredInquirySkeleton";
 import useInquiryStore from "../../../store/useInquiryStore";
 import { getMyRegisteredLectures } from "../../../lib/api/inquiryApi";
+import MoreButton from "../MoreButton";
 
-export default function RegisteredInquiriesList({
-  onLectureClick,
-  selectedLectureId,
-}) {
+export default function RegisteredInquiriesList() {
   const {
     registeredLectures,
     setRegisteredLectures,
@@ -16,6 +14,7 @@ export default function RegisteredInquiriesList({
     setLoading,
     setError,
   } = useInquiryStore();
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -24,7 +23,6 @@ export default function RegisteredInquiriesList({
       try {
         const data = await getMyRegisteredLectures();
         setRegisteredLectures(data);
-        console.log(data);
       } catch (err) {
         console.error("등록한 과외 조회 실패:", err);
         setError(err);
@@ -41,14 +39,11 @@ export default function RegisteredInquiriesList({
     : registeredLectures.slice(0, 3);
 
   const handleLectureToggle = (lectureId) => {
-    // 이미 선택된 강의면 선택 해제, 아니면 선택
-    const newId = selectedLectureId === lectureId ? null : lectureId;
-
     // 부모 컴포넌트에 선택된 강의 ID 전달
     if (onLectureClick) onLectureClick(newId);
   };
 
-  const handleExpandClick = () => {
+  const handleToggle = () => {
     setIsExpanded((prev) => !prev);
   };
 
@@ -63,33 +58,12 @@ export default function RegisteredInquiriesList({
               <MyRegisteredLectureItem
                 key={lecture.lectureId}
                 data={lecture}
-                isSelected={selectedLectureId === lecture.lectureId}
                 onToggle={() => handleLectureToggle(lecture.lectureId)}
               />
             ))}
 
         {!loading && registeredLectures.length > 3 && (
-          <Box display="flex" justifyContent="center" mt={1}>
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() => setIsExpanded((prev) => !prev)}
-              sx={{
-                backgroundColor: "var(--bg-100)",
-                borderRadius: "12px",
-                borderColor: "var(--bg-300)",
-                color: "var(--text-400)",
-                fontWeight: 600,
-                height: 30,
-                p: 1.5,
-                ":hover": {
-                  backgroundColor: "var(--bg-200)",
-                },
-              }}
-            >
-              {isExpanded ? "접기" : "더보기"}
-            </Button>
-          </Box>
+          <MoreButton isExpanded={isExpanded} onClick={handleToggle} />
         )}
       </Stack>
     </Box>

@@ -14,10 +14,8 @@ export const getMyRegisteredLectures = async () => {
 };
 
 // 특정 강의의 신청자 목록 조회
-export const getLectureApplicants = async (lectureId) => {
-  const res = await axiosInstance.get(
-    `/api/application/${lectureId}/applicants`
-  );
+export const getLectureApplicants = async () => {
+  const res = await axiosInstance.get(`/api/application/applicants`);
   return res.data.data;
 };
 

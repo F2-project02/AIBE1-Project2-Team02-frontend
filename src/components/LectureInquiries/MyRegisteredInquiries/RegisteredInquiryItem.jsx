@@ -12,11 +12,7 @@ import StarIcon from "@mui/icons-material/Star";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-export default function MyRegisteredLectureItem({
-  data,
-  isSelected,
-  onToggle,
-}) {
+export default function MyRegisteredLectureItem({ data, onToggle }) {
   const {
     lectureId,
     lectureTitle,
@@ -53,7 +49,7 @@ export default function MyRegisteredLectureItem({
   return (
     <Card
       sx={{
-        width: "100%",
+        width: 400,
         minHeight: 220,
         px: 2,
         py: 3,
@@ -64,7 +60,6 @@ export default function MyRegisteredLectureItem({
         borderRadius: 0,
         backgroundColor: "unset",
         boxShadow: "none",
-        mb: 2,
       }}
     >
       {/* 프로필 */}
@@ -165,12 +160,7 @@ export default function MyRegisteredLectureItem({
           {lectureTitle}
         </Typography>
 
-        <Switch
-          checked={isSelected}
-          onChange={handleToggle}
-          color="primary"
-          sx={{ ml: 2 }}
-        />
+        <Switch onChange={handleToggle} color="primary" sx={{ ml: 2 }} />
       </Stack>
 
       {/* 수업료 */}
