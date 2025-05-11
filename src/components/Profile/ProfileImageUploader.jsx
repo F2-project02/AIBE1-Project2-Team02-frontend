@@ -52,8 +52,8 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
       <Box
         component="div"
         sx={{
-          width: 80,
-          height: 80,
+          width: 120,
+          height: 120,
           borderRadius: "50%",
           bgcolor: "#f0f0f0",
           display: "flex",
@@ -61,6 +61,7 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
           justifyContent: "center",
           mb: 2,
           overflow: "hidden",
+          border: "1px solid var(--bg-200)",
         }}
       >
         <img
@@ -78,21 +79,28 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
         onChange={handleFileSelect}
       />
 
+      {/* 버튼 스타일 변경 */}
       <label htmlFor="profile-image-upload">
         <Button
           variant="outlined"
           component="span"
-          size="small"
           sx={{
             mt: 2,
-            fontSize: "0.8rem",
-            borderRadius: "20px",
-            borderColor: "var(--bg-300)",
-            color: "var(--text-300)",
-            px: 2,
+            fontSize: "0.9rem",
+            borderRadius: "8px",
+            borderColor: "var(--text-400)",
+            color: "var(--text-400)",
+            px: 3,
+            py: 1,
+            minWidth: "180px",
+            fontWeight: 500,
+            "&:hover": {
+              borderColor: "var(--text-300)",
+              backgroundColor: "var(--bg-200)",
+            },
           }}
         >
-          이미지 선택
+          프로필 이미지 변경
         </Button>
       </label>
 
@@ -100,16 +108,21 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
       {profileImage && (
         <Button
           variant="contained"
-          size="small"
           onClick={handleImageUpload}
           disabled={uploading}
           sx={{
             mt: 1,
-            fontSize: "0.8rem",
-            borderRadius: "20px",
-            background: "var(--primary-100)",
+            fontSize: "0.9rem",
+            borderRadius: "8px", // 각진 모서리
+            backgroundColor: "var(--primary-100)", // 색상 변경
             color: "white",
-            px: 2,
+            px: 3,
+            py: 1, // 버튼 크기 증가
+            minWidth: "180px", // 버튼 너비 증가
+            fontWeight: 500,
+            "&:hover": {
+              backgroundColor: "var(--primary-200)",
+            },
           }}
         >
           {uploading ? (
