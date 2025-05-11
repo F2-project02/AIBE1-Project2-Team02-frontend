@@ -5,7 +5,6 @@ import {
   Typography,
   TextField,
   Button,
-  Alert,
   IconButton,
   useTheme,
   useMediaQuery,
@@ -22,8 +21,11 @@ import MentorFormViewSkeleton from "./skeletons/MentorFormViewSkeleton";
 import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
 import fileUploadIcon from "../../assets/file-upload.png";
 import logoImage from "../../assets/navbar-logo.svg";
+import warnGif from "../../assets/warn.gif";
+import menteesuccessGif from "../../assets/smiling-face-with-hearts.gif";
+import mentorsuccessGif from "../../assets/party.gif";
 
-export default function MentorFormView() {
+export default function MentorFormView({ showToast }) {
   const [isLoading, setIsLoading] = useState(true);
   const [mentorProfile, setMentorProfile] = useState(null);
   const [content, setContent] = useState("");
@@ -101,26 +103,30 @@ export default function MentorFormView() {
 
       if (isMentor) {
         await updateMentorProfile(formData);
+        showToast(
+          "멘토 프로필이 성공적으로 업데이트되었습니다.",
+          mentorsuccessGif
+        );
       } else {
         await applyMentorProfile(formData);
         updateRole("MENTOR");
+        showToast(
+          "멘토 신청이 완료되었습니다. 멘티와의 첫 만남을 준비해보세요!",
+          menteesuccessGif
+        );
 
         setTimeout(() => {
-          window.location.reload();
+          window.location.href = window.location.pathname + "?tab=mentor";
         }, 1500);
       }
 
       setSuccess(true);
     } catch (error) {
-      console.error(
-        isMentor ? "멘토 프로필 업데이트 중 오류:" : "멘토 신청 중 오류:",
-        error
-      );
-      setError(
-        `${isMentor ? "멘토 프로필 업데이트" : "멘토 신청"} 실패: ${
-          error.message
-        }`
-      );
+      const errorMsg = `${
+        isMentor ? "멘토 프로필 업데이트" : "멘토 신청"
+      } 실패: ${error.message}`;
+      setError(errorMsg);
+      showToast(errorMsg, warnGif, "error");
     }
   };
 
@@ -140,15 +146,11 @@ export default function MentorFormView() {
           borderRadius: 2,
         }}
       >
-        <Typography variant="h6" color="error" gutterBottom>
+        <Typography variant="h6" color="warning.main" gutterBottom>
           멘토 정보를 불러올 수 없습니다
         </Typography>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ mb: 2, whiteSpace: "pre-wrap" }}
-        >
-          {error}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          데이터를 불러왔지만 프로필 정보가 존재하지 않습니다.
         </Typography>
         <Button
           variant="outlined"
@@ -238,15 +240,6 @@ export default function MentorFormView() {
 
       {/* 폼 내용 */}
       <Box component="form" onSubmit={handleSubmit}>
-        {/* 성공 메시지 */}
-        {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
-            {isMentor
-              ? "멘토 프로필이 성공적으로 업데이트되었습니다."
-              : "멘토 신청이 완료되었습니다. 페이지가 새로고침됩니다."}
-          </Alert>
-        )}
-
         {/* 학력 */}
         <FormFieldWrapper label="학력">
           <Box

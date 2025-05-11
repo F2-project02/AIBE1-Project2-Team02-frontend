@@ -9,6 +9,9 @@ import MentorFormView from "../components/Profile/MentorFormView";
 import DeleteAccountForm from "../components/Profile/DeleteAccountForm";
 import { fetchProfileData, fetchMentorProfile } from "../lib/api/profileApi";
 import { useLocation } from "react-router-dom";
+import CustomToast from "../components/common/CustomToast";
+import warnGif from "../assets/warn.gif";
+import successGif from "../assets/message.gif";
 
 import ProfileCardSkeleton from "../components/Profile/skeletons/ProfileCardSkeleton";
 import ProfileFormSkeleton from "../components/Profile/skeletons/ProfileFormSkeleton";
@@ -27,13 +30,29 @@ export default function MyPage() {
   );
 
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const tabParam = searchParams.get("tab");
+
   const [activeTab, setActiveTab] = useState(
-    location.state?.activeTab || "profile"
+    tabParam || location.state?.activeTab || "profile"
   );
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  // showToast 함수 추가
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -114,14 +133,17 @@ export default function MyPage() {
               <ProfileForm
                 profileData={profileData}
                 onProfileUpdate={handleProfileUpdate}
+                showToast={showToast}
               />
             )}
           </>
         );
       case "mentor":
-        return <MentorFormView onProfileUpdate={() => {}} />;
+        return (
+          <MentorFormView onProfileUpdate={() => {}} showToast={showToast} />
+        );
       case "delete":
-        return <DeleteAccountForm />;
+        return <DeleteAccountForm showToast={showToast} />;
       default:
         return null;
     }
@@ -177,6 +199,14 @@ export default function MyPage() {
           {renderActiveTabContent()}
         </Box>
       </Box>
+
+      <CustomToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
+      />
     </Box>
   );
 }

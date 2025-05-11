@@ -12,11 +12,12 @@ import {
   Chip,
   useMediaQuery,
   useTheme,
-  Grid,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
 import ProfileRegionModal from "./ProfileRegionModal";
 import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
+import warnGif from "../../assets/warn.gif";
+import successGif from "../../assets/party.gif";
 
 const mbtiOptions = [
   "ISTJ",
@@ -37,7 +38,11 @@ const mbtiOptions = [
   "ENTJ",
 ];
 
-export default function ProfileForm({ profileData, onProfileUpdate }) {
+export default function ProfileForm({
+  profileData,
+  onProfileUpdate,
+  showToast,
+}) {
   // 편집을 위한 상태 변수들
   const [nickname, setNickname] = useState("");
   const [originalNickname, setOriginalNickname] = useState("");
@@ -97,7 +102,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   // 닉네임 중복 확인 함수
   const checkNicknameDuplicate = async () => {
     if (!nickname.trim()) {
-      alert("닉네임을 입력해주세요.");
+      showToast("닉네임을 입력해주세요.", warnGif, "error");
       return;
     }
 
@@ -109,13 +114,21 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       setIsNicknameAvailable(isAvailable);
 
       if (isAvailable) {
-        alert("사용 가능한 닉네임입니다.");
+        showToast("사용 가능한 닉네임입니다.", successGif, "info");
       } else {
-        alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+        showToast(
+          "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.",
+          warnGif,
+          "error"
+        );
       }
     } catch (error) {
       console.error("닉네임 중복 확인 오류:", error);
-      alert("닉네임 확인 중 오류가 발생했습니다: " + error.message);
+      showToast(
+        "닉네임 확인 중 오류가 발생했습니다: " + error.message,
+        warnGif,
+        "error"
+      );
     } finally {
       setCheckingNickname(false);
     }
@@ -128,7 +141,6 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
     const year = parseInt(dateString.substring(0, 4), 10);
     const month = parseInt(dateString.substring(4, 6), 10);
     const day = parseInt(dateString.substring(6, 8), 10);
-
     const currentYear = new Date().getFullYear();
 
     if (year < 1900 || year > currentYear) return false;
@@ -178,32 +190,44 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
     e.preventDefault();
 
     if (nickname !== originalNickname && !isNicknameChecked) {
-      alert("닉네임 중복 확인을 해주세요.");
+      showToast("닉네임 중복 확인을 해주세요.", warnGif, "error");
       return;
     }
 
     if (nickname !== originalNickname && !isNicknameAvailable) {
-      alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      showToast(
+        "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.",
+        warnGif,
+        "error"
+      );
       return;
     }
 
     if (!birthDate || birthDate.trim() === "") {
-      alert("생년월일을 입력해주세요.");
+      showToast("생년월일을 입력해주세요.", warnGif, "error");
       return;
     }
 
     if (birthDate.length !== 8) {
-      alert("생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.");
+      showToast(
+        "생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.",
+        warnGif,
+        "error"
+      );
       return;
     }
 
     if (!isValidDate(birthDate)) {
-      alert("유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.");
+      showToast(
+        "유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.",
+        warnGif,
+        "error"
+      );
       return;
     }
 
     if (selectedRegions.length === 0) {
-      alert("최소 한 개 이상의 지역을 선택해주세요.");
+      showToast("최소 한 개 이상의 지역을 선택해주세요.", warnGif, "error");
       return;
     }
 
@@ -229,10 +253,13 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
 
-      alert("프로필이 성공적으로 업데이트되었습니다.");
+      showToast("프로필이 성공적으로 업데이트되었습니다.", successGif, "info");
     } catch (error) {
-      console.error("프로필 업데이트 오류: ", error);
-      alert("프로필 업데이트 중 오류가 발생했습니다: " + error.message);
+      showToast(
+        "프로필 업데이트 중 오류가 발생했습니다: " + error.message,
+        warnGif,
+        "error"
+      );
     } finally {
       setUpdating(false);
     }
