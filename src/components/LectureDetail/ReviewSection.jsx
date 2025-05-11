@@ -142,6 +142,7 @@ export default function ReviewSection({ lecture }) {
         >
           <ReviewForm
             lectureId={lecture?.lectureId}
+            mentorId={lecture?.mentorId}
             onReviewAdded={handleReviewAdded}
           />
         </Box>
