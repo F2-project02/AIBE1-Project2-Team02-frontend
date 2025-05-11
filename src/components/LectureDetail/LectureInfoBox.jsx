@@ -1,27 +1,94 @@
 // 📄 src/components/LectureDetail/LectureInfoBox.jsx
 
 import { useState } from "react";
-import { Box, Typography, Stack, Button } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  Button,
+  FormControlLabel,
+  Switch,
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Tooltip,
+} from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import RoomIcon from "@mui/icons-material/Room";
 import { useUserStore } from "../../store/useUserStore";
 import LectureApplyModal from "./LectureApplyModal";
+import useLecturePermission from "../../hooks/useLecturePermission";
 
 export default function LectureInfoBox({ lecture }) {
-  const { role, myLectureIds = [] } = useUserStore();
+  const { isLoggedIn } = useUserStore();
+  const { hasPermission, isOwner } = useLecturePermission(lecture);
   const [openApply, setOpenApply] = useState(false);
+  const [isClosed, setIsClosed] = useState(lecture?.isClosed || false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
 
-  if (!lecture) return null;
+  // 디버깅용 로그
+  console.log("작성자 여부(isOwner):", isOwner);
+  console.log("강의 마감 여부(isClosed):", lecture?.isClosed);
 
-  const isMentor = role === "MENTOR";
-  const isOwner =
-    Array.isArray(myLectureIds) && myLectureIds.includes(lecture.lectureId);
+  // 안전 확인 및 기본값 설정
+  if (!lecture) {
+    return (
+      <Box
+        sx={{
+          p: 3,
+          borderRadius: 1,
+          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+          backgroundColor: "var(--bg-100)",
+          minWidth: 280,
+          width: "100%",
+        }}
+      >
+        <Alert severity="warning">강의 정보를 불러올 수 없습니다.</Alert>
+      </Box>
+    );
+  }
 
-  // Safely access props with fallbacks
-  const lecturePrice = lecture?.price || 0;
-  const timeSlots = lecture?.availableTimeSlots || [];
-  const regions = lecture?.regions || [];
+  // 스낵바 닫기
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  // 데이터 안전하게 가져오기
+  const lecturePrice = lecture.price || 0;
+  const timeSlots = lecture.availableTimeSlots || [];
+  const regions = lecture.regions || [];
+
+  // 요일 추출하기
+  const getDaysOfWeek = () => {
+    if (!timeSlots || timeSlots.length === 0) return "요일 정보 없음";
+
+    // 타입 체크 후 데이터 추출
+    const days = timeSlots
+      .map((slot) => slot.dayOfWeek || slot.day || "")
+      .filter(Boolean);
+
+    // 중복 제거 후 문자열로 변환
+    return [...new Set(days)].join(", ") || "요일 정보 없음";
+  };
+
+  // 신청하기 버튼 클릭 핸들러
+  const handleApplyClick = () => {
+    if (lecture.isClosed) {
+      setSnackbar({
+        open: true,
+        message: "이미 마감된 강의입니다.",
+        severity: "warning",
+      });
+    } else {
+      setOpenApply(true);
+    }
+  };
 
   return (
     <>
@@ -55,7 +122,7 @@ export default function LectureInfoBox({ lecture }) {
           </Typography>
         </Stack>
         <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
-          {timeSlots.map((slot) => slot.day).join(", ")}
+          {getDaysOfWeek()}
         </Typography>
         {/* 수업 시간 */}
         <Stack direction="row" alignItems="center" spacing={1} mt={2}>
@@ -65,11 +132,21 @@ export default function LectureInfoBox({ lecture }) {
           </Typography>
         </Stack>
         <Stack spacing={0.5} ml={3} mt={0.5}>
-          {timeSlots.map((slot, i) => (
-            <Typography key={i} variant="body2" color="var(--text-100)">
-              {slot.day} | {slot.time}
+          {timeSlots.length > 0 ? (
+            timeSlots.map((slot, i) => (
+              <Typography key={i} variant="body2" color="var(--text-100)">
+                {slot.dayOfWeek || slot.day || ""} |{" "}
+                {slot.time ||
+                  (slot.startTime && slot.endTime
+                    ? `${slot.startTime} - ${slot.endTime}`
+                    : "")}
+              </Typography>
+            ))
+          ) : (
+            <Typography variant="body2" color="var(--text-100)">
+              시간 정보 없음
             </Typography>
-          ))}
+          )}
         </Stack>
         {/* 지역 */}
         <Stack direction="row" alignItems="center" spacing={1} mt={2}>
@@ -79,33 +156,41 @@ export default function LectureInfoBox({ lecture }) {
           </Typography>
         </Stack>
         <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
-          {regions.length > 0
+          {regions && regions.length > 0
             ? regions
-                .map((r) => `${r.sido || ""} ${r.sigungu || ""}`)
+                .map((r) => {
+                  if (typeof r === "string") return r;
+                  return [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ");
+                })
                 .join(", ")
             : "지역 정보 없음"}
         </Typography>
 
-        {/* 버튼 (멘토 본인이 아니어야 보임) */}
-        {!isMentor || !isOwner ? (
+        {/* 액션 버튼 - 작성자가 아닌 경우에만 버튼들 표시 */}
+        {isLoggedIn && !isOwner && (
           <Stack spacing={1.5} mt={4}>
-            <Button
-              fullWidth
-              variant="contained"
-              onClick={() => setOpenApply(true)}
-              sx={{
-                background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
-                color: "#fff",
-                fontWeight: 600,
-                borderRadius: "12px",
-                py: 1.5,
-                ":hover": {
-                  background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
-                },
-              }}
-            >
-              수업 신청하기
-            </Button>
+            {/* 모집중인 경우에만 신청하기 버튼 표시 */}
+            {!lecture.isClosed && (
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={handleApplyClick}
+                sx={{
+                  background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
+                  color: "#fff",
+                  fontWeight: 600,
+                  borderRadius: "12px",
+                  py: 1.5,
+                  ":hover": {
+                    background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
+                  },
+                }}
+              >
+                수업 신청하기
+              </Button>
+            )}
+
+            {/* 찜하기 버튼은 항상 표시 */}
             <Button
               fullWidth
               variant="outlined"
@@ -123,7 +208,23 @@ export default function LectureInfoBox({ lecture }) {
               찜하기
             </Button>
           </Stack>
-        ) : null}
+        )}
+
+        {/* 스낵바 메시지 */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbar.severity}
+            sx={{ width: "100%" }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </Box>
       <LectureApplyModal
         lectureId={lecture.lectureId}

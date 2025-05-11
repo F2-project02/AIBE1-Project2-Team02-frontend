@@ -7,29 +7,48 @@ import {
   Stack,
   Avatar,
   Divider,
-  Link,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
+  Alert,
 } from "@mui/material";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import StarIcon from "@mui/icons-material/Star";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 
 export default function MentorProfile({ mentor }) {
-  // Add safety checks and fallbacks
-  const profileImage = mentor?.profileImage || "/images/default-profile.svg";
-  const nickname = mentor?.nickname || "멘토";
-  const isCertified = mentor?.isCertified || false;
-  const rating = mentor?.rating || 0;
-  const mbti = mentor?.mbti || "MBTI";
-  const education = mentor?.education || "";
-  const major = mentor?.major || "";
-  const regions = Array.isArray(mentor?.regions) ? mentor.regions : [];
-  const analysisComment = mentor?.analysisComment || "";
-  const content = mentor?.content || "멘토 소개 내용이 없습니다.";
-  const appealFileUrl = mentor?.appealFileUrl || "";
+  // 멘토 정보가 없는 경우 처리
+  if (!mentor) {
+    return (
+      <Box>
+        <Typography variant="h6" fontWeight={600} gutterBottom>
+          멘토 정보
+        </Typography>
+        <Alert severity="info" sx={{ mb: 3 }}>
+          멘토 정보를 불러올 수 없습니다.
+        </Alert>
+      </Box>
+    );
+  }
+
+  // 안전 확인 및 기본값 설정
+  const profileImage = mentor.profileImage || "/images/default-profile.svg";
+  const nickname = mentor.nickname || "멘토";
+  const isCertified = mentor.isCertified || false;
+  const rating = mentor.rating || 0;
+  const mbti = mentor.mbti || null;
+  const education = mentor.education || "";
+  const major = mentor.major || "";
+  const regions = Array.isArray(mentor.regions) ? mentor.regions : [];
+  const introduction =
+    mentor.introduction || mentor.content || "멘토 소개 내용이 없습니다.";
+
+  // HTML 내용을 안전하게 렌더링하는 함수
+  const createMarkup = (html) => {
+    if (typeof html !== "string") return { __html: "" };
+    return { __html: html };
+  };
+
+  // 소개 내용에 HTML이 포함되어 있는지 확인
+  const containsHtml =
+    typeof introduction === "string" && introduction.includes("<");
 
   return (
     <Box>
@@ -66,27 +85,31 @@ export default function MentorProfile({ mentor }) {
             {typeof rating === "number" ? rating.toFixed(1) : "0.0"}
           </Typography>
         </Box>
-        <Chip
-          label={mbti}
-          size="small"
-          sx={{
-            backgroundColor: "var(--action-green-bg)",
-            color: "var(--action-green)",
-            fontWeight: 600,
-            borderRadius: "8px",
-          }}
-        />
+        {mbti && (
+          <Chip
+            label={mbti}
+            size="small"
+            sx={{
+              backgroundColor: "var(--action-green-bg)",
+              color: "var(--action-green)",
+              fontWeight: 600,
+              borderRadius: "8px",
+            }}
+          />
+        )}
       </Box>
 
       {/* 학력 */}
-      <Typography
-        variant="body2"
-        textAlign="center"
-        mt={1}
-        color="var(--text-300)"
-      >
-        {education} {major && `${major}`}
-      </Typography>
+      {(education || major) && (
+        <Typography
+          variant="body2"
+          textAlign="center"
+          mt={1}
+          color="var(--text-300)"
+        >
+          {education} {major && `${major}`}
+        </Typography>
+      )}
 
       {/* 지역 */}
       {regions.length > 0 && (
@@ -117,30 +140,6 @@ export default function MentorProfile({ mentor }) {
         </Box>
       )}
 
-      {/* AI 멘토 분석 */}
-      {analysisComment && (
-        <Box
-          mt={3}
-          p={2}
-          borderRadius="8px"
-          sx={{
-            background:
-              "linear-gradient(90deg, rgba(255, 186, 208, 0.2) 0%, rgba(91, 141, 239, 0.2) 100%)",
-            color: "var(--text-200)",
-          }}
-        >
-          <Box display="flex" alignItems="center" gap={1} mb={0.5}>
-            <InfoOutlinedIcon fontSize="small" />
-            <Typography fontWeight={600} fontSize={14}>
-              AI 멘토 분석
-            </Typography>
-          </Box>
-          <Typography fontSize={13} fontWeight={400}>
-            {analysisComment}
-          </Typography>
-        </Box>
-      )}
-
       {/* 멘토 소개 */}
       <Divider sx={{ my: 3 }} />
       <Typography color="var(--text-100)" variant="subtitle2" fontWeight={600}>
@@ -155,41 +154,39 @@ export default function MentorProfile({ mentor }) {
           p: 2,
         }}
       >
-        <Typography
-          variant="body2"
-          sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
-        >
-          {content}
-        </Typography>
-      </Box>
-
-      {/* 첨부파일 */}
-      {appealFileUrl && (
-        <Box mt={2}>
-          <ListItem
-            component="a"
-            href={appealFileUrl}
-            target="_blank"
+        {/* 멘토 소개 내용 - HTML이 있으면 HTML로 렌더링, 없으면 일반 텍스트로 렌더링 */}
+        {containsHtml ? (
+          <Box
             sx={{
-              border: "1px solid var(--bg-200)",
-              borderRadius: 1,
-              px: 2,
-              py: 1,
-              backgroundColor: "#fefefe",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              color: "var(--text-200)",
+              "& img": {
+                maxWidth: "100%",
+                height: "auto",
+                borderRadius: "8px",
+                margin: "16px 0",
+              },
+              "& p": {
+                margin: "0 0 16px 0",
+              },
+              "& ul, & ol": {
+                marginBottom: "16px",
+                paddingLeft: "24px",
+              },
+              "& li": {
+                marginBottom: "8px",
+              },
             }}
+            dangerouslySetInnerHTML={createMarkup(introduction)}
+          />
+        ) : (
+          <Typography
+            variant="body2"
+            sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
           >
-            <ListItemIcon>
-              <InsertDriveFileIcon sx={{ color: "var(--primary-300)" }} />
-            </ListItemIcon>
-            <ListItemText
-              primary="document_file_name.pdf"
-              secondary="100kb · Complete"
-              primaryTypographyProps={{ fontWeight: 500 }}
-            />
-          </ListItem>
-        </Box>
-      )}
+            {introduction}
+          </Typography>
+        )}
+      </Box>
     </Box>
   );
 }

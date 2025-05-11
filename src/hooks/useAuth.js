@@ -56,14 +56,25 @@ export default function useAuth() {
 
             const result = await response.json();
 
-            if (result.success && result.data) {
+            const responseLec = await fetch(`${base}/api/account/mylecture`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!responseLec.ok) {
+                console.error("❌ 수강 중인 강의 정보 요청 실패:", responseLec.status);
+                return;
+            }
+
+            const resultLec = await responseLec.json();
+
+            if (result.success && result.data && resultLec.success && resultLec.data) {
                 // Zustand를 통해 로그인 상태 업데이트
                 useUserStore.getState().login({
                     userId: result.data.userId,
                     nickname: result.data.nickname,
                     profileImage: result.data.profileImage,
                     role: result.data.role || "MENTEE",
-                    myLectureIds: [], // 필요 시 강의 ID fetch 추가
+                    myLectureIds: resultLec.data.lectureIds,
                 });
 
                 import.meta.env.DEV && console.log("🙆 사용자 정보 수신 완료");
@@ -109,13 +120,24 @@ export default function useAuth() {
 
             const result = await response.json();
 
-            if (result.success && result.data) {
+            const responseLec = await fetch(`${base}/api/account/mylecture`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!responseLec.ok) {
+                console.error("❌ 수강 중인 강의 정보 요청 실패:", responseLec.status);
+                return;
+            }
+
+            const resultLec = await responseLec.json();
+
+            if (result.success && result.data && resultLec.success && resultLec.data) {
                 useUserStore.getState().login({
                     userId: result.data.userId,
                     nickname: result.data.nickname,
                     profileImage: result.data.profileImage,
                     role: result.data.role || "MENTEE",
-                    myLectureIds: [],
+                    myLectureIds: resultLec.data.lectureIds,
                 });
 
                 import.meta.env.DEV && console.log("🔁 자동 로그인 성공");

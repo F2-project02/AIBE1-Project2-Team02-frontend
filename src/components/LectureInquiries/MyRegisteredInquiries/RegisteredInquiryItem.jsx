@@ -41,7 +41,12 @@ export default function RegisteredLectureItem({ data, onToggle }) {
   const visibleChips = sortedChips.slice(0, 3);
   const hiddenChips = sortedChips.slice(3);
 
-  const formatPriceKRW = (price) => `1회  ${Math.floor(price / 10000)}만원`;
+  function formatPriceKRW(price) {
+    if (price === 0) return "무료";
+    return price < 10000
+      ? `${price.toLocaleString()}원`
+      : `${Math.floor(price / 10000).toLocaleString()}만원`;
+  }
 
   const handleToggle = () => {
     onToggle(lectureId, isClosed);

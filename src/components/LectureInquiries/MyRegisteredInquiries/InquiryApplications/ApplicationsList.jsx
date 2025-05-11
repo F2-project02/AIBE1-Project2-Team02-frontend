@@ -81,8 +81,8 @@ export default function ApplicationsList() {
             textAlign: "center",
           }}
         >
-          <Typography variant="body1" color="text.secondary">
-            과외 신청자가 없습니다
+          <Typography variant="body1" color="var(--text-300)">
+            아직 신청자가 없습니다
           </Typography>
         </Box>
       )}
