@@ -264,7 +264,7 @@ export default function CategoryFilterModal({
                 },
               }}
             >
-              <Typography fontSize={14}>{item}</Typography>
+              <Typography fontSize={16}>{item}</Typography>
               {selected && <CheckIcon sx={{ fontSize: 18 }} />}
             </Box>
           );
@@ -275,7 +275,7 @@ export default function CategoryFilterModal({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <Box p={4} bgcolor="#fefefe">
+      <Box p={4} height="100vh" bgcolor="#fefefe">
         {/* Header */}
         <Box
           position="relative"
@@ -314,7 +314,7 @@ export default function CategoryFilterModal({
             onChange={(e) => setSearchTerm(e.target.value)}
             fullWidth
             sx={{
-              color: "var(--text-100)",
+              color: "var(--text-400)",
               fontSize: 15,
               "& ::placeholder": {
                 color: "var(--text-400)",
@@ -388,6 +388,8 @@ export default function CategoryFilterModal({
               border: "1px solid var(--bg-300)",
               height: 52,
               borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: 16,
               px: 2,
               color: "var(--text-300)",
               whiteSpace: "nowrap",

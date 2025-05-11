@@ -265,7 +265,7 @@ export default function RegionSelectionModal({
                 },
               }}
             >
-              <Typography fontSize={14}>{itemName}</Typography>
+              <Typography fontSize={16}>{itemName}</Typography>
               {selected && <CheckIcon sx={{ fontSize: 18 }} />}
             </Box>
           );
@@ -355,7 +355,7 @@ export default function RegionSelectionModal({
         )}
 
         {/* 하단 버튼 */}
-        <Box display="flex" gap={2} mt={6}>
+        <Box display="flex" gap={2} mt={8}>
           <Button
             startIcon={<RestartAltIcon />}
             onClick={handleReset}

@@ -193,9 +193,9 @@ export default function RegionSelectionMobile({
   return (
     <Dialog open={open} onClose={onClose} fullScreen>
       <Box
-        height="100vh"
+        height="100%"
         bgcolor="#fefefe"
-        display="flex"
+        display="block"
         flexDirection="column"
         pt={3}
         pb={2}
@@ -304,7 +304,7 @@ export default function RegionSelectionMobile({
             <Box
               display="flex"
               flexWrap="wrap"
-              gap={0.5}
+              gap={1}
               maxHeight={100}
               overflow="auto"
               sx={{
@@ -326,7 +326,7 @@ export default function RegionSelectionMobile({
                     );
                   }}
                   sx={{
-                    fontSize: 12,
+                    fontSize: 13,
                     height: 28,
                     borderColor: "var(--primary-100)",
                     color: "var(--primary-100)",
@@ -346,7 +346,7 @@ export default function RegionSelectionMobile({
         )}
 
         {/* 하단 버튼 */}
-        <Box px={2} display="flex" gap={1} mt={3}>
+        <Box px={2} display="flex" gap={1} mt={3} mb={8}>
           <Chip
             icon={<RestartAltIcon sx={{ fontSize: 18 }} />}
             label="초기화"
@@ -355,7 +355,7 @@ export default function RegionSelectionMobile({
               borderColor: "var(--text-300)",
               color: "var(--text-300)",
               flex: 1,
-              height: 48,
+              height: 52,
               borderRadius: "8px",
               fontWeight: 500,
             }}
@@ -365,7 +365,7 @@ export default function RegionSelectionMobile({
             onClick={handleComplete}
             sx={{
               flex: 2,
-              height: 48,
+              height: 52,
               borderRadius: "8px",
               fontWeight: 600,
               fontSize: 16,

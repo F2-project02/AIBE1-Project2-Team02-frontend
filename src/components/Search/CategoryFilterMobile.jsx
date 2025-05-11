@@ -178,6 +178,7 @@ export default function CategoryFilterMobile({
         bgcolor="#fefefe"
         display="flex"
         flexDirection="column"
+        px={1.5}
         pt={3}
         pb={2}
       >
@@ -199,24 +200,7 @@ export default function CategoryFilterMobile({
           <Box width={40} />
         </Box>
 
-        <Tabs
-          value={tab}
-          onChange={handleTabChange}
-          variant="fullWidth"
-          sx={{
-            borderBottom: 1,
-            borderColor: "divider",
-            "& .MuiTab-root": {
-              fontSize: 15,
-              fontWeight: 500,
-              color: "var(--text-300)",
-              "&.Mui-selected": {
-                color: "var(--primary-100)",
-                fontWeight: 600,
-              },
-            },
-          }}
-        >
+        <Tabs value={tab} onChange={handleTabChange} variant="fullWidth">
           <Tab label="대분류" />
           <Tab label="중분류" disabled={!selectedParent} />
           <Tab label="소분류" disabled={!selectedMiddle} />
@@ -230,7 +214,7 @@ export default function CategoryFilterMobile({
           sx={{
             maxHeight: "calc(100vh - 280px)",
             // 스크롤바 숨기기
-            scrollbarWidth: "none", // Firefox
+            scrollbarWidth: "thin", // Firefox
             msOverflowStyle: "none", // IE, Edge
             "&::-webkit-scrollbar": {
               display: "none", // Chrome, Safari, Opera
@@ -258,7 +242,7 @@ export default function CategoryFilterMobile({
                   cursor: "pointer",
                   px: 3,
                   py: 1.5,
-                  mb: 0.5,
+                  mb: 1,
                   borderRadius: "8px",
                   backgroundColor: selected
                     ? "var(--action-primary-bg)"
