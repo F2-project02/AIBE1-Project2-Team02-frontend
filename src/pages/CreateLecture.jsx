@@ -1,3 +1,5 @@
+// src/pages/CreateLecture.jsx (수정된 부분)
+
 import { useState, useEffect } from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import CreateLectureTab from "../components/CreateLecture/CreateLectureTabs";

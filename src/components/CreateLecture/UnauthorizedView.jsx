@@ -56,13 +56,20 @@ export default function UnauthorizedView() {
           이런, 아직 멘토 프로필이 없어요
         </Typography>
 
-        <Typography variant="body1" fontWeight={500} color="var(--text-300)" sx={{ mb: 4 }}>
+        <Typography
+          variant="body1"
+          fontWeight={500}
+          color="var(--text-300)"
+          sx={{ mb: 4 }}
+        >
           멘토 프로필을 작성하고 과외를 등록해주세요.
         </Typography>
 
         {/* 커스텀 버튼 스타일 */}
         <Box
-          onClick={() => navigate("/mentor/profile")}
+          onClick={() =>
+            navigate("/mypage", { state: { activeTab: "mentor" } })
+          }
           sx={{
             background: "#FEFEFE",
             boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.05)",

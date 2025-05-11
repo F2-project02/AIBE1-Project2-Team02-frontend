@@ -7,6 +7,8 @@ import {
   useTheme,
   TextField,
   IconButton,
+  Button,
+  Chip,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 
@@ -30,6 +32,7 @@ import CourseList from "../components/CourseSection/CourseList";
 const CourseSearchPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isPriceFilterSet, setIsPriceFilterSet] = useState(false);
 
   // 📌 필터 상태 관리
   const [selectedItems, setSelectedItems] = useState([]);
@@ -81,14 +84,55 @@ const CourseSearchPage = () => {
           size: 10,
         };
 
-        if (selectedCategory) params.category = selectedCategory;
-
-        if (selectedRegions.length > 0) {
-          params.regions = selectedRegions.map((region) => {
-            if (region.dong?.trim()) return region.dong;
-            if (region.sigungu) return region.sigungu;
-            return region.sido || region.displayName;
+        // 카테고리 필터
+        if (selectedCategory && selectedCategory.length > 0) {
+          // 선택된 카테고리에서 가장 구체적인 카테고리만 추출
+          const specificCategories = selectedCategory.map((category) => {
+            // "부모 > 자식" 형식인 경우 가장 마지막 부분만 사용
+            const parts = category.split(" > ");
+            // 가장 구체적인 부분(마지막 부분)만 반환
+            return parts[parts.length - 1];
           });
+
+          // 중복 제거
+          params.categories = [...new Set(specificCategories)].filter(Boolean);
+
+          // 디버그용 로그
+          console.log("선택된 카테고리:", selectedCategory);
+          console.log("전송되는 카테고리 파라미터:", params.categories);
+        }
+
+        // 지역 필터
+        if (selectedRegions.length > 0) {
+          const regionsToSearch = [];
+
+          selectedDongs.forEach((region) => {
+            // 동 레벨인 경우에만 특별 처리
+            if (region.dong) {
+              // 동과 상위 시군구 추가
+              regionsToSearch.push(
+                `${region.sido} ${region.sigungu} ${region.dong}`
+              );
+              regionsToSearch.push(`${region.sido} ${region.sigungu}`);
+            } else {
+              // 시도나 시군구 레벨은 그대로 추가 (백엔드가 하위 포함 검색)
+              const regionStr = region.sigungu
+                ? `${region.sido} ${region.sigungu}`
+                : region.sido;
+              regionsToSearch.push(regionStr);
+            }
+          });
+
+          // 중복 제거
+          params.regions = [...new Set(regionsToSearch)];
+
+          console.log("검색에 사용되는 지역:", params.regions);
+        }
+
+        // 가격 필터 - 명시적으로 설정된 경우 항상 적용
+        if (isPriceFilterSet) {
+          params.minPrice = priceRange[0];
+          params.maxPrice = priceRange[1];
         }
 
         if (priceRange[0] > 0 || priceRange[1] < 300000) {
@@ -174,21 +218,183 @@ const CourseSearchPage = () => {
 
   // 📍 지역 선택 핸들러
   const handleRegionSelect = (selected) => {
-    setSelectedRegions(selected);
+    const formattedRegions = selected.map((region) => {
+      if (typeof region === "object") {
+        if (region.displayName) return region.displayName;
+
+        // 지역 문자열 생성
+        return `${region.sido || ""} ${region.sigungu || ""} ${
+          region.dong || ""
+        }`.trim();
+      }
+      return String(region);
+    });
+
+    setSelectedRegions(formattedRegions);
+    setSelectedDongs(selected); // 원본 객체 형태도 저장
     setRegionDialogOpen(false);
+    setPage(1);
+  };
+
+  // 카테고리 선택 핸들러
+  const handleCategorySelect = (categories) => {
+    setSelectedCategory(categories);
+    setCategoryDialogOpen(false);
     setPage(1);
   };
 
   // 🔄 필터 초기화
   const handleResetFilters = () => {
-    setSelectedCategory(null);
+    setSelectedCategory([]);
+    setSelectedItems([]);
     setSelectedRegions([]);
+    setSelectedDongs([]);
     setPriceRange([0, 300000]);
     setRatingRange(0);
     setIsCertified(false);
     setSelectedParent("");
     setSelectedMiddle("");
     setSelectedSubs([]);
+  };
+
+  // 적용된 필터 표시 컴포넌트
+  const ActiveFilters = ({ filters, onRemove, onClear }) => {
+    if (
+      !filters ||
+      Object.values(filters).every(
+        (f) => !f || (Array.isArray(f) && f.length === 0)
+      )
+    )
+      return null;
+
+    return (
+      <Box
+        sx={{ mt: 2, mb: 3, display: "flex", flexDirection: "column", gap: 1 }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="subtitle2" fontWeight={600}>
+            적용된 필터
+          </Typography>
+          <Button
+            size="small"
+            onClick={onClear}
+            sx={{ color: "var(--text-300)", fontSize: 13 }}
+          >
+            모두 초기화
+          </Button>
+        </Box>
+
+        <Box display="flex" flexWrap="wrap" gap={0.5}>
+          {filters.categories &&
+            filters.categories.length > 0 &&
+            filters.categories.map((cat) => (
+              <Chip
+                key={`cat-${cat}`}
+                label={cat}
+                size="small"
+                onDelete={() => onRemove("category", cat)}
+                sx={{
+                  bgcolor: "var(--action-primary-bg)",
+                  color: "var(--primary-200)",
+                  fontSize: 12,
+                }}
+              />
+            ))}
+
+          {filters.regions &&
+            filters.regions.length > 0 &&
+            filters.regions.map((region) => (
+              <Chip
+                key={`region-${region}`}
+                label={region}
+                size="small"
+                onDelete={() => onRemove("region", region)}
+                sx={{
+                  bgcolor: "var(--action-yellow-bg)",
+                  color: "var(--action-yellow)",
+                  fontSize: 12,
+                }}
+              />
+            ))}
+
+          {filters.priceSet && (
+            <Chip
+              label={`${filters.price[0].toLocaleString()}원-${filters.price[1].toLocaleString()}원`}
+              size="small"
+              onDelete={() => onRemove("price")}
+              sx={{ fontSize: 12 }}
+            />
+          )}
+
+          {filters.rating > 0 && (
+            <Chip
+              label={`${filters.rating}점 이상`}
+              size="small"
+              onDelete={() => onRemove("rating")}
+              sx={{ fontSize: 12 }}
+            />
+          )}
+
+          {filters.certified && (
+            <Chip
+              label="인증 멘토만"
+              size="small"
+              onDelete={() => onRemove("certified")}
+              sx={{ fontSize: 12 }}
+            />
+          )}
+        </Box>
+      </Box>
+    );
+  };
+
+  // 필터 제거 핸들러
+  const handleRemoveFilter = (type, value) => {
+    switch (type) {
+      case "category":
+        setSelectedCategory((prev) =>
+          Array.isArray(prev) ? prev.filter((item) => item !== value) : []
+        );
+        setSelectedItems((prev) => prev.filter((item) => item !== value));
+        break;
+      case "region":
+        setSelectedRegions((prev) => prev.filter((item) => item !== value));
+        setSelectedDongs((prev) =>
+          prev.filter(
+            (item) =>
+              item.displayName !== value &&
+              `${item.sido} ${item.sigungu} ${item.dong || ""}`.trim() !== value
+          )
+        );
+        break;
+      case "price":
+        setPriceRange([0, 300000]);
+        break;
+      case "rating":
+        setRatingRange(0);
+        break;
+      case "certified":
+        setIsCertified(false);
+        break;
+      default:
+        break;
+    }
+    setPage(1);
+  };
+
+  // 모든 필터 초기화 핸들러
+  const handleClearAllFilters = () => {
+    setSelectedCategory([]);
+    setSelectedItems([]);
+    setSelectedRegions([]);
+    setSelectedDongs([]);
+    setPriceRange([0, 300000]);
+    setIsPriceFilterSet(false);
+    setRatingRange(0);
+    setIsCertified(false);
+    setSelectedParent("");
+    setSelectedMiddle("");
+    setPage(1);
   };
 
   return (
@@ -257,10 +463,7 @@ const CourseSearchPage = () => {
           setSelectedParent={setSelectedParent}
           selectedMiddle={selectedMiddle}
           setSelectedMiddle={setSelectedMiddle}
-          onSelect={(list) => {
-            setSelectedCategory(list);
-            setCategoryDialogOpen(false);
-          }}
+          onSelect={handleCategorySelect}
         />
       ) : (
         <CategoryFilterModal
@@ -272,10 +475,7 @@ const CourseSearchPage = () => {
           setSelectedParent={setSelectedParent}
           selectedMiddle={selectedMiddle}
           setSelectedMiddle={setSelectedMiddle}
-          onSelect={(list) => {
-            setSelectedCategory(list);
-            setCategoryDialogOpen(false);
-          }}
+          onSelect={handleCategorySelect}
         />
       )}
 
@@ -311,6 +511,7 @@ const CourseSearchPage = () => {
         initialRange={priceRange}
         onSubmit={(range) => {
           setPriceRange(range);
+          setIsPriceFilterSet(true);
           setPage(1);
         }}
       />
@@ -354,6 +555,19 @@ const CourseSearchPage = () => {
         }
         content={
           <>
+            <ActiveFilters
+              filters={{
+                categories: selectedCategory,
+                regions: selectedRegions,
+                price: priceRange,
+                priceSet: isPriceFilterSet,
+                rating: ratingRange,
+                certified: isCertified,
+              }}
+              onRemove={handleRemoveFilter}
+              onClear={handleClearAllFilters}
+            />
+
             <Typography variant="body2" color="var(--text-300)" sx={{ mb: 2 }}>
               총 <strong>{totalResults}</strong>개의 과외가 있습니다
             </Typography>
