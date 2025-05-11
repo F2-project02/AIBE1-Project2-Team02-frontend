@@ -21,8 +21,8 @@ export default function DeleteAccountForm() {
     try {
       await deleteAccount();
       alert("회원 탈퇴가 완료되었습니다.");
-      logout(); // 로그아웃 처리
-      window.location.href = "/"; // 홈으로 리다이렉트
+      logout();
+      window.location.href = "/";
     } catch (error) {
       console.error("회원 탈퇴 오류:", error);
       alert("회원 탈퇴 중 오류가 발생했습니다: " + error.message);

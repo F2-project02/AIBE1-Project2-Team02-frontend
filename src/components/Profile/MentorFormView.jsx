@@ -38,7 +38,6 @@ export default function MentorFormView() {
   useEffect(() => {
     const loadMentorProfile = async () => {
       if (!isMentor) {
-        // 멘티인 경우 로딩 완료 처리
         setIsLoading(false);
         return;
       }
@@ -99,7 +98,7 @@ export default function MentorFormView() {
         await updateMentorProfile(formData);
       } else {
         await applyMentorProfile(formData);
-        updateRole("MENTOR"); // 역할 업데이트
+        updateRole("MENTOR");
 
         setTimeout(() => {
           window.location.reload();
@@ -125,7 +124,7 @@ export default function MentorFormView() {
     return <MentorFormViewSkeleton />;
   }
 
-  // 오류 발생 시 UI (멘토만 해당)
+  // 오류 발생 시 UI
   if (error && isMentor) {
     return (
       <Box
@@ -157,7 +156,7 @@ export default function MentorFormView() {
     );
   }
 
-  // 데이터 유효성 검사 (멘토만 해당)
+  // 데이터 유효성 검사
   if (!mentorProfile && isMentor) {
     return (
       <Box

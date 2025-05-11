@@ -13,13 +13,10 @@ export default function ProfileCard({
 }) {
   const [rating, setRating] = useState(0);
 
-  // useEffect 추가
   useEffect(() => {
-    // profileData와 mentorProfile 둘 다 존재하는지 확인
     if (profileData?.role === "MENTOR" && mentorProfile) {
       const fetchRating = async () => {
         try {
-          // mentorProfile.mentorId가 정확한 필드인지 확인
           const mentorId = mentorProfile.mentorId;
 
           if (!mentorId) {
