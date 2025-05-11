@@ -73,12 +73,25 @@ export const RegionApiService = {
     try {
       const response = await regionApi.getDongs(sido, sigungu);
       if (Array.isArray(response)) {
-        return response;
+        // 전체 주소를 기준으로 중복 제거
+        const uniqueAddressMap = new Map();
+
+        response.forEach((dong) => {
+          const fullAddress = `${dong.sido} ${dong.sigungu} ${
+            dong.dong || ""
+          }`.trim();
+
+          // 이미 존재하는 주소가 아닐 경우에만 추가
+          if (!uniqueAddressMap.has(fullAddress)) {
+            uniqueAddressMap.set(fullAddress, dong);
+          }
+        });
+
+        return Array.from(uniqueAddressMap.values());
       }
       return [];
     } catch (error) {
       console.error("읍면동 목록 조회 실패:", error);
-      // 실패 시 빈 배열 반환
       return [];
     }
   },

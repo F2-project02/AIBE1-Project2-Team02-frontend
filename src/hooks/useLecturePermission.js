@@ -29,22 +29,6 @@ export default function useLecturePermission(lecture) {
       console.log("Author check:", lecture.authorUserId, userId, ownerCheck);
     }
 
-    // 추가 확인 방법: mentorNickname이 현재 사용자 닉네임과 같은지 확인
-    // (닉네임은 고유하므로 이 방법도 가능함)
-    if (
-      !ownerCheck &&
-      lecture?.mentorNickname &&
-      useUserStore.getState().nickname
-    ) {
-      ownerCheck = lecture.mentorNickname === useUserStore.getState().nickname;
-      console.log(
-        "Nickname check:",
-        lecture.mentorNickname,
-        useUserStore.getState().nickname,
-        ownerCheck
-      );
-    }
-
     setIsOwner(ownerCheck);
 
     // 권한 부여 (관리자이거나 소유자)

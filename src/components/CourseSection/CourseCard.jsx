@@ -64,8 +64,8 @@ export default function CourseCard({ data }) {
     ...safeRegion.filter(Boolean).map((label) => ({ label, type: "region" })),
   ];
 
-  const visibleChips = sortedChips.slice(0, 3); // 최대 3개만 노출
-  const hiddenChips = sortedChips.slice(3); // 나머지는 툴팁으로 숨김 처리
+  const visibleChips = sortedChips.slice(0, 2); // 최대 3개만 노출
+  const hiddenChips = sortedChips.slice(2); // 나머지는 툴팁으로 숨김 처리
 
   // 가격을 만원 단위로 포맷 그 이하면 원
   function formatPriceKRW(price) {
@@ -74,7 +74,7 @@ export default function CourseCard({ data }) {
       ? `${price.toLocaleString()}원`
       : `${Math.floor(price / 10000).toLocaleString()}만원`;
   }
-  
+
   return (
     <Card
       onClick={handleClick}
