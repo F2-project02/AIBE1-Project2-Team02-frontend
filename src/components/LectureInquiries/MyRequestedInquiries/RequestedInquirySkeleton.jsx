@@ -6,7 +6,7 @@ export default function RequestedInquirySkeleton() {
       sx={{
         border: "none",
         p: 2,
-        width: 500,
+        width: 400,
         minHeight: 220,
         display: "flex",
         flexDirection: "column",

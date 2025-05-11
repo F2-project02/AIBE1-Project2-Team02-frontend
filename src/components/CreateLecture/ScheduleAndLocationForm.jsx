@@ -38,6 +38,11 @@ export default function ScheduleAndLocationForm({
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
+  const handleSelectedDongsChange = (newDongs) => {
+    setSelectedDongs(newDongs);
+    setRegions(newDongs);
+  };
+
   // 요일 선택
   const selectDay = (day) => {
     setSelectedDay(selectedDay === day ? null : day);
@@ -75,7 +80,7 @@ export default function ScheduleAndLocationForm({
     );
   };
 
-  // 지역 추가
+  // 지역 추가 함수
   const handleAddRegions = (regions) => {
     // 중복 체크 로직
     const currentCodes = new Set(formData.regions.map((r) => r.regionCode));
@@ -87,13 +92,15 @@ export default function ScheduleAndLocationForm({
     const mappedRegions = newRegions.map((region) => ({
       name: region.name,
       displayName: region.displayName,
-      regionCode: region.regionCode || region.code, // 둘 다 지원
+      regionCode: region.regionCode || region.code,
       dong: region.dong || null,
       sido: region.sido || null,
       sigungu: region.sigungu || null,
     }));
 
-    setRegions([...formData.regions, ...mappedRegions]);
+    const updatedRegions = [...formData.regions, ...mappedRegions];
+    setRegions(updatedRegions);
+    setSelectedDongs(updatedRegions); // selectedDongs 상태도 함께 업데이트
     setShowRegionModal(false);
   };
 

@@ -1,4 +1,4 @@
-// src/components/Profile/DeleteAccountModal.jsx
+// src/components/auth/LoginErrorModal.jsx
 import {
   Dialog,
   DialogActions,
@@ -8,9 +8,9 @@ import {
   Button,
   Box,
 } from "@mui/material";
-import warnGif from "../../assets/cryingface.gif";
+import warnGif from "../../assets/warn.gif";
 
-export default function DeleteAccountModal({ open, onClose, onConfirm }) {
+export default function LoginErrorModal({ open, onClose, message }) {
   return (
     <Dialog
       open={open}
@@ -19,15 +19,21 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
         sx: {
           borderRadius: "16px",
           backgroundColor: "var(--bg-100)",
-          px: 4,
+          px: 3,
           py: 2,
+          maxWidth: "400px",
         },
       }}
     >
       <DialogTitle
-        sx={{ color: "var(--text-100)", fontWeight: 600, fontSize: "1.2rem" }}
+        sx={{
+          color: "var(--text-100)",
+          fontWeight: 600,
+          fontSize: "1.2rem",
+          textAlign: "center",
+        }}
       >
-        정말로 탈퇴하시겠습니까?
+        로그인 오류
       </DialogTitle>
 
       <DialogContent>
@@ -44,15 +50,17 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             borderRadius: "8px",
           }}
         />
+
         <DialogContentText
           sx={{
             color: "var(--text-300)",
             textAlign: "center",
             fontSize: "0.95rem",
             fontWeight: 500,
+            mb: 2,
           }}
         >
-          탈퇴하시면 계정 정보가 모두 삭제되며 복구할 수 없어요.
+          {message}
         </DialogContentText>
       </DialogContent>
 
@@ -67,22 +75,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             "&:hover": { backgroundColor: "var(--bg-200)" },
           }}
         >
-          취소
-        </Button>
-        <Button
-          onClick={onConfirm}
-          variant="contained"
-          sx={{
-            backgroundColor: "var(--action-red)",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            fontWeight: 600,
-            px: 3,
-            borderRadius: "8px",
-            color: "var(--bg-100)",
-            "&:hover": { backgroundColor: "rgba(204, 105, 105, 0.9)" },
-          }}
-        >
-          탈퇴하기
+          닫기
         </Button>
       </DialogActions>
     </Dialog>

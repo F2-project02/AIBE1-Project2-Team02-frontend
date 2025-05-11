@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import {
   Box,
-  Typography,
   TextField,
   Radio,
   RadioGroup,
@@ -14,6 +13,7 @@ import {
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
 import ProfileRegionModal from "./ProfileRegionModal";
+import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
 
 // MBTI 목록
 const mbtiOptions = [
@@ -43,8 +43,6 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   const [sex, setSex] = useState("남성");
   const [mbti, setMbti] = useState("");
   const [updating, setUpdating] = useState(false);
-
-  // 지역 관련 상태 추가
 
   // 닉네임 중복 확인, 생년월일, 지역 관련 상태
   const [isNicknameChecked, setIsNicknameChecked] = useState(false);
@@ -115,7 +113,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       }
     } catch (error) {
       console.error("닉네임 중복 확인 오류:", error);
-      alert("닉네임 확인 중 오류가 발생했습니다: " + error.message);
+      alert("닉네임 확인 중 오류가 발생했어요: " + error.message);
     } finally {
       setCheckingNickname(false);
     }
@@ -250,10 +248,10 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
 
-      alert("프로필이 성공적으로 업데이트되었습니다.");
+      alert("프로필이 성공적으로 업데이트 됐어요.");
     } catch (error) {
       console.error("프로필 업데이트 오류: ", error);
-      alert("프로필 업데이트 중 오류가 발생했습니다: " + error.message);
+      alert("프로필 업데이트 중 오류가 발생했어요: " + error.message);
     } finally {
       setUpdating(false);
     }
@@ -262,14 +260,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   return (
     <Box component="form" onSubmit={handleSubmit}>
       {/* 닉네임 필드 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography fontWeight={600} sx={{ mb: 1 }}>
-          닉네임{" "}
-          <Box component="span" sx={{ color: "red" }}>
-            *
-          </Box>
-        </Typography>
-
+      <FormFieldWrapper label="닉네임" required>
         {/* 텍스트 필드와 버튼 배치 - 가로 배열 */}
         <Box sx={{ display: "flex", gap: 1 }}>
           <TextField
@@ -304,10 +295,11 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             disabled={checkingNickname || !nickname.trim()}
             sx={{
               height: "56px",
-              minWidth: "100px",
-              bgcolor: "var(--primary-200)",
+              minWidth: "120px",
+              bgcolor: "var(--primary-100)", // 색상 변경
+              borderRadius: "8px", // 각진 모서리
               "&:hover": {
-                bgcolor: "var(--primary-300)",
+                bgcolor: "var(--primary-200)",
               },
             }}
           >
@@ -318,16 +310,10 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             )}
           </Button>
         </Box>
-      </Box>
+      </FormFieldWrapper>
 
       {/* 생년월일 필드 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography fontWeight={600} sx={{ mb: 1 }}>
-          생년월일
-          <Box component="span" sx={{ color: "red" }}>
-            *
-          </Box>
-        </Typography>
+      <FormFieldWrapper label="생년월일" required>
         <TextField
           fullWidth
           value={birthDate}
@@ -342,31 +328,18 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             },
           }}
         />
-      </Box>
+      </FormFieldWrapper>
 
       {/* 성별 필드 */}
-      <Box sx={{ mb: 3 }}>
-        <Typography fontWeight={600} sx={{ mb: 1 }}>
-          성별{" "}
-          <Box component="span" sx={{ color: "red" }}>
-            *
-          </Box>
-        </Typography>
+      <FormFieldWrapper label="성별" required>
         <RadioGroup row value={sex} onChange={(e) => setSex(e.target.value)}>
           <FormControlLabel value="남성" control={<Radio />} label="남성" />
           <FormControlLabel value="여성" control={<Radio />} label="여성" />
         </RadioGroup>
-      </Box>
+      </FormFieldWrapper>
 
       {/* 지역 필드 - 수정된 버전 */}
-      <Box sx={{ mb: 4 }}>
-        <Typography fontWeight={600} sx={{ mb: 1 }}>
-          지역{" "}
-          <Box component="span" sx={{ color: "red" }}>
-            *
-          </Box>
-        </Typography>
-
+      <FormFieldWrapper label="지역" required>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
           {/* 지역 선택 버튼 - 다른 입력 필드와 높이 맞춤 */}
           <Box
@@ -386,59 +359,41 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
               border: "1px solid #e0e0e0",
             }}
           >
-            <Typography fontWeight={400} color="#757575">
+            <Box fontWeight={400} color="#757575">
               지역
-            </Typography>
-            <Typography fontWeight={300} color="#9e9e9e" ml="auto">
+            </Box>
+            <Box fontWeight={300} color="#9e9e9e" ml="auto">
               ›
-            </Typography>
+            </Box>
           </Box>
 
           {/* 선택된 지역 표시 - 연한 파란색 배경의 X 버튼 */}
-          {selectedRegions.map((region, idx) => (
-            <Chip
-              key={idx}
-              label={region.displayName || `${region.sido} ${region.sigungu}`}
-              deleteIcon={
-                <Box
-                  component="div"
-                  sx={{
-                    width: "20px",
-                    height: "20px",
-                    borderRadius: "50%",
-                    backgroundColor: "#E3EAFF", // 연한 파란색 배경
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#5B8DEF", // 파란색 X 표시
-                    fontWeight: "bold",
-                    fontSize: "14px",
-                  }}
-                >
-                  ×
-                </Box>
-              }
-              onDelete={() => {
-                const newRegions = [...selectedRegions];
-                newRegions.splice(idx, 1);
-                setSelectedRegions(newRegions);
-              }}
-              sx={{
-                height: "40px",
-                borderRadius: "50px",
-                backgroundColor: "white",
-                border: "1px solid #5B8DEF",
-                color: "#5B8DEF",
-                fontWeight: 500,
-                "& .MuiChip-label": {
-                  paddingLeft: 1.5,
-                  paddingRight: 1,
-                },
-              }}
-            />
-          ))}
+          <Box display="flex" flexWrap="wrap" gap={1}>
+            {selectedRegions.map((item) => (
+              <Chip
+                key={item.regionCode}
+                label={item.displayName}
+                onDelete={() => {
+                  const newRegions = selectedRegions.filter(
+                    (region) => region.regionCode !== item.regionCode
+                  );
+                  setSelectedRegions(newRegions);
+                }}
+                variant="outlined"
+                sx={{
+                  borderColor: "var(--primary-100)",
+                  color: "var(--primary-100)",
+                  fontSize: 13,
+                  "& .MuiChip-deleteIcon": {
+                    color: "var(--primary-100)",
+                    "&:hover": { color: "var(--primary-200)" },
+                  },
+                }}
+              />
+            ))}
+          </Box>
         </Box>
-      </Box>
+      </FormFieldWrapper>
 
       {/* 지역 선택 모달 */}
       <ProfileRegionModal
@@ -450,10 +405,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       />
 
       {/* MBTI 필드 */}
-      <Box sx={{ mb: 4 }}>
-        <Typography fontWeight={600} sx={{ mb: 1 }}>
-          MBTI
-        </Typography>
+      <FormFieldWrapper label="MBTI">
         <TextField
           fullWidth
           select
@@ -477,7 +429,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             </MenuItem>
           ))}
         </TextField>
-      </Box>
+      </FormFieldWrapper>
 
       {/* 등록 버튼 */}
       <Button

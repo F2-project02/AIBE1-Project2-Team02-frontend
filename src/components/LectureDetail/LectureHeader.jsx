@@ -76,17 +76,17 @@ export default function LectureHeader({ lecture }) {
       if (response.success) {
         setIsClosedState(newStatus);
         console.log(
-          `강의 상태가 ${newStatus ? "마감됨" : "모집중"}으로 변경되었습니다.`
+          `강의 상태가 ${newStatus ? "마감됨" : "모집중"}으로 변경됐어요.`
         );
       } else {
         // 에러 처리
-        setStatusError(response.message || "상태 변경에 실패했습니다.");
+        setStatusError(response.message || "상태 변경에 실패했어요.");
         // 상태 롤백
         setIsClosedState(isClosedState);
       }
     } catch (error) {
       console.error("상태 변경 오류:", error);
-      setStatusError("상태 변경 중 오류가 발생했습니다.");
+      setStatusError("상태 변경 중 오류가 발생했어요.");
       // 상태 롤백
       setIsClosedState(isClosedState);
     } finally {

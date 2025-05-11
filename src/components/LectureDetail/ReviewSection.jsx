@@ -64,7 +64,7 @@ export default function ReviewSection({ lecture }) {
         }
       } catch (err) {
         console.error("Error loading reviews:", err);
-        setError("리뷰를 불러오는데 문제가 발생했습니다.");
+        setError("리뷰를 불러오는데 문제가 발생했어요.");
       } finally {
         setLoading(false);
       }
@@ -194,7 +194,7 @@ export default function ReviewSection({ lecture }) {
                 color: "var(--text-300)",
               }}
             >
-              <Typography>아직 등록된 후기가 없습니다.</Typography>
+              <Typography>아직 등록된 후기가 없어요.</Typography>
               {canWriteReview && (
                 <Typography sx={{ mt: 1 }}>
                   첫 번째 후기를 작성해보세요!
