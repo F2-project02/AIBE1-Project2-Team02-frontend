@@ -21,7 +21,6 @@ export default function useLecturePermission(lecture) {
     const adminCheck = role === "ADMIN";
     setIsAdmin(adminCheck);
 
-    // 강의 작성자 확인 방법 1: 강의 소유 ID 목록에 해당 강의 ID가 있는지 확인
     let ownerCheck = false;
 
     // 강의 작성자 확인 방법 2: 작성자(authorUserId)와 현재 사용자 ID 비교

@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useUserStore } from "../../store/useUserStore";
 import axiosInstance from "../../lib/axiosInstance";
 
-export default function ReviewForm({ lectureId, onReviewAdded }) {
+export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,12 +36,14 @@ export default function ReviewForm({ lectureId, onReviewAdded }) {
 
       // 리뷰 작성 API 호출
       const response = await axiosInstance.post(
-        `/api/lectures/${lectureId}/reviews`,
-        {
-          content: content,
-          rating: rating,
-        }
-      );
+       `/api/review`,
+       {
+         lectureId: lectureId,
+         mentorId : mentorId,    // 상위 컴포넌트에서 내려야 함
+         content  : content,
+         rating   : rating
+       }
+     );
 
       if (response.data?.success) {
         // 성공 메시지 표시
