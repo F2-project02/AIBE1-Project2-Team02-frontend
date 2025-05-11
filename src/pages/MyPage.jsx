@@ -1,6 +1,6 @@
 // src/pages/MyPage.jsx
 import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageUploader from "../components/Profile/ProfileImageUploader";
 import MyPageSidebar from "../components/Profile/MyPageSidebar";
@@ -30,6 +30,10 @@ export default function MyPage() {
   const [activeTab, setActiveTab] = useState(
     location.state?.activeTab || "profile"
   );
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -124,7 +128,7 @@ export default function MyPage() {
   };
 
   return (
-    <Box sx={{ mt: 4, mb: 8 }}>
+    <Box sx={{ mt: 4, mb: 8, px: { xs: 1, sm: 2, md: 3 } }}>
       {/* 상단 프로필 카드 영역 */}
       {loading ? (
         <ProfileCardSkeleton />
@@ -136,18 +140,42 @@ export default function MyPage() {
         />
       )}
 
-      {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
-      <Box sx={{ display: "flex", gap: 4 }}>
-        {loading ? (
-          <MyPageSidebarSkeleton />
-        ) : (
-          <MyPageSidebar
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            isLoading={tabLoading}
-          />
-        )}
-        <Box sx={{ flex: 1 }}>{renderActiveTabContent()}</Box>
+      {/* 하단 메뉴 및 폼 영역 */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: { xs: 2, md: 4 },
+          mt: { xs: 2, md: 4 },
+        }}
+      >
+        {/* 사이드바 영역 */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: 240 },
+            mb: { xs: 3, md: 0 },
+          }}
+        >
+          {loading ? (
+            <MyPageSidebarSkeleton />
+          ) : (
+            <MyPageSidebar
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              isLoading={tabLoading}
+            />
+          )}
+        </Box>
+
+        {/* 콘텐츠 영역 */}
+        <Box
+          sx={{
+            flex: 1,
+            width: { xs: "100%", md: "auto" },
+          }}
+        >
+          {renderActiveTabContent()}
+        </Box>
       </Box>
     </Box>
   );

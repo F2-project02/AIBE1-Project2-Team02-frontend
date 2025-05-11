@@ -1,6 +1,12 @@
 // src/components/Profile/ProfileCard.jsx
 
-import { Box, Typography, Avatar } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
 import StarIcon from "@mui/icons-material/Star";
@@ -12,6 +18,8 @@ export default function ProfileCard({
   imagePreview,
 }) {
   const [rating, setRating] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (profileData?.role === "MENTOR" && mentorProfile) {
@@ -50,9 +58,10 @@ export default function ProfileCard({
     <Box
       sx={{
         display: "flex",
-        alignItems: "center",
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "center", sm: "flex-start" },
         mb: 4,
-        p: 0,
+        p: { xs: 2, sm: 0 },
         width: "100%",
       }}
     >
@@ -61,15 +70,23 @@ export default function ProfileCard({
         src={imagePreview}
         alt="프로필 이미지"
         sx={{
-          width: 80,
-          height: 80,
-          mr: 3,
+          width: { xs: 100, sm: 80 },
+          height: { xs: 100, sm: 80 },
+          mr: { xs: 0, sm: 3 },
+          mb: { xs: 2, sm: 0 },
         }}
       />
 
-      <Box>
+      <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
         {/* 닉네임과 인증 아이콘을 포함한 상단 행 */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 0.5,
+            justifyContent: { xs: "center", sm: "flex-start" },
+          }}
+        >
           <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.2rem" }}>
             {profileData?.nickname || ""}
           </Typography>
@@ -121,7 +138,8 @@ export default function ProfileCard({
       {profileData?.role === "MENTOR" && (
         <Box
           sx={{
-            ml: 4,
+            ml: { xs: 0, sm: 4 },
+            mt: { xs: 2, sm: 0 },
             display: "flex",
             alignItems: "center",
           }}
