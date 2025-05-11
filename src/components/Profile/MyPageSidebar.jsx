@@ -11,6 +11,7 @@ import {
 
 import PersonIcon from "@mui/icons-material/Person";
 import SchoolIcon from "@mui/icons-material/School";
+import PeopleIcon from "@mui/icons-material/People";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 
 export default function MyPageSidebar({
@@ -24,6 +25,7 @@ export default function MyPageSidebar({
   const tabItems = [
     { id: "profile", label: "내 정보 수정", icon: <PersonIcon /> },
     { id: "mentor", label: "멘토 프로필", icon: <SchoolIcon /> },
+    { id: "mentees", label: "수강생 목록", icon: <PeopleIcon /> },
     { id: "delete", label: "회원탈퇴", icon: <PersonOffIcon /> },
   ];
 
