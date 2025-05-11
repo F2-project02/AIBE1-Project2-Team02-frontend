@@ -12,7 +12,7 @@ import StarIcon from "@mui/icons-material/Star";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-export default function MyRegisteredLectureItem({ data, onToggle }) {
+export default function RegisteredLectureItem({ data, onToggle }) {
   const {
     lectureId,
     lectureTitle,
@@ -23,6 +23,7 @@ export default function MyRegisteredLectureItem({ data, onToggle }) {
     profile_image,
     nickname,
     isCertified,
+    isClosed,
   } = data;
 
   const sortedChips = [];
@@ -43,7 +44,7 @@ export default function MyRegisteredLectureItem({ data, onToggle }) {
   const formatPriceKRW = (price) => `1회  ${Math.floor(price / 10000)}만원`;
 
   const handleToggle = () => {
-    onToggle(lectureId);
+    onToggle(lectureId, isClosed);
   };
 
   return (
@@ -160,7 +161,12 @@ export default function MyRegisteredLectureItem({ data, onToggle }) {
           {lectureTitle}
         </Typography>
 
-        <Switch onChange={handleToggle} color="primary" sx={{ ml: 2 }} />
+        <Switch
+          checked={!isClosed}
+          onChange={handleToggle}
+          color="primary"
+          sx={{ ml: 2 }}
+        />
       </Stack>
 
       {/* 수업료 */}

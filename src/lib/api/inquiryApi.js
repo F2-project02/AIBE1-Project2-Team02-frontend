@@ -35,3 +35,14 @@ export const rejectApplication = async ({ applicationId, reason }) => {
   });
   return res.data;
 };
+
+// 등록한 강의 상태 변경
+export const toggleLectureStatus = async (lectureId, newIsClosed) => {
+  const res = await axiosInstance.patch(
+    `/api/application/lecture/status/${lectureId}`,
+    {
+      isClosed: newIsClosed,
+    }
+  );
+  return res.data;
+};

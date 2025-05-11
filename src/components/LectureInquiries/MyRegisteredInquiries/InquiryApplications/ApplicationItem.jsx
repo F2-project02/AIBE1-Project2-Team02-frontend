@@ -4,7 +4,6 @@ import GradientButton from "../../../Button/GradientButton";
 import RejectReasonModal from "./RejectReasonModal";
 import { approveApplication } from "../../../../lib/api/inquiryApi";
 import useInquiryStore from "../../../../store/useInquiryStore";
-import CustomToast from "../../../common/CustomToast";
 import partyGif from "../../../../assets/party.gif";
 import warnGif from "../../../../assets/warn.gif";
 
