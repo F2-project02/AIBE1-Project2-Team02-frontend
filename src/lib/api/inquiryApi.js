@@ -14,10 +14,8 @@ export const getMyRegisteredLectures = async () => {
 };
 
 // 특정 강의의 신청자 목록 조회
-export const getLectureApplicants = async (lectureId) => {
-  const res = await axiosInstance.get(
-    `/api/application/${lectureId}/applicants`
-  );
+export const getLectureApplicants = async () => {
+  const res = await axiosInstance.get(`/api/application/applicants`);
   return res.data.data;
 };
 
@@ -35,5 +33,16 @@ export const rejectApplication = async ({ applicationId, reason }) => {
     applicationId,
     reason,
   });
+  return res.data;
+};
+
+// 등록한 강의 상태 변경
+export const toggleLectureStatus = async (lectureId, newIsClosed) => {
+  const res = await axiosInstance.patch(
+    `/api/application/lecture/status/${lectureId}`,
+    {
+      isClosed: newIsClosed,
+    }
+  );
   return res.data;
 };

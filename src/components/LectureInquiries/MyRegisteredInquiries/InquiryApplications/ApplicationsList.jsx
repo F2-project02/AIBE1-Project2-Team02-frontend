@@ -4,8 +4,10 @@ import ApplicationItem from "./ApplicationItem";
 import ApplicationItemSkeleton from "./ApplicationItemSkeleton";
 import useInquiryStore from "../../../../store/useInquiryStore";
 import { getLectureApplicants } from "../../../../lib/api/inquiryApi";
+import MoreButton from "../../MoreButton";
+import CustomToast from "../../../common/CustomToast";
 
-export default function ApplicationsList({ lectureId }) {
+export default function ApplicationsList() {
   const {
     applicants,
     applicantsLoading,
@@ -14,17 +16,25 @@ export default function ApplicationsList({ lectureId }) {
     setApplicantsError,
   } = useInquiryStore();
 
-  useEffect(() => {
-    if (!lectureId) {
-      setApplicants([]);
-      setApplicantsLoading(false);
-      return;
-    }
+  const [isExpanded, setIsExpanded] = useState(false);
 
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
+
+  useEffect(() => {
     const fetchApplicants = async () => {
       setApplicantsLoading(true);
       try {
-        const data = await getLectureApplicants(lectureId);
+        const data = await getLectureApplicants();
         setApplicants(data);
       } catch (err) {
         console.error("신청자 조회 실패:", err);
@@ -33,66 +43,35 @@ export default function ApplicationsList({ lectureId }) {
         setApplicantsLoading(false);
       }
     };
-
     fetchApplicants();
-  }, [lectureId, setApplicants, setApplicantsLoading, setApplicantsError]);
+  }, [setApplicants, setApplicantsLoading, setApplicantsError]);
 
-  if (!lectureId) {
-    return (
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "var(--bg-100)",
-          borderRadius: 1,
-          p: 4,
-          minHeight: 200,
-        }}
-      >
-        <Typography variant="body1" color="var(--text-300)" align="center">
-          왼쪽에서 강의를 선택하면
-          <br />
-          신청자 목록이 여기에 표시됩니다
-        </Typography>
-      </Box>
-    );
-  }
+  const displayedApplicants = isExpanded ? applicants : applicants.slice(0, 4);
 
-  if (!lectureId) {
-    return (
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "var(--bg-100)",
-          borderRadius: 1,
-          p: 4,
-          minHeight: 200,
-        }}
-      >
-        <Typography variant="body1" color="var(--text-300)" align="center">
-          왼쪽에서 강의를 선택하면
-          <br />
-          신청자 목록이 여기에 표시됩니다
-        </Typography>
-      </Box>
-    );
-  }
+  const handleToggle = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} pb={3}>
       {applicantsLoading ? (
-        Array(2)
+        Array(4)
           .fill(null)
           .map((_, i) => <ApplicationItemSkeleton key={i} />)
       ) : applicants.length > 0 ? (
-        applicants.map((item) => (
-          <ApplicationItem key={item.applicationId} data={item} />
-        ))
+        <>
+          {displayedApplicants.map((item) => (
+            <ApplicationItem
+              key={item.applicationId}
+              data={item}
+              showToast={showToast}
+            />
+          ))}
+
+          {applicants.length > 4 && (
+            <MoreButton isExpanded={isExpanded} onClick={handleToggle} />
+          )}
+        </>
       ) : (
         <Box
           sx={{
@@ -107,6 +86,13 @@ export default function ApplicationsList({ lectureId }) {
           </Typography>
         </Box>
       )}
+      <CustomToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
+      />
     </Stack>
   );
 }

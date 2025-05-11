@@ -6,14 +6,14 @@ export default function MyRegisteredLectureSkeleton() {
       sx={{
         border: "none",
         p: 2,
-        width: 500,
+        width: 400,
         minHeight: 220,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
       }}
     >
-      {/* 프로필 (좌측만) */}
+      {/* 프로필 */}
       <Stack direction="row" alignItems="center" spacing={1} mb={1}>
         <Skeleton variant="circular" width={32} height={32} animation="wave" />
         <Skeleton variant="text" width={80} height={20} animation="wave" />
@@ -27,7 +27,7 @@ export default function MyRegisteredLectureSkeleton() {
         <Skeleton variant="rounded" width={50} height={24} animation="wave" />
       </Stack>
 
-      {/* 제목 + Switch 위치 */}
+      {/* 제목 + 상태 Chip 위치 */}
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -37,6 +37,7 @@ export default function MyRegisteredLectureSkeleton() {
         <Skeleton variant="text" height={24} width="75%" animation="wave" />
         <Skeleton variant="rounded" width={70} height={30} animation="wave" />
       </Stack>
+
       {/* 수업료 */}
       <Skeleton variant="text" height={20} width="40%" animation="wave" />
     </Box>
