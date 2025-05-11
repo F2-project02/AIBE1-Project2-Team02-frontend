@@ -10,6 +10,9 @@ import {
   CircularProgress,
   MenuItem,
   Chip,
+  useMediaQuery,
+  useTheme,
+  Grid,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
 import ProfileRegionModal from "./ProfileRegionModal";
@@ -50,6 +53,9 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   const [birthDateError, setBirthDateError] = useState("");
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [regionDialogOpen, setRegionDialogOpen] = useState(false);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // 프로필 데이터 로드 시 초기화
   useEffect(() => {
@@ -236,7 +242,13 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
     <Box component="form" onSubmit={handleSubmit}>
       {/* 닉네임 필드 */}
       <FormFieldWrapper label="닉네임" required>
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: { xs: 1.5, sm: 1 },
+          }}
+        >
           <TextField
             fullWidth
             value={nickname}
@@ -268,8 +280,8 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             onClick={checkNicknameDuplicate}
             disabled={checkingNickname || !nickname.trim()}
             sx={{
-              height: "56px",
-              minWidth: "120px",
+              height: { xs: "48px", sm: "56px" },
+              minWidth: { xs: "100%", sm: "120px" },
               bgcolor: "var(--primary-100)",
               borderRadius: "8px",
               "&:hover": {
@@ -306,7 +318,15 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
 
       {/* 성별 필드 */}
       <FormFieldWrapper label="성별" required>
-        <RadioGroup row value={sex} onChange={(e) => setSex(e.target.value)}>
+        <RadioGroup
+          row
+          value={sex}
+          onChange={(e) => setSex(e.target.value)}
+          sx={{
+            flexWrap: "wrap",
+            justifyContent: { xs: "space-around", sm: "flex-start" },
+          }}
+        >
           <FormControlLabel value="남성" control={<Radio />} label="남성" />
           <FormControlLabel value="여성" control={<Radio />} label="여성" />
         </RadioGroup>
@@ -314,7 +334,13 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
 
       {/* 지역 필드 */}
       <FormFieldWrapper label="지역" required>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
           {/* 지역 선택 버튼 */}
           <Box
             onClick={() => setRegionDialogOpen(true)}
@@ -325,7 +351,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
               px: 3,
               height: "56px",
               width: "100%",
-              maxWidth: "170px",
+              maxWidth: { xs: "100%", sm: "170px" },
               bgcolor: "#f9f9f9",
               borderRadius: "8px",
               cursor: "pointer",
@@ -413,7 +439,8 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
         disabled={updating}
         sx={{
           py: 1.5,
-          background: "linear-gradient(90deg, #ffbad0 0%, #5b8def 100%)",
+          mt: { xs: 3, sm: 4 },
+          background: "var(--primary-gradient)",
           borderRadius: "8px",
           color: "white",
           fontWeight: 600,

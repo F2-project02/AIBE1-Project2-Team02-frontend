@@ -1,11 +1,19 @@
 // src/components/Profile/ProfileImageUploader.jsx
 import { useState } from "react";
-import { Box, Typography, Button, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { uploadProfileImage } from "../../lib/api/profileApi";
 
 export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
   const [profileImage, setProfileImage] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -44,15 +52,15 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
         display: "flex",
         alignItems: "center",
         flexDirection: "column",
-        mb: 6,
+        mb: { xs: 4, md: 6 },
       }}
     >
       {/* 프로필 이미지 */}
       <Box
         component="div"
         sx={{
-          width: 120,
-          height: 120,
+          width: { xs: 100, sm: 120 },
+          height: { xs: 100, sm: 120 },
           borderRadius: "50%",
           bgcolor: "#f0f0f0",
           display: "flex",
@@ -85,13 +93,13 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
           component="span"
           sx={{
             mt: 2,
-            fontSize: "0.9rem",
+            fontSize: { xs: "0.8rem", sm: "0.9rem" },
             borderRadius: "8px",
             borderColor: "var(--text-400)",
             color: "var(--text-400)",
-            px: 3,
+            px: { xs: 2, sm: 3 },
             py: 1,
-            minWidth: "180px",
+            minWidth: { xs: "160px", sm: "180px" },
             fontWeight: 500,
             "&:hover": {
               borderColor: "var(--text-300)",
@@ -111,13 +119,13 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
           disabled={uploading}
           sx={{
             mt: 1,
-            fontSize: "0.9rem",
+            fontSize: { xs: "0.8rem", sm: "0.9rem" },
             borderRadius: "8px",
             backgroundColor: "var(--primary-100)",
             color: "white",
-            px: 3,
+            px: { xs: 2, sm: 3 },
             py: 1,
-            minWidth: "180px",
+            minWidth: { xs: "160px", sm: "180px" },
             fontWeight: 500,
             "&:hover": {
               backgroundColor: "var(--primary-200)",

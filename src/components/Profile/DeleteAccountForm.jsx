@@ -33,10 +33,6 @@ export default function DeleteAccountForm() {
 
   return (
     <Box>
-      <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-        회원 탈퇴
-      </Typography>
-
       <Box
         sx={{
           bgcolor: "var(--action-red-bg)",

@@ -7,6 +7,8 @@ import {
   Button,
   Alert,
   IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
@@ -33,6 +35,9 @@ export default function MentorFormView() {
 
   const { role, updateRole } = useUserStore();
   const isMentor = role === "MENTOR";
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // 멘토 프로필 로드 (멘토인 경우만)
   useEffect(() => {
@@ -192,7 +197,8 @@ export default function MentorFormView() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mb: 5,
+          mb: { xs: 3, sm: 5 },
+          px: { xs: 1, sm: 0 },
         }}
       >
         {/* 로고 이미지 */}
@@ -201,17 +207,31 @@ export default function MentorFormView() {
           src={logoImage}
           alt="MEN:TOSS 로고"
           sx={{
-            width: 100,
-            height: 100,
-            mb: 3,
+            width: { xs: 80, sm: 100 },
+            height: { xs: 80, sm: 100 },
+            mb: { xs: 2, sm: 3 },
           }}
         />
 
         {/* 상단 멘토 안내 메시지 */}
-        <Typography variant="h5" fontWeight={600} sx={{ mb: 2 }}>
+        <Typography
+          variant="h5"
+          fontWeight={600}
+          sx={{
+            mb: 2,
+            fontSize: { xs: "1.25rem", sm: "1.5rem" },
+            textAlign: "center",
+          }}
+        >
           지금, 누군가의 길잡이가 되어주세요
         </Typography>
-        <Typography color="var(--text-300)">
+        <Typography
+          color="var(--text-300)"
+          sx={{
+            textAlign: "center",
+            fontSize: { xs: "0.9rem", sm: "1rem" },
+          }}
+        >
           멘토 프로필을 완성하고, 나만의 과외 수업을 시작해보세요.
         </Typography>
       </Box>
@@ -237,7 +257,10 @@ export default function MentorFormView() {
               border: "1px solid var(--bg-300)",
             }}
           >
-            <Typography color="var(--text-300)" fontStyle="italic">
+            <Typography
+              color="var(--text-300)"
+              sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+            >
               mentoss@gmail.com으로 재학증명서 또는 졸업증명서를 제출한 후에
               인증받을 수 있어요.
             </Typography>
@@ -248,7 +271,7 @@ export default function MentorFormView() {
         <FormFieldWrapper label="자기소개" required>
           <TextField
             multiline
-            rows={6}
+            rows={isMobile ? 4 : 6}
             fullWidth
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -272,8 +295,8 @@ export default function MentorFormView() {
             sx={{
               border: "2px dashed var(--bg-300)",
               borderRadius: "8px",
-              py: 5,
-              px: 3,
+              py: { xs: 3, sm: 5 },
+              px: { xs: 2, sm: 3 },
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -281,7 +304,7 @@ export default function MentorFormView() {
               textAlign: "center",
               bgcolor: "white",
               mb: 2,
-              minHeight: "180px",
+              minHeight: { xs: "140px", sm: "180px" },
             }}
           >
             <Box
@@ -340,31 +363,50 @@ export default function MentorFormView() {
                 bgcolor: "white",
                 boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.05)",
                 border: "1px solid var(--bg-200)",
+                flexDirection: { xs: "column", sm: "row" },
+                px: { xs: 2, sm: 0 },
               }}
             >
               <Box
-                component="div"
                 sx={{
-                  color: "var(--primary-100)",
-                  fontSize: 24,
-                  mr: 2,
-                  ml: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  width: { xs: "100%", sm: "auto" },
+                  mb: { xs: 1, sm: 0 },
                 }}
               >
-                📄
+                <Box
+                  component="div"
+                  sx={{
+                    color: "var(--primary-100)",
+                    fontSize: 24,
+                    mr: 2,
+                    ml: 2,
+                  }}
+                >
+                  📄
+                </Box>
+
+                <Box sx={{ flex: 1 }}>
+                  <Typography fontWeight={500} fontSize={14}>
+                    {file ? file.name : filePreview.split("/").pop()}
+                  </Typography>
+                  <Typography variant="caption" color="var(--text-400)">
+                    {file ? `${Math.round(file.size / 1024)}kb` : "100kb"} •
+                    Complete
+                  </Typography>
+                </Box>
               </Box>
 
-              <Box sx={{ flex: 1 }}>
-                <Typography fontWeight={500} fontSize={14}>
-                  {file ? file.name : filePreview.split("/").pop()}
-                </Typography>
-                <Typography variant="caption" color="var(--text-400)">
-                  {file ? `${Math.round(file.size / 1024)}kb` : "100kb"} •
-                  Complete
-                </Typography>
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 1, mr: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  mr: { xs: 0, sm: 2 },
+                  ml: { xs: 0, sm: "auto" },
+                  mt: { xs: 1, sm: 0 },
+                }}
+              >
                 <IconButton
                   size="small"
                   onClick={() => {
@@ -402,7 +444,8 @@ export default function MentorFormView() {
           variant="contained"
           sx={{
             py: 1.5,
-            background: "linear-gradient(90deg, #ffbad0 0%, #5b8def 100%)",
+            mt: { xs: 2, sm: 3 },
+            background: "var(--primary-gradient)",
             borderRadius: "8px",
             color: "white",
             fontWeight: 600,

@@ -87,7 +87,7 @@ export default function ProfileCard({
             justifyContent: { xs: "center", sm: "flex-start" },
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.2rem" }}>
+          <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.8rem" }}>
             {profileData?.nickname || ""}
           </Typography>
 
@@ -142,18 +142,29 @@ export default function ProfileCard({
             mt: { xs: 2, sm: 0 },
             display: "flex",
             alignItems: "center",
+            justifyContent: { xs: "center", sm: "flex-start" },
+            width: "100%",
+            alignSelf: { xs: "center", sm: "center" },
           }}
         >
-          <StarIcon
+          <Box
             sx={{
-              color: "#FFC107",
-              mr: 0.5,
-              fontSize: 28,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
-          />
-          <Typography variant="body2" fontWeight={500}>
-            {rating > 0 ? rating.toFixed(1) : "아직 평점이 없습니다"}
-          </Typography>
+          >
+            <StarIcon
+              sx={{
+                color: "#FFC107",
+                mr: 0.5,
+                fontSize: 28,
+              }}
+            />
+            <Typography variant="body1" fontWeight={600} fontSize="1.1rem">
+              {rating > 0 ? rating.toFixed(1) : "아직 평점이 없습니다"}
+            </Typography>
+          </Box>
         </Box>
       )}
     </Box>
