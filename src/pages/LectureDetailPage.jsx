@@ -113,6 +113,8 @@ export default function LectureDetailPage() {
       content: mentorInfo.content || "",
       appealFileUrl: mentorInfo.appealFileUrl || "",
       tag: mentorInfo.tag || "",
+      mentorId: data.mentorId || null, // 멘토 ID 추가
+      regions: regions, // 멘토의 활동 지역 정보 추가
     };
 
     // 변환된 데이터 반환

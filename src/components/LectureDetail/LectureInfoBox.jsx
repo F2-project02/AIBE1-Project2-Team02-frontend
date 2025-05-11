@@ -148,6 +148,7 @@ export default function LectureInfoBox({ lecture }) {
             </Typography>
           )}
         </Stack>
+
         {/* 지역 */}
         <Stack direction="row" alignItems="center" spacing={1} mt={2}>
           <RoomIcon sx={{ color: "var(--text-300)", fontSize: 20 }} />
@@ -155,16 +156,21 @@ export default function LectureInfoBox({ lecture }) {
             과외 지역
           </Typography>
         </Stack>
-        <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
-          {regions && regions.length > 0
-            ? regions
-                .map((r) => {
-                  if (typeof r === "string") return r;
-                  return [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ");
-                })
-                .join(", ")
-            : "지역 정보 없음"}
-        </Typography>
+        <Stack spacing={0.5} ml={3} mt={0.5}>
+          {regions && regions.length > 0 ? (
+            regions.map((r, i) => (
+              <Typography key={i} variant="body2" color="var(--text-100)">
+                {typeof r === "string"
+                  ? r
+                  : [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ")}
+              </Typography>
+            ))
+          ) : (
+            <Typography variant="body2" color="var(--text-100)">
+              지역 정보 없음
+            </Typography>
+          )}
+        </Stack>
 
         {/* 액션 버튼 - 작성자가 아닌 경우에만 버튼들 표시 */}
         {isLoggedIn && !isOwner && (
@@ -209,7 +215,6 @@ export default function LectureInfoBox({ lecture }) {
             </Button>
           </Stack>
         )}
-
         {/* 스낵바 메시지 */}
         <Snackbar
           open={snackbar.open}
