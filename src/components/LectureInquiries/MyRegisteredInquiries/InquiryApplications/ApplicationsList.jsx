@@ -82,7 +82,7 @@ export default function ApplicationsList() {
           }}
         >
           <Typography variant="body1" color="var(--text-300)">
-            아직 신청자가 없습니다
+            아직 신청자가 없어요
           </Typography>
         </Box>
       )}

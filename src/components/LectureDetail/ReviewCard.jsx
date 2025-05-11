@@ -100,7 +100,7 @@ export default function ReviewCard({ review, onReviewUpdated }) {
         // 성공적으로 삭제되면 목록 갱신
         setSnackbar({
           open: true,
-          message: "리뷰가 성공적으로 삭제되었습니다.",
+          message: "리뷰가 성공적으로 삭제됐어요.",
           severity: "success",
         });
 
@@ -109,13 +109,13 @@ export default function ReviewCard({ review, onReviewUpdated }) {
           onReviewUpdated();
         }
       } else {
-        throw new Error(response.data?.message || "리뷰 삭제에 실패했습니다.");
+        throw new Error(response.data?.message || "리뷰 삭제에 실패했어요.");
       }
     } catch (err) {
       console.error("리뷰 삭제 오류:", err);
       setSnackbar({
         open: true,
-        message: err.message || "리뷰 삭제 중 문제가 발생했습니다.",
+        message: err.message || "리뷰 삭제 중 문제가 발생했어요.",
         severity: "error",
       });
     } finally {
@@ -235,7 +235,7 @@ export default function ReviewCard({ review, onReviewUpdated }) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="delete-dialog-description">
-            삭제한 리뷰는 복구할 수 없습니다. 정말로 삭제하시겠습니까?
+            삭제한 리뷰는 복구할 수 없어요. 정말로 삭제하시겠어요?
           </DialogContentText>
         </DialogContent>
         <DialogActions>

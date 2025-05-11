@@ -29,10 +29,10 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
     try {
       const imageUrl = await uploadProfileImage(profileImage);
       onImageUpdate(imageUrl); // 업로드 성공 시 부모 컴포넌트에 URL 전달
-      alert("프로필 이미지가 성공적으로 업데이트되었습니다");
+      alert("프로필 이미지가 성공적으로 업데이트 됐어요");
     } catch (error) {
       console.error("이미지 업로드 오류: ", error);
-      alert("이미지 업로드 중 오류가 발생했습니다: " + error.message);
+      alert("이미지 업로드 중 오류가 발생했어요: " + error.message);
     } finally {
       setUploading(false);
       setProfileImage(null);

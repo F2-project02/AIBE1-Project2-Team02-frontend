@@ -569,7 +569,7 @@ const CourseSearchPage = () => {
             />
 
             <Typography variant="body2" color="var(--text-300)" sx={{ mb: 2 }}>
-              총 <strong>{totalResults}</strong>개의 과외가 있습니다
+              총 <strong>{totalResults}</strong>개의 과외가 있어요
             </Typography>
 
             <CourseList courses={courses} loading={loading} />

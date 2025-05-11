@@ -129,7 +129,7 @@ export default function MessageTable({
                 fontSize="14px"
                 textAlign="center"
               >
-                쪽지가 없습니다.
+                쪽지가 없어요.
               </Typography>
             </Box>
           )}
@@ -211,7 +211,7 @@ export default function MessageTable({
                         fontSize="14px"
                         textAlign="center"
                       >
-                        쪽지가 없습니다.
+                        쪽지가 없어요.
                       </Typography>
                     </Box>
                   </TableCell>

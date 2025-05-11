@@ -54,7 +54,7 @@ export default function MentorFormView() {
           setFilePreview(data.appealFileUrl);
         }
       } catch (error) {
-        setError(`멘토 프로필을 불러오는데 실패했습니다: ${error.message}`);
+        setError(`멘토 프로필을 불러오는데 실패했어요: ${error.message}`);
       } finally {
         setIsLoading(false);
       }
@@ -137,7 +137,7 @@ export default function MentorFormView() {
         }}
       >
         <Typography variant="h6" color="error" gutterBottom>
-          멘토 정보를 불러올 수 없습니다
+          멘토 정보를 불러올 수 없어요
         </Typography>
         <Typography
           variant="body2"
@@ -169,10 +169,10 @@ export default function MentorFormView() {
         }}
       >
         <Typography variant="h6" color="warning.main" gutterBottom>
-          멘토 프로필 데이터가 없습니다
+          멘토 프로필 데이터가 없어요
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          데이터를 불러왔지만 프로필 정보가 존재하지 않습니다.
+          데이터를 불러왔지만 프로필 정보가 존재하지 않아요.
         </Typography>
         <Button
           variant="outlined"
@@ -223,8 +223,8 @@ export default function MentorFormView() {
         {success && (
           <Alert severity="success" sx={{ mb: 3 }}>
             {isMentor
-              ? "멘토 프로필이 성공적으로 업데이트되었습니다."
-              : "멘토 신청이 완료되었습니다. 페이지가 새로고침됩니다."}
+              ? "멘토 프로필이 성공적으로 업데이트 됐어요."
+              : "멘토 신청이 완료됐어요."}
           </Alert>
         )}
 

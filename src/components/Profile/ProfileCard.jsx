@@ -137,7 +137,7 @@ export default function ProfileCard({
             }}
           />
           <Typography variant="body2" fontWeight={500}>
-            {rating > 0 ? rating.toFixed(1) : "아직 평점이 없습니다"}
+            {rating > 0 ? rating.toFixed(1) : "아직 평점이 없어요."}
           </Typography>
         </Box>
       )}

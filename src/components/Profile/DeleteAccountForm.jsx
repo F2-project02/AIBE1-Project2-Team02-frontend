@@ -20,12 +20,12 @@ export default function DeleteAccountForm() {
   const handleConfirmDelete = async () => {
     try {
       await deleteAccount();
-      alert("회원 탈퇴가 완료되었습니다.");
+      alert("회원 탈퇴가 완료됐어요.");
       logout(); // 로그아웃 처리
       window.location.href = "/"; // 홈으로 리다이렉트
     } catch (error) {
       console.error("회원 탈퇴 오류:", error);
-      alert("회원 탈퇴 중 오류가 발생했습니다: " + error.message);
+      alert("회원 탈퇴 중 오류가 발생했어요: " + error.message);
     } finally {
       setModalOpen(false);
     }
