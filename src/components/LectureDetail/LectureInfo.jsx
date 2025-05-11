@@ -6,12 +6,12 @@ export default function LectureInfo({ lecture }) {
   if (!lecture) {
     return (
       <Alert severity="warning" sx={{ mt: 2 }}>
-        강의 정보를 불러올 수 없습니다.
+        강의 정보를 불러올 수 없어요.
       </Alert>
     );
   }
 
-  const description = lecture.description || "강의 소개 정보가 없습니다.";
+  const description = lecture.description || "강의 소개 정보가 없어요.";
 
   // HTML 내용을 안전하게 렌더링하는 함수
   const createMarkup = (html) => {

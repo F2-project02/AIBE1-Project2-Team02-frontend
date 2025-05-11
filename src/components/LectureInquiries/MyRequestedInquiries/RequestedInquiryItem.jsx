@@ -10,9 +10,13 @@ import {
 import StarIcon from "@mui/icons-material/Star";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { useNavigate } from "react-router-dom";
 
 export default function RequestedInquiryItem({ data }) {
+  const navigate = useNavigate();
+
   const {
+    lectureId,
     nickname,
     profile_image,
     isCertified,
@@ -66,10 +70,15 @@ export default function RequestedInquiryItem({ data }) {
     },
   };
 
+  const handleCardClick = () => {
+    navigate(`/lectures/${lectureId}`);
+  };
+
   return (
     <Card
+      onClick={handleCardClick}
       sx={{
-        width: 500,
+        width: 400,
         minHeight: 220,
         px: 2,
         py: 3,
@@ -80,6 +89,7 @@ export default function RequestedInquiryItem({ data }) {
         borderRadius: 0,
         backgroundColor: "unset",
         boxShadow: "none",
+        cursor: "pointer",
       }}
     >
       {/* 프로필 정보 */}

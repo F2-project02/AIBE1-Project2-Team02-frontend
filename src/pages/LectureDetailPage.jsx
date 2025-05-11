@@ -40,13 +40,13 @@ export default function LectureDetailPage() {
           setLecture(formattedLecture);
         } else {
           throw new Error(
-            response.message || "강의 정보를 불러오는데 실패했습니다."
+            response.message || "강의 정보를 불러오는데 실패했어요."
           );
         }
       } catch (err) {
         console.error("Error fetching lecture data:", err);
         setError(
-          "강의 정보를 불러오는데 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+          "강의 정보를 불러오는데 문제가 발생했어요. 잠시 후 다시 시도해주세요."
         );
       } finally {
         setLoading(false);
@@ -144,7 +144,7 @@ export default function LectureDetailPage() {
           {error}
         </Alert>
         <Typography variant="body1">
-          강의 정보를 불러오는데 문제가 발생했습니다. 잠시 후 다시 시도해주세요.
+          강의 정보를 불러오는데 문제가 발생했어요. 잠시 후 다시 시도해주세요.
         </Typography>
       </Box>
     );
@@ -155,10 +155,10 @@ export default function LectureDetailPage() {
     return (
       <Box sx={{ mt: 8, p: 3, textAlign: "center" }}>
         <Alert severity="warning" sx={{ mb: 2 }}>
-          강의를 찾을 수 없습니다.
+          강의를 찾을 수 없어요.
         </Alert>
         <Typography variant="body1">
-          해당 강의를 찾을 수 없습니다. URL을 확인해주세요.
+          해당 강의를 찾을 수 없어요. URL을 확인해주세요.
         </Typography>
       </Box>
     );

@@ -14,9 +14,10 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useUserStore } from "../../store/useUserStore";
+import { getModerationMessage } from "../../utils/moderationHelper";
 import axiosInstance from "../../lib/axiosInstance";
 
-export default function ReviewForm({ lectureId, onReviewAdded }) {
+export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,12 +37,14 @@ export default function ReviewForm({ lectureId, onReviewAdded }) {
 
       // 리뷰 작성 API 호출
       const response = await axiosInstance.post(
-        `/api/lectures/${lectureId}/reviews`,
-        {
-          content: content,
-          rating: rating,
-        }
-      );
+       `/api/review`,
+       {
+         lectureId: lectureId,
+         mentorId : mentorId,    // 상위 컴포넌트에서 내려야 함
+         content  : content,
+         rating   : rating
+       }
+     );
 
       if (response.data?.success) {
         // 성공 메시지 표시
@@ -63,13 +66,12 @@ export default function ReviewForm({ lectureId, onReviewAdded }) {
           });
         }
       } else {
-        throw new Error(response.data?.message || "리뷰 작성에 실패했습니다.");
+        throw new Error(response.data?.message || "리뷰 작성에 실패했어요.");
       }
     } catch (err) {
-      console.error("리뷰 작성 오류:", err);
-      setError(
-        err.message || "리뷰 작성 중 문제가 발생했습니다. 다시 시도해주세요."
-      );
+      const reason = err?.response?.data?.message;
+      const friendlyMessage = getModerationMessage(reason);
+      setError(friendlyMessage || "리뷰 작성 중 문제가 발생했어요. 다시 시도해주세요.");
     } finally {
       setLoading(false);
     }
@@ -172,7 +174,7 @@ export default function ReviewForm({ lectureId, onReviewAdded }) {
           severity="success"
           sx={{ width: "100%" }}
         >
-          리뷰가 성공적으로 등록되었습니다!
+          리뷰가 성공적으로 등록되었어요!
         </Alert>
       </Snackbar>
 

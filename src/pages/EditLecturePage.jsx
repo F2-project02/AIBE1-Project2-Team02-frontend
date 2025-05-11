@@ -70,11 +70,11 @@ export default function EditLecturePage() {
           // 폼 초기값 설정
           initializeFormData(response.data);
         } else {
-          throw new Error(response.message || "강의를 찾을 수 없습니다.");
+          throw new Error(response.message || "강의를 찾을 수 없어요.");
         }
       } catch (err) {
         console.error("강의 로드 오류:", err);
-        setError("강의 정보를 로드하는데 실패했습니다.");
+        setError("강의 정보를 로드하는데 실패했어요.");
       } finally {
         setLoading(false);
       }
@@ -304,18 +304,18 @@ export default function EditLecturePage() {
       const response = await updateLecture(lectureId, apiData);
 
       if (response.success) {
-        showToast("강의가 성공적으로 수정되었습니다!", null, "success");
+        showToast("강의가 성공적으로 수정됐어요!", null, "success");
 
         // 강의 상세 페이지로 리다이렉트 (약간의 지연을 줘서 메시지 확인 가능하도록)
         setTimeout(() => {
           navigate(`/lectures/${lectureId}`);
         }, 500);
       } else {
-        throw new Error(response.message || "강의 수정에 실패했습니다.");
+        throw new Error(response.message || "강의 수정에 실패했어요.");
       }
     } catch (err) {
       console.error("강의 수정 오류:", err);
-      showToast(err.message || "강의 수정 중 문제가 발생했습니다.");
+      showToast(err.message || "강의 수정 중 문제가 발생했어요.");
     } finally {
       setSaving(false);
     }
@@ -336,10 +336,10 @@ export default function EditLecturePage() {
     return (
       <Box sx={{ mt: 8, p: 3, textAlign: "center" }}>
         <Alert severity="warning" sx={{ mb: 2 }}>
-          수정 권한이 없습니다.
+          수정 권한이 없어요.
         </Alert>
         <Typography variant="body1" sx={{ mb: 3 }}>
-          해당 강의를 수정할 권한이 없습니다.
+          해당 강의를 수정할 권한이 없어요.
         </Typography>
         <Button
           variant="contained"

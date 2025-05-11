@@ -12,11 +12,7 @@ import StarIcon from "@mui/icons-material/Star";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
-export default function MyRegisteredLectureItem({
-  data,
-  isSelected,
-  onToggle,
-}) {
+export default function RegisteredLectureItem({ data, onToggle }) {
   const {
     lectureId,
     lectureTitle,
@@ -27,6 +23,7 @@ export default function MyRegisteredLectureItem({
     profile_image,
     nickname,
     isCertified,
+    isClosed,
   } = data;
 
   const sortedChips = [];
@@ -52,13 +49,13 @@ export default function MyRegisteredLectureItem({
   }
 
   const handleToggle = () => {
-    onToggle(lectureId);
+    onToggle(lectureId, isClosed);
   };
 
   return (
     <Card
       sx={{
-        width: "100%",
+        width: 400,
         minHeight: 220,
         px: 2,
         py: 3,
@@ -69,7 +66,6 @@ export default function MyRegisteredLectureItem({
         borderRadius: 0,
         backgroundColor: "unset",
         boxShadow: "none",
-        mb: 2,
       }}
     >
       {/* 프로필 */}
@@ -171,7 +167,7 @@ export default function MyRegisteredLectureItem({
         </Typography>
 
         <Switch
-          checked={isSelected}
+          checked={!isClosed}
           onChange={handleToggle}
           color="primary"
           sx={{ ml: 2 }}
