@@ -271,7 +271,7 @@ export default function RegionSelectionMobile({
                   cursor: "pointer",
                   px: 3,
                   py: 1.5,
-                  mb: 0.5,
+                  mb: 1,
                   borderRadius: "8px",
                   backgroundColor: selected
                     ? "var(--action-primary-bg)"
