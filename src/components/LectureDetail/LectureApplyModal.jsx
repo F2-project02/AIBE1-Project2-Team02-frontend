@@ -199,7 +199,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
           {/* 시간 설정 */}
           <FormFieldWrapper label="시간대 설정">
             <Typography variant="body2" color="var(--text-300)" sx={{ mb: 1 }}>
-              요일을 선택하면 시간대를 설정할 수 있습니다.
+              요일을 선택하면 시간대를 설정할 수 있어요.
             </Typography>
 
             {selectedDaySlots.map((slot, index) => (

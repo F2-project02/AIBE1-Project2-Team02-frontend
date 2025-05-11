@@ -113,7 +113,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       }
     } catch (error) {
       console.error("닉네임 중복 확인 오류:", error);
-      alert("닉네임 확인 중 오류가 발생했습니다: " + error.message);
+      alert("닉네임 확인 중 오류가 발생했어요: " + error.message);
     } finally {
       setCheckingNickname(false);
     }
@@ -248,10 +248,10 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
 
-      alert("프로필이 성공적으로 업데이트되었습니다.");
+      alert("프로필이 성공적으로 업데이트 됐어요.");
     } catch (error) {
       console.error("프로필 업데이트 오류: ", error);
-      alert("프로필 업데이트 중 오류가 발생했습니다: " + error.message);
+      alert("프로필 업데이트 중 오류가 발생했어요: " + error.message);
     } finally {
       setUpdating(false);
     }
