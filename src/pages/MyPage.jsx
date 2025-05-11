@@ -7,6 +7,7 @@ import MyPageSidebar from "../components/Profile/MyPageSidebar";
 import ProfileForm from "../components/Profile/ProfileForm";
 import MentorFormView from "../components/Profile/MentorFormView";
 import DeleteAccountForm from "../components/Profile/DeleteAccountForm";
+import MatchedMenteeList from "../components/Profile/MatchedMenteeList";
 import { fetchProfileData, fetchMentorProfile } from "../lib/api/profileApi";
 import { useLocation } from "react-router-dom";
 import CustomToast from "../components/common/CustomToast";
@@ -114,6 +115,12 @@ export default function MyPage() {
           );
         case "mentor":
           return <MentorFormViewSkeleton />;
+        case "mentees":
+          return (
+            <Box sx={{ p: 4 }}>
+              <CircularProgress />
+            </Box>
+          );
         case "delete":
           return <DeleteAccountFormSkeleton />;
         default:
@@ -142,6 +149,8 @@ export default function MyPage() {
         return (
           <MentorFormView onProfileUpdate={() => {}} showToast={showToast} />
         );
+      case "mentees":
+        return <MatchedMenteeList />;
       case "delete":
         return <DeleteAccountForm showToast={showToast} />;
       default:
