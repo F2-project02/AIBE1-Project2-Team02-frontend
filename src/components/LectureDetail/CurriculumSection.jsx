@@ -81,7 +81,7 @@ export default function CurriculumSection({
       ) : (
         // 데이터가 없는 경우
         <Alert severity="info" sx={{ mt: 2 }}>
-          커리큘럼 정보가 없습니다.
+          커리큘럼 정보가 없어요
         </Alert>
       )}
     </Box>

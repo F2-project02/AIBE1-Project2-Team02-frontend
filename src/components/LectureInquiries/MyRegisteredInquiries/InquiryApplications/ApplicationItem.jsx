@@ -4,12 +4,14 @@ import GradientButton from "../../../Button/GradientButton";
 import RejectReasonModal from "./RejectReasonModal";
 import { approveApplication } from "../../../../lib/api/inquiryApi";
 import useInquiryStore from "../../../../store/useInquiryStore";
+import partyGif from "../../../../assets/party.gif";
+import warnGif from "../../../../assets/warn.gif";
 
-export default function ApplicationItem({ data }) {
+export default function ApplicationItem({ data, showToast }) {
   const { applicationId, nickname, lectureTitle, createdAt, profileImage } =
     data;
   const [openReject, setOpenReject] = useState(false);
-  const [approving, setApproving] = useState(false); // 로딩 상태
+  const [approving, setApproving] = useState(false);
 
   const { applicants, setApplicants } = useInquiryStore();
 
@@ -18,13 +20,14 @@ export default function ApplicationItem({ data }) {
     setApproving(true);
     try {
       await approveApplication(applicationId);
-
+      showToast("과외 신청 수락 되었어요!", partyGif);
       const filtered = applicants.filter(
         (app) => app.applicationId !== applicationId
       );
       setApplicants(filtered);
     } catch (err) {
       console.error("수락 실패:", err);
+      showToast("과외 신청 수락이 실패했어요.", warnGif, "error");
     } finally {
       setApproving(false);
     }
@@ -42,29 +45,31 @@ export default function ApplicationItem({ data }) {
     <>
       <Card
         sx={{
-          borderRadius: "16px",
+          borderRadius: "12px",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.04)",
+          width: 400,
           p: 2,
-          backgroundColor: "white",
         }}
       >
         {/* 프로필 */}
         <Stack direction="row" alignItems="center" spacing={2} mb={1}>
           <Avatar
             src={profileImage || "/images/default-profile.svg"}
-            sx={{ width: 40, height: 40 }}
+            sx={{ width: 32, height: 32 }}
           />
           <Box>
-            <Typography fontWeight={600}>{nickname}</Typography>
-            <Typography fontSize={13} color="var(--text-300)">
+            <Typography variant="subtitle2" fontWeight={600}>
+              {nickname}
+            </Typography>
+            <Typography variant="subtitle2" color="var(--text-300)">
               {createdAt}
             </Typography>
           </Box>
         </Stack>
 
         {/* 강의명 */}
-        <Typography fontWeight={600} mb={2}>
-          {lectureTitle || "강의명이 없습니다."}
+        <Typography variant="body1" fontWeight={600} mb={2}>
+          {lectureTitle || "강의명이 없어요."}
         </Typography>
 
         {/* 버튼 */}

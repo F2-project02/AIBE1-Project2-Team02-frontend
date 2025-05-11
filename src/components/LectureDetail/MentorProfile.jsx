@@ -55,7 +55,7 @@ export default function MentorProfile({ mentor }) {
           멘토 정보
         </Typography>
         <Alert severity="info" sx={{ mb: 3 }}>
-          멘토 정보를 불러올 수 없습니다.
+          멘토 정보를 불러올 수 없어요.
         </Alert>
       </Box>
     );
@@ -75,7 +75,7 @@ export default function MentorProfile({ mentor }) {
   const appealFileUrl = mentor.appealFileUrl || null;
   const regions = Array.isArray(mentor.regions) ? mentor.regions : [];
   const introduction =
-    mentor.introduction || mentor.content || "멘토 소개 내용이 없습니다.";
+    mentor.introduction || mentor.content || "멘토 소개 내용이 없어요.";
 
   // HTML 내용을 안전하게 렌더링하는 함수
   const createMarkup = (html) => {

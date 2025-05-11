@@ -1,4 +1,4 @@
-// src/pages/CreateLecture.jsx (수정된 부분)
+// src/pages/CreateLecture.jsx
 
 import { useState, useEffect } from "react";
 import { Box, Typography, Paper } from "@mui/material";
@@ -14,6 +14,13 @@ import { useLectureStore } from "../store/useLectureStore";
 import { createLecture } from "../lib/api/lectureApi";
 import { accountApi } from "../lib/api/accountApi";
 import { mapLectureFormToApi } from "../utils/lectureDataMapper";
+import {
+  validateBasicInfo,
+  validateCurriculum,
+  validateFinalLectureData,
+} from "../utils/lectureFormValidator";
+
+import { getModerationMessage } from "../utils/moderationHelper";
 import createLectureGif from "../assets/createlecture.gif";
 import warnGif from "../assets/warn.gif";
 
@@ -53,9 +60,8 @@ export default function CreateLecture() {
             setIsMentor(false);
           }
         } catch (error) {
-          console.error("멘토 권한 확인 실패:", error);
           setIsMentor(false);
-          showToast("권한 확인 중 오류가 발생했습니다.", warnGif, "error");
+          showToast("권한 확인 중 오류가 발생했어요.", warnGif, "error");
         } finally {
           setProfileLoading(false);
         }
@@ -77,24 +83,13 @@ export default function CreateLecture() {
 
   const handleTabChange = (newValue) => {
     if (newValue > currentTab) {
-      if (currentTab === 0) {
-        if (
-          !formData.title ||
-          !formData.category ||
-          !formData.middleCategory ||
-          !formData.subCategory ||
-          !formData.price ||
-          !formData.description ||
-          !formData.categoryId
-        ) {
-          showToast("기본 정보를 모두 입력해주세요.", warnGif, "error");
-          return;
-        }
-      } else if (currentTab === 1) {
-        if (!formData.curriculum) {
-          showToast("커리큘럼을 입력해주세요.", warnGif, "error");
-          return;
-        }
+      if (currentTab === 0 && !validateBasicInfo(formData)) {
+        showToast("기본 정보를 모두 입력해주세요.", warnGif, "error");
+        return;
+      }
+      if (currentTab === 1 && !validateCurriculum(formData)) {
+        showToast("커리큘럼을 입력해주세요.", warnGif, "error");
+        return;
       }
     }
     setCurrentTab(newValue);
@@ -104,32 +99,12 @@ export default function CreateLecture() {
   const handleCurriculumNext = () => setCurrentTab(2);
 
   const handleScheduleSubmit = async () => {
+    if (!validateFinalLectureData(formData)) {
+      showToast("빠진 정보가 없는지 확인해주세요.", warnGif, "error");
+      return;
+    }
+
     try {
-      if (
-        !formData.title ||
-        !formData.categoryId ||
-        !formData.price ||
-        !formData.description ||
-        !formData.curriculum
-      ) {
-        showToast(
-          "기본 정보와 커리큘럼을 모두 입력해주세요.",
-          warnGif,
-          "error"
-        );
-        return;
-      }
-
-      if (formData.timeSlots.length === 0) {
-        showToast("최소 하나의 시간대를 입력해주세요.", warnGif, "error");
-        return;
-      }
-
-      if (formData.regions.length === 0) {
-        showToast("최소 하나의 지역을 선택해주세요.", warnGif, "error");
-        return;
-      }
-
       setIsLoading(true);
       setError(null);
 
@@ -142,15 +117,13 @@ export default function CreateLecture() {
           window.location.href = "/";
         }, 3000);
       } else {
-        throw new Error(response.message || "과외 등록에 실패했습니다.");
+        const friendlyMessage = getModerationMessage(response.message);
+        showToast(friendlyMessage, warnGif, "error");
       }
     } catch (err) {
-      console.error("Error creating lecture:", err);
-      showToast(
-        "과외 등록에 실패했습니다. 모든 항목을 확인해주세요.",
-        warnGif,
-        "error"
-      );
+      const message = err?.response?.data?.message;
+      const fallback = "잠시 연결이 원활하지 않아요. 다시 시도해주세요.";
+      showToast(getModerationMessage(message) || fallback, warnGif, "error");
     } finally {
       setIsLoading(false);
     }

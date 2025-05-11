@@ -31,7 +31,7 @@ export default function Toolbar({ editor, onImageInsert, fileInputRef }) {
     }
 
     if (file.size > maxSize) {
-      alert('파일 크기가 5MB를 초과했습니다.')
+      alert('파일 크기가 5MB를 초과하면 안돼요.')
       return
     }
 

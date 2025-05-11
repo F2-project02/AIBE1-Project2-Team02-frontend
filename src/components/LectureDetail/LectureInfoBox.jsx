@@ -49,7 +49,7 @@ export default function LectureInfoBox({ lecture }) {
           width: "100%",
         }}
       >
-        <Alert severity="warning">강의 정보를 불러올 수 없습니다.</Alert>
+        <Alert severity="warning">강의 정보를 불러올 수 없어요.</Alert>
       </Box>
     );
   }
