@@ -15,6 +15,7 @@ import {
   DialogTitle,
   Snackbar,
   Alert,
+  TextField
 } from "@mui/material";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -32,14 +33,15 @@ export default function ReviewCard({ review, onReviewUpdated }) {
     severity: "info",
   });
 
+
   // 안전 체크 및 기본값
   const reviewId = review?.reviewId || 0;
   const lectureId = review?.lectureId;
   const writerId = review?.writer?.userId || review?.writerId;
   const writerNickname =
-    review?.writer?.nickname || review?.writerNickname || "사용자";
+    review.writerNickname || review.writer?.nickname || "사용자";
   const writerImage =
-    review?.writer?.profileImage || "/images/default-profile.svg";
+    review.writerProfileImage || review.writer?.profileImage || "/images/default-profile.svg";
   const content = review?.content || "";
   const rating = review?.rating || 0;
 
@@ -77,6 +79,55 @@ export default function ReviewCard({ review, onReviewUpdated }) {
 
   // 현재 로그인한 사용자의 리뷰인지 확인
   const isMyReview = writerId === currentUserId;
+
+  // 수정 상태 관리
+  // const [isEditing, setIsEditing] = useState(false);
+  // const [editContent, setEditContent] = useState(review.content);
+  // const [editRating, setEditRating]   = useState(review.rating);
+
+  // const handleEditClick    = () => setIsEditing(true);
+  // const handleEditCancel   = () => {
+  //   setIsEditing(false);
+  //   setEditContent(review.content);
+  //   setEditRating(review.rating);
+  // };
+  // const handleEditSave = async () => {
+  //   try {
+  //     await axiosInstance.patch(
+  //       `/api/review/${review.reviewId}`,
+  //       { content: editContent, rating: editRating }
+  //     );
+  //     setIsEditing(false);
+  //     onReviewUpdated(); // 부모에 “리스트 새로고침” 신호
+  //   } catch (err) {
+  //     console.error('리뷰 수정 실패', err);
+  //     alert('리뷰 수정 중 오류가 발생했습니다.');
+  //   }
+  // };
+  const [editOpen, setEditOpen] = useState(false);
+  const [editContent, setEditContent] = useState(content);
+  const [editRating, setEditRating] = useState(rating);
+
+  const handleEdit = () => setEditOpen(true);
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setEditContent(content);
+    setEditRating(rating);
+  };
+  const handleEditSave = async () => {
+    try {
+      await axiosInstance.patch(
+        `/api/review/${reviewId}`,
+        { content: editContent, rating: editRating }
+      );
+      setSnackbar({ open: true, message: '수정되었습니다.', severity: 'success' });
+      onReviewUpdated();
+    } catch (e) {
+      setSnackbar({ open: true, message: '수정에 실패했습니다.', severity: 'error' });
+    } finally {
+      setEditOpen(false);
+    }
+  };
 
   // 삭제 다이얼로그 열기
   const handleOpenDeleteDialog = () => {
@@ -187,6 +238,8 @@ export default function ReviewCard({ review, onReviewUpdated }) {
         <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
           <Button
             variant="outlined"
+            onClick={handleEdit}
+            disabled={deleting}
             sx={{
               borderRadius: "8px",
               fontWeight: 600,
@@ -250,6 +303,28 @@ export default function ReviewCard({ review, onReviewUpdated }) {
           >
             삭제
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 수정 다이얼로그 */}
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>리뷰 수정</DialogTitle>
+        <DialogContent>
+          <Rating
+            value={editRating}
+            onChange={(e, v) => setEditRating(v)}
+          />
+          <TextField
+            fullWidth
+            multiline
+            minRows={3}
+            value={editContent}
+            onChange={e => setEditContent(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose}>취소</Button>
+          <Button onClick={handleEditSave}>저장</Button>
         </DialogActions>
       </Dialog>
 

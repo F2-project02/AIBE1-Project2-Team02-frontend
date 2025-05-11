@@ -44,9 +44,15 @@ export default function ReviewSection({ lecture }) {
         );
         const responseData = response.data;
 
-        if (responseData.success && responseData.data) {
+        const responseLec = await axiosInstance.get(
+          `/api/review/lecture/${lecture.lectureId}`
+        );
+        const responseLecData = responseLec.data;
+
+        if (responseData.success && responseData.data && responseLecData.success) {
           console.log("Reviews data received:", responseData.data);
-          setReviews(responseData.data.reviews || []);
+          console.log("Lecture reviews data received:", responseLecData.data);
+          setReviews(responseLecData.data || []);
           setAverageRating(responseData.data.averageRating || 0);
           setReviewCount(responseData.data.reviewCount || 0);
         } else {
@@ -94,8 +100,13 @@ export default function ReviewSection({ lecture }) {
       );
       const responseData = response.data;
 
-      if (responseData.success && responseData.data) {
-        setReviews(responseData.data.reviews || []);
+      const responseLec = await axiosInstance.get(
+          `/api/review/lecture/${lecture.lectureId}`
+        );
+        const responseLecData = responseLec.data;
+
+      if (responseData.success && responseData.data && responseLecData.success) {
+        setReviews(responseLecData.data || []);
         setAverageRating(responseData.data.averageRating || 0);
         setReviewCount(responseData.data.reviewCount || 0);
       }
