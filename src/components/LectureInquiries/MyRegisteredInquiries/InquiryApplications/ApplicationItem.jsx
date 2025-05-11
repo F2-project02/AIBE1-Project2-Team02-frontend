@@ -69,7 +69,7 @@ export default function ApplicationItem({ data, showToast }) {
 
         {/* 강의명 */}
         <Typography variant="body1" fontWeight={600} mb={2}>
-          {lectureTitle || "강의명이 없습니다."}
+          {lectureTitle || "강의명이 없어요."}
         </Typography>
 
         {/* 버튼 */}

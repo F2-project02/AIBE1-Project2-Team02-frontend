@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { useUserStore } from "../../store/useUserStore";
+import { getModerationMessage } from "../../utils/moderationHelper";
 import axiosInstance from "../../lib/axiosInstance";
 
 export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
@@ -65,13 +66,12 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
           });
         }
       } else {
-        throw new Error(response.data?.message || "리뷰 작성에 실패했습니다.");
+        throw new Error(response.data?.message || "리뷰 작성에 실패했어요.");
       }
     } catch (err) {
-      console.error("리뷰 작성 오류:", err);
-      setError(
-        err.message || "리뷰 작성 중 문제가 발생했습니다. 다시 시도해주세요."
-      );
+      const reason = err?.response?.data?.message;
+      const friendlyMessage = getModerationMessage(reason);
+      setError(friendlyMessage || "리뷰 작성 중 문제가 발생했어요. 다시 시도해주세요.");
     } finally {
       setLoading(false);
     }
@@ -174,7 +174,7 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
           severity="success"
           sx={{ width: "100%" }}
         >
-          리뷰가 성공적으로 등록되었습니다!
+          리뷰가 성공적으로 등록되었어요!
         </Alert>
       </Snackbar>
 

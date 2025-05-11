@@ -50,7 +50,7 @@ export default function LectureEditControls({ lecture }) {
 
       // 강의 ID 확인
       if (!lecture || !lecture.lectureId) {
-        throw new Error("유효한 강의 ID가 없습니다.");
+        throw new Error("유효한 강의 ID가 없어요.");
       }
 
       console.log(`강의 삭제 시도: ID ${lecture.lectureId}`);
@@ -68,7 +68,7 @@ export default function LectureEditControls({ lecture }) {
         // 성공 메시지
         setSnackbar({
           open: true,
-          message: "강의가 성공적으로 삭제되었습니다.",
+          message: "강의가 성공적으로 삭제되었어요.",
           severity: "success",
         });
 
@@ -78,7 +78,7 @@ export default function LectureEditControls({ lecture }) {
         }, 1500);
       } else {
         // 백엔드에서 명시적인 실패 응답이 온 경우
-        throw new Error(response?.message || "강의 삭제에 실패했습니다.");
+        throw new Error(response?.message || "강의 삭제에 실패했어요.");
       }
     } catch (err) {
       console.error("강의 삭제 오류:", err);
@@ -87,7 +87,7 @@ export default function LectureEditControls({ lecture }) {
       setSnackbar({
         open: true,
         message:
-          "응답을 받지 못했지만 강의가 삭제되었을 수 있습니다. 확인해주세요.",
+          "응답을 받지 못했지만 강의가 삭제되었을 수 있어요. 확인해주세요.",
         severity: "warning",
       });
 
@@ -168,9 +168,9 @@ export default function LectureEditControls({ lecture }) {
         <DialogContent>
           <DialogContentText color="var(--text-300)">
             {lecture?.lectureTitle || "이 강의"}를 삭제하시면 복구할 수
-            없습니다.
+            없어요.
             <br />
-            정말로 삭제하시겠습니까?
+            정말로 삭제하시겠어요?
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ p: 2, pt: 0 }}>

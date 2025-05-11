@@ -45,7 +45,7 @@ export const mapLectureFormToApi = (formData) => {
 
   // 지역 정보가 없는 경우 로그 출력
   if (validRegions.length === 0) {
-    console.warn("⚠️ 경고: 전송할 지역 정보가 없습니다!");
+    console.warn("⚠️ 경고: 전송할 지역 정보가 없어요!");
   }
 
   const apiData = {

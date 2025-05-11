@@ -52,7 +52,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             fontWeight: 500,
           }}
         >
-          탈퇴하시면 계정 정보가 모두 삭제되며 복구할 수 없습니다.
+          탈퇴하시면 계정 정보가 모두 삭제되며 복구할 수 없어요.
         </DialogContentText>
       </DialogContent>
 
