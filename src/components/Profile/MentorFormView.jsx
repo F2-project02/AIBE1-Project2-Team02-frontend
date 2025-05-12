@@ -22,7 +22,7 @@ import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
 import fileUploadIcon from "../../assets/file-upload.png";
 import logoImage from "../../assets/navbar-logo.svg";
 import warnGif from "../../assets/warn.gif";
-import menteesuccessGif from "../../assets/smiling-face-with-hearts.gif";
+import menteesuccessGif from "../../assets/heartsmile.gif";
 import mentorsuccessGif from "../../assets/party.gif";
 
 export default function MentorFormView({ showToast }) {
