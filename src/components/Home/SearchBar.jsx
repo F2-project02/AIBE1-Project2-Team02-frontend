@@ -3,16 +3,16 @@
 import { useState } from "react";
 import { Box, InputBase } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom"; 
 
 export default function SearchBar() {
   const [keyword, setKeyword] = useState("");
+  const navigate = useNavigate();
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       if (keyword.trim()) {
-        console.log("검색어:", keyword);
-        // 추후 검색 결과 페이지로 이동 또는 API 호출 가능
-        // navigate(`/search?keyword=${encodeURIComponent(keyword)}`);
+        navigate(`/search?keyword=${encodeURIComponent(keyword)}`);
       }
     }
   };
