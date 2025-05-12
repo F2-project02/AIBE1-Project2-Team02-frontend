@@ -59,15 +59,27 @@ export default function ReviewSection({ lecture }) {
         if (responseData.success && responseData.data && responseLecData.success) {
           console.log("Reviews data received:", responseData.data);
           console.log("Lecture reviews data received:", responseLecData.data);
-          setReviews(responseLecData.data || []);
+          // setReviews(responseLecData.data || []);
           setAverageRating(responseData.data.averageRating || 0);
           setReviewCount(responseData.data.reviewCount || 0);
+          const userReview = responseLecData.data.filter(
+            r => r.writerId === userId
+          ); // 내 리뷰를 제일 위로
+          const otherReviews = responseLecData.data.filter(
+            r => r.writerId !== userId
+          );
+          setReviews([ ...userReview, ...otherReviews ]);
+          // const hasReview = (responseLecData.data || []).some(
+          //   (r) => r.writerId === userId
+          // );
+          // setUserHasReviewed(hasReview);
         } else {
           console.warn("No reviews data in response:", response);
           // 리뷰가 없는 것은 오류가 아닐 수 있음
           setReviews([]);
           setAverageRating(0);
           setReviewCount(0);
+          setUserHasReviewed(false);
         }
       } catch (err) {
         console.error("Error loading reviews:", err);
@@ -93,7 +105,11 @@ export default function ReviewSection({ lecture }) {
   // 리뷰 추가 핸들러
   const handleReviewAdded = (newReview) => {
     // 새 리뷰를 목록에 추가하고 평점 업데이트
-    setReviews((prevReviews) => [newReview, ...prevReviews]);
+    //setReviews((prevReviews) => [newReview, ...prevReviews]);
+    setReviews(prevReviews => [
+      newReview,
+      ...prevReviews.filter(r => r.writerId !== userId)
+    ]);
 
     // 평균 평점과 리뷰 수 업데이트
     const newCount = reviewCount + 1;
@@ -102,6 +118,7 @@ export default function ReviewSection({ lecture }) {
 
     setReviewCount(newCount);
     setAverageRating(newAverage);
+    setUserHasReviewed(true);
   };
 
   // 리뷰 업데이트/삭제 후 목록 새로고침
@@ -121,9 +138,22 @@ export default function ReviewSection({ lecture }) {
         const responseLecData = responseLec.data;
 
       if (responseData.success && responseData.data && responseLecData.success) {
-        setReviews(responseLecData.data || []);
+        //setReviews(responseLecData.data || []);
         setAverageRating(responseData.data.averageRating || 0);
         setReviewCount(responseData.data.reviewCount || 0);
+
+        const userReview = responseLecData.data.filter(
+          r => r.writerId === userId
+        );
+        const otherReviews = responseLecData.data.filter(
+          r => r.writerId !== userId
+        );
+        setReviews([ ...userReview, ...otherReviews ]);
+        setUserHasReviewed(userReview.length > 0);
+        // const hasReview = (responseLecData.data || []).some(
+        //   (r) => r.writerId === userId
+        // );
+        // setUserHasReviewed(hasReview);
       }
     } catch (err) {
       console.error("Error refreshing reviews:", err);

@@ -55,7 +55,7 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       // [년,월,일,시,분,초] 형식인 경우 - 백엔드에서 LocalDateTime이 배열로 변환된 경우
       const [year, month, day, hour, minute, second] = review.updatedAt;
       updatedAtDate = new Date(year, month - 1, day, hour, minute, second);
-    } else if (typeof review?.updateddAt === "string") {
+    } else if (typeof review?.updatedAt === "string") {
       // ISO 문자열 형식인 경우 ("2025-05-06T17:42:50")
       updatedAtDate = new Date(review.updatedAt);
     } else {

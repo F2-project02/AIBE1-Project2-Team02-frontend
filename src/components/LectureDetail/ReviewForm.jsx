@@ -55,6 +55,7 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
         // 부모 컴포넌트에 리뷰 추가 알림
         if (onReviewAdded) {
           onReviewAdded({
+            reviewId: response.data.data,
             content,
             rating,
             createdAt: new Date().toISOString(),
