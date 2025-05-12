@@ -71,12 +71,15 @@ export default function RejectReasonModal({
             maxHeight: isMobile ? "100dvh" : "90vh",
             bgcolor: "#fefefe",
             borderRadius: isMobile ? 0 : "16px",
-            p: isMobile ? 2 : 4.5,
+            p: 4.5,
             position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             boxShadow: 6,
+            outline: "none",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* 타이틀 */}
@@ -85,6 +88,7 @@ export default function RejectReasonModal({
             textAlign="center"
             fontWeight={600}
             fontSize="1.25rem"
+            color="var(--text-100)"
             mb={4}
           >
             반려 사유
@@ -92,13 +96,21 @@ export default function RejectReasonModal({
 
           {/* 받는 사람 */}
           <Stack direction="row" spacing={2.5} mb={3}>
-            <Typography fontWeight={600}>받는 사람</Typography>
-            <Typography fontWeight={500}>{menteeNickname}</Typography>
+            <Typography fontWeight={600} color="var(--text-300)">
+              받는 사람
+            </Typography>
+            <Typography fontWeight={500} color="var(--text-200)">
+              {menteeNickname}
+            </Typography>
           </Stack>
 
           {/* 반려 사유 */}
-          <Stack spacing={1} mb={2}>
-            <Typography fontWeight={600} fontSize="14px">
+          <Stack spacing={1.5} mb={2}>
+            <Typography
+              fontWeight={500}
+              fontSize="14px"
+              color="var(--text-300)"
+            >
               쪽지 내용
             </Typography>
             <TextField
@@ -109,20 +121,45 @@ export default function RejectReasonModal({
               placeholder="반려 사유를 입력하세요..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
+              inputRef={textFieldRef}
+              inputProps={{ maxLength: 200 }}
               sx={{
-                backgroundColor: "#fafafa",
                 borderRadius: "12px",
                 "& .MuiOutlinedInput-root": {
-                  padding: "12px",
                   borderRadius: "12px",
+
+                  // 기본 상태
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--bg-300)",
+                  },
+
+                  // hover 상태
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--primary-100)", // 예: 호버 시 파란색
+                  },
+
+                  // focus 상태
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "var(--primary-100)", // 예: 포커스 시 더 진한 파란색
+                  },
                 },
+
                 "& textarea": {
                   fontSize: "15px",
+                  color: "var(--text-200)",
                   fontWeight: 500,
                 },
               }}
-              inputRef={textFieldRef}
             />
+            {/* 최대 글자 수 표시 */}
+            <Typography
+              textAlign="right"
+              fontSize="13px"
+              color="var(--text-400)"
+              mt={2}
+            >
+              {reason.length} / 200자
+            </Typography>
           </Stack>
 
           {/* 버튼 영역 */}

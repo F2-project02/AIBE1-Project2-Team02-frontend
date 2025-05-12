@@ -1,4 +1,4 @@
-import { Box, Stack, Button, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import RegisteredLectureItem from "./RegisteredInquiryItem";
 import RegisteredInquirySkeleton from "./RegisteredInquirySkeleton";
@@ -8,6 +8,7 @@ import MoreButton from "../MoreButton";
 import { toggleLectureStatus } from "../../../lib/api/inquiryApi";
 import CustomToast from "../../common/CustomToast";
 import warnGif from "../../../assets/warn.gif";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisteredInquiriesList() {
   const {
@@ -24,6 +25,8 @@ export default function RegisteredInquiriesList() {
   const [toastMessage, setToastMessage] = useState("");
   const [toastIcon, setToastIcon] = useState(null);
   const [toastType, setToastType] = useState("info");
+
+  const navigate = useNavigate();
 
   const showToast = (message, icon = null, type = "info") => {
     setToastMessage(message);
@@ -76,19 +79,53 @@ export default function RegisteredInquiriesList() {
   return (
     <Box>
       <Stack>
-        {loading
-          ? Array(3)
-              .fill(null)
-              .map((_, idx) => <RegisteredInquirySkeleton key={idx} />)
-          : displayedLectures.map((lecture) => (
-              <RegisteredLectureItem
-                key={lecture.lectureId}
-                data={lecture}
-                onToggle={() =>
-                  handleLectureToggle(lecture.lectureId, lecture.isClosed)
-                }
-              />
-            ))}
+        {loading ? (
+          Array(3)
+            .fill(null)
+            .map((_, idx) => <RegisteredInquirySkeleton key={idx} />)
+        ) : registeredLectures.length === 0 ? (
+          <Box
+            onClick={() => navigate("/register")}
+            sx={{
+              width: 400,
+              minHeight: 220,
+              px: 2,
+              py: 3,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexDirection: "column",
+              bgcolor: "#f9f9f9",
+              borderRadius: 2,
+              border: "1px dashed var(--bg-300)",
+              color: "var(--text-300)",
+              fontWeight: 500,
+              textAlign: "center",
+              cursor: "pointer",
+              transition: "all 0.2s",
+              "&:hover": {
+                backgroundColor: "var(--bg-100)",
+              },
+            }}
+          >
+            <Typography variant="body1" fontWeight={600}>
+              등록된 과외가 없습니다.
+            </Typography>
+            <Typography variant="body2" color="var(--text-400)" mt={1}>
+              과외를 등록해보세요!
+            </Typography>
+          </Box>
+        ) : (
+          displayedLectures.map((lecture) => (
+            <RegisteredLectureItem
+              key={lecture.lectureId}
+              data={lecture}
+              onToggle={() =>
+                handleLectureToggle(lecture.lectureId, lecture.isClosed)
+              }
+            />
+          ))
+        )}
 
         {!loading && registeredLectures.length > 3 && (
           <MoreButton isExpanded={isExpanded} onClick={handleToggle} />

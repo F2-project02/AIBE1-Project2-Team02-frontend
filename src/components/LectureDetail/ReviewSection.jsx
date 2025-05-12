@@ -1,21 +1,34 @@
 // 📄 src/components/LectureDetail/ReviewSection.jsx
 
 import { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Alert,
-  CircularProgress,
-  Rating,
-  Stack,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, Alert, Rating, Stack, Divider } from "@mui/material";
+import CustomToast from "../../components/common/CustomToast";
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
 import { useUserStore } from "../../store/useUserStore";
 import axiosInstance from "../../lib/axiosInstance";
+import ReviewSectionSkeleton from "./skeleton/ReviewSectionSkeleton";
+import heartsmile from "../../assets/heartsmile.gif";
+import warn from "../../assets/warn.gif";
 
 export default function ReviewSection({ lecture }) {
+  const [toast, setToast] = useState({
+    open: false,
+    message: "",
+    iconSrc: null,
+    type: "info",
+  });
+
+  const showToast = ({ message, type = "info", iconSrc = null }) => {
+    setToast({ open: true, message, type, iconSrc });
+  };
+
+  const showSuccessToast = (message) =>
+    showToast({ message, type: "info", iconSrc: heartsmile });
+
+  const showErrorToast = (message) =>
+    showToast({ message, type: "error", iconSrc: warn });
+
   const [reviews, setReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
@@ -24,17 +37,15 @@ export default function ReviewSection({ lecture }) {
   const [userHasReviewed, setUserHasReviewed] = useState(false);
   const { isLoggedIn, myLectureIds = [], userId } = useUserStore();
 
-
   // 로그인한 사용자가 해당 강의에 대한 리뷰를 작성했는지 확인
   useEffect(() => {
-  if (!userId || !lecture?.lectureId) return;
+    if (!userId || !lecture?.lectureId) return;
 
-  axiosInstance
-    .get(`/api/review/check/${lecture.lectureId}`)
-    .then(res => setUserHasReviewed(res.data.data.hasReview))
-    .catch(console.error);
+    axiosInstance
+      .get(`/api/review/check/${lecture.lectureId}`)
+      .then((res) => setUserHasReviewed(res.data.data.hasReview))
+      .catch(console.error);
   }, [userId, lecture?.lectureId]);
-
 
   // 리뷰 데이터 로드
   useEffect(() => {
@@ -56,18 +67,29 @@ export default function ReviewSection({ lecture }) {
         );
         const responseLecData = responseLec.data;
 
-        if (responseData.success && responseData.data && responseLecData.success) {
+        if (
+          responseData.success &&
+          responseData.data &&
+          responseLecData.success
+        ) {
           console.log("Reviews data received:", responseData.data);
           console.log("Lecture reviews data received:", responseLecData.data);
-          setReviews(responseLecData.data || []);
           setAverageRating(responseData.data.averageRating || 0);
           setReviewCount(responseData.data.reviewCount || 0);
+          const userReview = responseLecData.data.filter(
+            (r) => r.writerId === userId
+          ); // 내 리뷰를 제일 위로
+          const otherReviews = responseLecData.data.filter(
+            (r) => r.writerId !== userId
+          );
+          setReviews([...userReview, ...otherReviews]);
         } else {
           console.warn("No reviews data in response:", response);
           // 리뷰가 없는 것은 오류가 아닐 수 있음
           setReviews([]);
           setAverageRating(0);
           setReviewCount(0);
+          setUserHasReviewed(false);
         }
       } catch (err) {
         console.error("Error loading reviews:", err);
@@ -82,27 +104,12 @@ export default function ReviewSection({ lecture }) {
     }
   }, [lecture]);
 
-
   // 로그인한 사용자가 해당 강의를 수강 중인지 확인
   const canWriteReview =
     isLoggedIn &&
     Array.isArray(myLectureIds) &&
     myLectureIds.includes(lecture?.lectureId) &&
     !userHasReviewed;
-
-  // 리뷰 추가 핸들러
-  const handleReviewAdded = (newReview) => {
-    // 새 리뷰를 목록에 추가하고 평점 업데이트
-    setReviews((prevReviews) => [newReview, ...prevReviews]);
-
-    // 평균 평점과 리뷰 수 업데이트
-    const newCount = reviewCount + 1;
-    const newAverage =
-      (averageRating * reviewCount + newReview.rating) / newCount;
-
-    setReviewCount(newCount);
-    setAverageRating(newAverage);
-  };
 
   // 리뷰 업데이트/삭제 후 목록 새로고침
   const handleReviewUpdated = async () => {
@@ -116,14 +123,26 @@ export default function ReviewSection({ lecture }) {
       const responseData = response.data;
 
       const responseLec = await axiosInstance.get(
-          `/api/review/lecture/${lecture.lectureId}`
-        );
-        const responseLecData = responseLec.data;
+        `/api/review/lecture/${lecture.lectureId}`
+      );
+      const responseLecData = responseLec.data;
 
-      if (responseData.success && responseData.data && responseLecData.success) {
-        setReviews(responseLecData.data || []);
+      if (
+        responseData.success &&
+        responseData.data &&
+        responseLecData.success
+      ) {
         setAverageRating(responseData.data.averageRating || 0);
         setReviewCount(responseData.data.reviewCount || 0);
+
+        const userReview = responseLecData.data.filter(
+          (r) => r.writerId === userId
+        );
+        const otherReviews = responseLecData.data.filter(
+          (r) => r.writerId !== userId
+        );
+        setReviews([...userReview, ...otherReviews]);
+        setUserHasReviewed(userReview.length > 0);
       }
     } catch (err) {
       console.error("Error refreshing reviews:", err);
@@ -155,31 +174,10 @@ export default function ReviewSection({ lecture }) {
         </Typography>
       </Stack>
 
-      {/* 리뷰 작성 폼 */}
-      {canWriteReview && (
-        <Box
-          sx={{
-            mb: 4,
-            p: 3,
-            border: "1px solid var(--bg-300)",
-            borderRadius: "16px",
-            backgroundColor: "var(--bg-100)",
-          }}
-        >
-          <ReviewForm
-            lectureId={lecture?.lectureId}
-            mentorId={lecture?.mentorId}
-            onReviewAdded={handleReviewAdded}
-          />
-        </Box>
-      )}
-
-      <Divider sx={{ my: 3 }} />
-
       {/* 로딩 상태 */}
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress size={40} />
+          <ReviewSectionSkeleton />
         </Box>
       )}
 
@@ -190,6 +188,29 @@ export default function ReviewSection({ lecture }) {
         </Alert>
       )}
 
+      {/* 리뷰 작성 폼 */}
+      {canWriteReview && (
+        <Box
+          sx={{
+            mb: 4,
+            mt: 4,
+            border: "none",
+            borderRadius: "16px",
+            backgroundColor: "var(--bg-100)",
+          }}
+        >
+          <ReviewForm
+            lectureId={lecture?.lectureId}
+            mentorId={lecture?.mentorId}
+            onReviewSubmitted={handleReviewUpdated}
+            showToast={showSuccessToast}
+            showErrorToast={showErrorToast}
+          />
+        </Box>
+      )}
+
+      <Divider sx={{ my: 3 }} />
+
       {/* 리뷰 목록 */}
       {!loading && !error && (
         <Box>
@@ -199,6 +220,8 @@ export default function ReviewSection({ lecture }) {
                 key={review.reviewId || index}
                 review={review}
                 onReviewUpdated={handleReviewUpdated}
+                showToast={showSuccessToast}
+                showErrorToast={showErrorToast}
               />
             ))
           ) : (
@@ -219,6 +242,13 @@ export default function ReviewSection({ lecture }) {
           )}
         </Box>
       )}
+      <CustomToast
+        open={toast.open}
+        onClose={() => setToast((prev) => ({ ...prev, open: false }))}
+        message={toast.message}
+        iconSrc={toast.iconSrc}
+        type={toast.type}
+      />
     </Box>
   );
 }

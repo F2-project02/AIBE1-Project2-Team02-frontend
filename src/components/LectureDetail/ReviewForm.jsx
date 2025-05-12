@@ -17,78 +17,62 @@ import { useUserStore } from "../../store/useUserStore";
 import { getModerationMessage } from "../../utils/moderationHelper";
 import axiosInstance from "../../lib/axiosInstance";
 
-export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
+export default function ReviewForm({
+  lectureId,
+  mentorId,
+  onReviewSubmitted,
+  showToast,
+  showErrorToast,
+}) {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const { nickname, profileImage, userId } = useUserStore();
+  const { nickname, profileImage } = useUserStore();
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      setError("리뷰 내용을 입력해주세요.");
+      showErrorToast("리뷰 내용을 입력해주세요.");
       return;
     }
 
     try {
       setLoading(true);
-      setError(null);
 
-      // 리뷰 작성 API 호출
-      const response = await axiosInstance.post(
-       `/api/review`,
-       {
-         lectureId: lectureId,
-         mentorId : mentorId,    // 상위 컴포넌트에서 내려야 함
-         content  : content,
-         rating   : rating
-       }
-     );
+      const response = await axiosInstance.post(`/api/review`, {
+        lectureId,
+        mentorId,
+        content,
+        rating,
+      });
 
       if (response.data?.success) {
-        // 성공 메시지 표시
-        setSuccess(true);
-        // 입력값 초기화
+        showToast("리뷰가 성공적으로 등록되었어요!"); 
+
         setContent("");
         setRating(5);
-        // 부모 컴포넌트에 리뷰 추가 알림
-        if (onReviewAdded) {
-          onReviewAdded({
-            content,
-            rating,
-            createdAt: new Date().toISOString(),
-            writer: {
-              userId,
-              nickname,
-              profileImage,
-            },
-          });
-        }
+        onReviewSubmitted?.();
       } else {
         throw new Error(response.data?.message || "리뷰 작성에 실패했어요.");
       }
     } catch (err) {
       const reason = err?.response?.data?.message;
-      const friendlyMessage = getModerationMessage(reason);
-      setError(friendlyMessage || "리뷰 작성 중 문제가 발생했어요. 다시 시도해주세요.");
+      const msg =
+        getModerationMessage(reason) ||
+        "리뷰 작성 중 문제가 발생했어요. 다시 시도해주세요.";
+        showErrorToast(msg); 
     } finally {
       setLoading(false);
     }
   };
 
-  // 성공 메시지 닫기
-  const handleCloseSuccess = () => {
-    setSuccess(false);
-  };
-
-  // 에러 메시지 닫기
-  const handleCloseError = () => {
-    setError(null);
-  };
-
   return (
-    <Box>
+    <Box
+      sx={{
+        backgroundColor: "transparent", // 배경은 그대로, 보더 없음
+        p: 0,
+        boxShadow: "none",
+      }}
+    >
       {/* 유저 정보 + 별점 */}
       <Stack
         direction="row"
@@ -127,11 +111,26 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
         onChange={(e) => setContent(e.target.value)}
         disabled={loading}
         sx={{
-          backgroundColor: "#fefefe",
-          borderColor: "var(--bg-200)",
           borderRadius: "8px",
+          fontFamily: "inherit",
+          fontSize: "0.875rem",
+          color: "var(--text-200)",
           "& .MuiOutlinedInput-root": {
             borderRadius: "8px",
+            backgroundColor: "#fefefe",
+            fontFamily: "inherit",
+            fontSize: "0.875rem",
+            color: "var(--text-200)",
+            "& fieldset": {
+              borderColor: "var(--bg-300)",
+            },
+            "&:hover fieldset": {
+              borderColor: "var(--action-primary-bg)",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "var(--action-primary-bg)",
+              borderWidth: 2,
+            },
           },
         }}
       />
@@ -139,18 +138,18 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
       {/* 등록 버튼 */}
       <Box display="flex" justifyContent="flex-end" mt={2}>
         <Button
-          variant="contained"
           onClick={handleSubmit}
           disabled={loading || !content.trim()}
           sx={{
-            backgroundColor: "var(--primary-100)",
-            borderRadius: "8px",
-            color: "var(--bg-100)",
+            background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
+            boxShadow: "none",
+            fontWeight: 600,
             px: 3,
             py: 1,
-            fontWeight: 600,
+            borderRadius: "8px",
+            color: "var(--bg-100)",
             ":hover": {
-              backgroundColor: "var(--primary-200)",
+              background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
             },
           }}
         >
@@ -161,38 +160,6 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
           )}
         </Button>
       </Box>
-
-      {/* 성공 메시지 Snackbar */}
-      <Snackbar
-        open={success}
-        autoHideDuration={5000}
-        onClose={handleCloseSuccess}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          리뷰가 성공적으로 등록되었어요!
-        </Alert>
-      </Snackbar>
-
-      {/* 에러 메시지 Snackbar */}
-      <Snackbar
-        open={!!error}
-        autoHideDuration={5000}
-        onClose={handleCloseError}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

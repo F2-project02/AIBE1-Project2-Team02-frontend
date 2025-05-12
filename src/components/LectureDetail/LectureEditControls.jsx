@@ -11,109 +11,77 @@ import {
   DialogContentText,
   DialogTitle,
   CircularProgress,
-  Snackbar,
-  Alert,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { deleteLecture } from "../../lib/api/lectureApi";
+import CustomToast from "../common/CustomToast";
+import thinkingFace from "../../assets/thinking.gif";
+import successEmoji from "../../assets/heartsmile.gif";
+import warningEmoji from "../../assets/warn.gif";
 
 export default function LectureEditControls({ lecture }) {
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [snackbar, setSnackbar] = useState({
+  const [toast, setToast] = useState({
     open: false,
     message: "",
-    severity: "info",
+    type: "info",
+    icon: null,
   });
 
-  // 편집 페이지로 이동
   const handleEdit = () => {
     navigate(`/lectures/${lecture.lectureId}/edit`);
   };
 
-  // 삭제 확인 다이얼로그 열기
   const handleOpenDeleteDialog = () => {
     setDeleteDialogOpen(true);
   };
 
-  // 삭제 확인 다이얼로그 닫기
   const handleCloseDeleteDialog = () => {
     setDeleteDialogOpen(false);
   };
 
-  // 강의 삭제 처리 - 응답 처리 개선
   const handleDelete = async () => {
     try {
       setDeleting(true);
-
-      // 강의 ID 확인
-      if (!lecture || !lecture.lectureId) {
+      if (!lecture || !lecture.lectureId)
         throw new Error("유효한 강의 ID가 없어요.");
-      }
-
-      console.log(`강의 삭제 시도: ID ${lecture.lectureId}`);
-
-      // API 호출하여 강의 삭제
       const response = await deleteLecture(lecture.lectureId);
-
-      console.log("삭제 응답:", response);
-
-      // 응답 상태가 없더라도 성공 처리 (백엔드 이슈 우회)
-      // HTTP 상태가 2xx이면 성공으로 간주
       const isSuccess = response.success !== false;
 
       if (isSuccess) {
-        // 성공 메시지
-        setSnackbar({
+        setToast({
           open: true,
           message: "강의가 성공적으로 삭제되었어요.",
-          severity: "success",
+          type: "info",
+          icon: successEmoji,
         });
-
-        // 삭제 후 홈으로 리다이렉트 (약간의 지연을 줘서 메시지 확인 가능하도록)
-        setTimeout(() => {
-          navigate("/");
-        }, 1500);
+        setTimeout(() => navigate("/"), 1500);
       } else {
-        // 백엔드에서 명시적인 실패 응답이 온 경우
         throw new Error(response?.message || "강의 삭제에 실패했어요.");
       }
     } catch (err) {
-      console.error("강의 삭제 오류:", err);
-
-      // 하지만 실제로는 삭제가 되었을 수 있으므로 더 중립적인 메시지 표시
-      setSnackbar({
+      setToast({
         open: true,
         message:
           "응답을 받지 못했지만 강의가 삭제되었을 수 있어요. 확인해주세요.",
-        severity: "warning",
+        type: "info",
+        icon: warningEmoji,
       });
-
-      // 실패 시에도 홈으로 리다이렉트 (실제로는 삭제가 성공했을 가능성)
-      setTimeout(() => {
-        navigate("/");
-      }, 2500);
+      setTimeout(() => navigate("/"), 2500);
     } finally {
       setDeleting(false);
       setDeleteDialogOpen(false);
     }
   };
 
-  // 스낵바 닫기
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleCloseToast = () => setToast({ ...toast, open: false });
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          gap: 1,
-        }}
-      >
+      <Box sx={{ display: "flex", gap: 2 }}>
         <Button
           variant="outlined"
           size="small"
@@ -121,12 +89,11 @@ export default function LectureEditControls({ lecture }) {
           onClick={handleEdit}
           sx={{
             borderRadius: "8px",
-            fontWeight: 600,
+            fontWeight: 500,
             color: "var(--text-300)",
-            borderColor: "var(--bg-300)",
+            border: "none",
             "&:hover": {
               backgroundColor: "var(--bg-200)",
-              borderColor: "var(--bg-300)",
             },
           }}
         >
@@ -139,49 +106,70 @@ export default function LectureEditControls({ lecture }) {
           onClick={handleOpenDeleteDialog}
           sx={{
             borderRadius: "8px",
-            fontWeight: 600,
+            fontWeight: 500,
             backgroundColor: "var(--action-red)",
-            color: "white",
-            "&:hover": {
-              backgroundColor: "#b33e3e",
-            },
+            color: "var(--bg-100)",
+            boxShadow: "none",
+            "&:hover": { backgroundColor: "#b33e3e" },
           }}
         >
           삭제
         </Button>
       </Box>
 
-      {/* 삭제 확인 다이얼로그 */}
       <Dialog
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
         PaperProps={{
           sx: {
             borderRadius: "16px",
-            p: 1,
+            backgroundColor: "var(--bg-100)",
+            px: 4,
+            py: 2,
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600 }}>
-          강의를 삭제하시겠습니까?
+        <DialogTitle
+          sx={{ fontWeight: 600, fontSize: "1.2rem", color: "var(--text-100)" }}
+        >
+          강의를 삭제하시겠어요?
         </DialogTitle>
+
         <DialogContent>
-          <DialogContentText color="var(--text-300)">
-            {lecture?.lectureTitle || "이 강의"}를 삭제하시면 복구할 수
-            없어요.
-            <br />
-            정말로 삭제하시겠어요?
+          <Box
+            component="img"
+            src={thinkingFace}
+            alt="고민"
+            sx={{
+              display: "block",
+              mx: "auto",
+              my: 2,
+              width: 80,
+              height: 80,
+              borderRadius: "8px",
+            }}
+          />
+          <DialogContentText
+            sx={{
+              color: "var(--text-300)",
+              textAlign: "center",
+              fontSize: "0.95rem",
+              fontWeight: 500,
+            }}
+          >
+            정말 삭제하시려구요?
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ p: 2, pt: 0 }}>
+
+        <DialogActions sx={{ justifyContent: "center", mt: 1 }}>
           <Button
             onClick={handleCloseDeleteDialog}
             sx={{
-              color: "var(--text-300)",
-              fontWeight: 600,
-              "&:hover": {
-                backgroundColor: "var(--bg-200)",
-              },
+              color: "var(--text-200)",
+              fontWeight: 500,
+              px: 3,
+              borderRadius: "8px",
+              "&:hover": { backgroundColor: "var(--bg-200)" },
             }}
           >
             취소
@@ -192,11 +180,12 @@ export default function LectureEditControls({ lecture }) {
             variant="contained"
             sx={{
               backgroundColor: "var(--action-red)",
-              color: "white",
+              boxShadow: "none",
               fontWeight: 600,
-              "&:hover": {
-                backgroundColor: "#b33e3e",
-              },
+              px: 3,
+              borderRadius: "8px",
+              color: "var(--bg-100)",
+              "&:hover": { backgroundColor: "rgba(204, 105, 105, 0.9)" },
             }}
           >
             {deleting ? (
@@ -208,21 +197,14 @@ export default function LectureEditControls({ lecture }) {
         </DialogActions>
       </Dialog>
 
-      {/* 알림 메시지 */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      <CustomToast
+        open={toast.open}
+        onClose={handleCloseToast}
+        message={toast.message}
+        type={toast.type}
+        iconSrc={toast.icon}
+        duration={4000}
+      />
     </>
   );
 }
