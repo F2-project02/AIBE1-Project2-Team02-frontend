@@ -30,7 +30,10 @@ export default function CurriculumForm({ onNext, showToast }) {
       <FormFieldWrapper label="과외 커리큘럼" required>
         <TiptapEditor
           value={formData.curriculum}
-          onChange={(content) => setFormField("curriculum", content)}
+          onChange={(content) => {
+            console.log("에디터 내용 변경:", content);
+            setFormField("curriculum", content);
+          }}
           placeholder="과외 수업의 진행 계획과 내용을 정리해주세요."
         />
       </FormFieldWrapper>
