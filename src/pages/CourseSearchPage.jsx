@@ -20,8 +20,7 @@ import UnifiedCategoryFilter from "../components/Search/UnifiedCategoryFilter";
 import PriceFilterModal from "../components/Search/PriceFilterModal";
 import RatingFilterModal from "../components/Search/RatingFilterModal";
 import CertifiedMentorFilterModal from "../components/Search/CertifiedMentorFilterModal";
-import RegionSelectionModal from "../components/Search/RegionSelectionModal";
-import RegionSelectionMobile from "../components/Search/RegionSelectionMobile";
+import UnifiedRegionFilter from "../components/Search/UnifiedRegionFilter";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
@@ -50,10 +49,11 @@ const CourseSearchPage = () => {
   const [ratingRange, setRatingRange] = useState(0);
   const [isCertified, setIsCertified] = useState(false);
 
-  // 🗺️ 지역 필터 상세
+  // 🗺️ 지역 필터 상세 상태 및 선택 진행 상태를 저장하기 위한 변수
   const [selectedDongs, setSelectedDongs] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [savedRegionProvince, setSavedRegionProvince] = useState("");
+  const [savedRegionDistrict, setSavedRegionDistrict] = useState("");
+  const [savedRegionTab, setSavedRegionTab] = useState(0);
 
   // 📂 카테고리 필터 선택 진행 상태를 저장하기 위한 변수
   const [savedCategoryParent, setSavedCategoryParent] = useState(
@@ -248,8 +248,11 @@ const CourseSearchPage = () => {
     setPriceRange([0, 300000]);
     setRatingRange(0);
     setIsCertified(false);
-    setSelectedProvince("");
-    setSelectedDistrict("");
+
+    // 지역 필터 상태 초기화
+    setSavedRegionProvince("");
+    setSavedRegionDistrict("");
+    setSavedRegionTab(0);
 
     // 카테고리 필터 상태도 초기화
     setSavedCategoryParent("");
@@ -548,10 +551,13 @@ const CourseSearchPage = () => {
     setIsPriceFilterSet(false);
     setRatingRange(0);
     setIsCertified(false);
-    setSelectedProvince("");
-    setSelectedDistrict("");
 
-    // 카테고리 필터 선택 진행 상태도 초기화
+    // 지역 필터 상태 초기화
+    setSavedRegionProvince("");
+    setSavedRegionDistrict("");
+    setSavedRegionTab(0);
+
+    // 카테고리 필터 상태도 초기화
     setSavedCategoryParent("");
     setSavedCategoryMiddle("");
     setSavedCategoryTab(0);
@@ -633,31 +639,20 @@ const CourseSearchPage = () => {
         }}
       />
 
-      {isMobile ? (
-        <RegionSelectionMobile
-          open={regionDialogOpen}
-          onClose={() => setRegionDialogOpen(false)}
-          selectedDongs={selectedDongs}
-          setSelectedDongs={setSelectedDongs}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
-          onSubmit={handleRegionSelect}
-        />
-      ) : (
-        <RegionSelectionModal
-          open={regionDialogOpen}
-          onClose={() => setRegionDialogOpen(false)}
-          selectedDongs={selectedDongs}
-          setSelectedDongs={setSelectedDongs}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
-          onSubmit={handleRegionSelect}
-        />
-      )}
+      <UnifiedRegionFilter
+        open={regionDialogOpen}
+        onClose={() => setRegionDialogOpen(false)}
+        selectedDongs={selectedDongs}
+        setSelectedDongs={setSelectedDongs}
+        // 지역 선택 진행 상태를 외부에서 관리하기 위한 props 전달
+        savedProvince={savedRegionProvince}
+        setSavedProvince={setSavedRegionProvince}
+        savedDistrict={savedRegionDistrict}
+        setSavedDistrict={setSavedRegionDistrict}
+        savedTab={savedRegionTab}
+        setSavedTab={setSavedRegionTab}
+        onSubmit={handleRegionSelect}
+      />
 
       <PriceFilterModal
         open={priceDialogOpen}

@@ -1,4 +1,4 @@
-// src/components/Search/UnifiedCategoryFilter.jsx - 개선된 버전
+// src/components/Search/UnifiedRegionFilter.jsx - 개선된 버전
 import {
   Dialog,
   Box,
@@ -6,7 +6,6 @@ import {
   IconButton,
   Chip,
   Button,
-  InputBase,
   Tabs,
   Tab,
   useMediaQuery,
@@ -15,347 +14,337 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CheckIcon from "@mui/icons-material/Check";
-import SearchIcon from "@mui/icons-material/Search";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { CategoryService } from "../../lib/api/categoryApi";
+import { RegionApiService } from "./RegionApiService";
 import GradientButton from "../Button/GradientButton";
 
-export default function UnifiedCategoryFilter({
+export default function UnifiedRegionFilter({
   open,
   onClose,
-  onSelect,
-  selectedCategories = [],
-  // 진행 중이던 상태를 외부에서 관리하기 위한 props 추가
-  savedParent = "",
-  setSavedParent,
-  savedMiddle = "",
-  setSavedMiddle,
+  onSubmit,
+  selectedDongs,
+  setSelectedDongs,
+  // 진행 상태 보존을 위한 props
+  savedProvince = "",
+  setSavedProvince,
+  savedDistrict = "",
+  setSavedDistrict,
   savedTab = 0,
   setSavedTab,
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const prevOpenRef = useRef(false);
 
   // 데이터 캐싱을 위한 상태
   const [dataCache, setDataCache] = useState({
-    parents: [],
-    middles: {},
-    subs: {},
+    provinces: [],
+    districts: {}, // { 서울특별시: ['강남구', '서초구', ...], ... }
+    dongs: {}, // { '서울특별시-강남구': [동 객체들], ... }
   });
 
-  // 카테고리 데이터 상태
-  const [parentCategories, setParentCategories] = useState([]);
-  const [middleCategories, setMiddleCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
+  // Region data states
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [dongs, setDongs] = useState([]);
   const [backgroundLoading, setBackgroundLoading] = useState(false);
 
-  // 선택 상태 (다이얼로그 내부에서만 사용)
+  // Selection states
   const [tempSelectedItems, setTempSelectedItems] = useState([]);
-  const [selectedParent, setSelectedParent] = useState("");
-  const [selectedMiddle, setSelectedMiddle] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState(savedProvince || "");
+  const [selectedDistrict, setSelectedDistrict] = useState(savedDistrict || "");
+  const [currentTab, setCurrentTab] = useState(savedTab || 0);
 
-  // 모바일용 탭 상태
-  const [currentTab, setCurrentTab] = useState(0);
-
-  // 스크롤 위치 참조 변수
-  const parentScrollRef = useRef(null);
-  const middleScrollRef = useRef(null);
-  const subScrollRef = useRef(null);
-
-  // 이전 open 상태 추적
-  const prevOpenRef = useRef(false);
-
-  // 최초 접속 시 대분류 데이터 로드
+  // 최초 접속 시 시/도 데이터 로드
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        if (dataCache.parents.length === 0) {
-          const parentCats = await CategoryService.getParentCategories();
-          setParentCategories(parentCats);
-          setDataCache((prev) => ({ ...prev, parents: parentCats }));
+        if (dataCache.provinces.length === 0) {
+          const sidoList = await RegionApiService.getSidos();
+          setProvinces(sidoList);
+          setDataCache((prev) => ({ ...prev, provinces: sidoList }));
         } else {
-          setParentCategories(dataCache.parents);
+          setProvinces(dataCache.provinces);
         }
       } catch (error) {
-        console.error("대분류 목록 로드 실패:", error);
-        // 실패 시 빈 배열로 초기화
-        setParentCategories([]);
+        console.error("시도 목록 로드 실패:", error);
       }
     };
 
     loadInitialData();
-  }, [dataCache.parents.length]);
+  }, [dataCache.provinces.length]);
 
-  // 다이얼로그가 열릴 때 데이터 초기화 및 이전 선택 상태 복원
+  // 모달이 열릴 때 초기화
   useEffect(() => {
-    // 모달이 새로 열릴 때만 초기화 로직 실행
     if (open && !prevOpenRef.current) {
-      // 부모로부터 받은 선택 항목 복원
-      setTempSelectedItems(selectedCategories ? [...selectedCategories] : []);
+      // 저장된 선택 항목 복원
+      setTempSelectedItems(selectedDongs ? [...selectedDongs] : []);
+      setSelectedProvince(savedProvince || "");
+      setSelectedDistrict(savedDistrict || "");
 
-      // 이전에 진행 중이던 상태 복원
-      if (savedParent) {
-        setSelectedParent(savedParent);
-        loadMiddlesForParent(savedParent);
-
-        if (savedMiddle) {
-          setSelectedMiddle(savedMiddle);
-          loadSubsForMiddle(savedParent, savedMiddle);
-        }
-      }
-
-      // 저장된 탭 상태 복원 (모바일)
+      // 모바일용 탭 상태 복원
       if (isMobile && savedTab !== undefined) {
         setCurrentTab(savedTab);
       }
 
-      // 검색어 초기화
-      setSearchTerm("");
+      // 저장된 시도 선택 상태가 있으면 해당 시군구 데이터 로드
+      if (savedProvince) {
+        loadDistrictsForProvince(savedProvince);
+
+        // 저장된 시군구 선택 상태가 있으면 해당 동 데이터 로드
+        if (savedDistrict) {
+          loadDongsForDistrict(savedProvince, savedDistrict);
+        }
+      }
     }
 
-    // 다이얼로그가 닫힐 때 현재 진행 상태 저장
+    // 모달이 닫힐 때 현재 선택 상태 저장
     if (!open && prevOpenRef.current) {
-      if (setSavedParent) setSavedParent(selectedParent);
-      if (setSavedMiddle) setSavedMiddle(selectedMiddle);
+      if (setSavedProvince) setSavedProvince(selectedProvince);
+      if (setSavedDistrict) setSavedDistrict(selectedDistrict);
       if (setSavedTab) setSavedTab(currentTab);
     }
 
-    // open 상태 업데이트
     prevOpenRef.current = open;
-  }, [
-    open,
-    selectedCategories,
-    savedParent,
-    savedMiddle,
-    savedTab,
-    isMobile,
-    setSavedParent,
-    setSavedMiddle,
-    setSavedTab,
-  ]);
+  }, [open, selectedDongs, savedProvince, savedDistrict, savedTab, isMobile]);
 
-  // 중분류 데이터 로드 함수 (캐싱 적용)
-  const loadMiddlesForParent = async (parent) => {
+  // 시/도 데이터 로드 함수 (캐싱 적용)
+  const loadDistrictsForProvince = async (province) => {
     try {
       // 캐시에 이미 있는지 확인
-      if (dataCache.middles[parent]) {
-        setMiddleCategories(dataCache.middles[parent]);
+      if (dataCache.districts[province]) {
+        setDistricts(dataCache.districts[province]);
       } else {
         setBackgroundLoading(true);
-        const middles = await CategoryService.getMiddleCategories(parent);
+        const sigunguList = await RegionApiService.getSigungus(province);
 
         // 결과 저장 및 캐싱
-        setMiddleCategories(middles);
+        setDistricts(sigunguList);
         setDataCache((prev) => ({
           ...prev,
-          middles: { ...prev.middles, [parent]: middles },
+          districts: { ...prev.districts, [province]: sigunguList },
         }));
         setBackgroundLoading(false);
       }
     } catch (error) {
-      console.error("중분류 로드 중 오류:", error);
-      setMiddleCategories([]);
+      console.error("시군구 로드 중 오류:", error);
+      setDistricts([]);
       setBackgroundLoading(false);
     }
   };
 
-  // 대분류 선택 시 중분류 로드
+  // 시/도 선택 시 시군구 데이터 로드
   useEffect(() => {
-    if (selectedParent) {
-      loadMiddlesForParent(selectedParent);
+    if (selectedProvince) {
+      loadDistrictsForProvince(selectedProvince);
 
-      // 대분류가 변경되면 중분류 선택 초기화
-      if (selectedParent !== savedParent) {
-        setSelectedMiddle("");
-        setSubCategories([]);
+      // 시도가 변경되면 시군구 선택 초기화
+      if (selectedProvince !== savedProvince) {
+        setSelectedDistrict("");
+        setDongs([]);
       }
     }
-  }, [selectedParent, savedParent]);
+  }, [selectedProvince]);
 
-  // 소분류 데이터 로드 함수 (캐싱 적용)
-  const loadSubsForMiddle = async (parent, middle) => {
+  // 동 데이터 로드 함수 (캐싱 적용)
+  const loadDongsForDistrict = async (province, district) => {
     try {
-      const cacheKey = `${parent}-${middle}`;
+      const cacheKey = `${province}-${district}`;
 
       // 캐시에 이미 있는지 확인
-      if (dataCache.subs[cacheKey]) {
-        setSubCategories(dataCache.subs[cacheKey]);
+      if (dataCache.dongs[cacheKey]) {
+        setDongs(dataCache.dongs[cacheKey]);
       } else {
         setBackgroundLoading(true);
-        const subs = await CategoryService.getSubcategories(parent, middle);
-
-        // 응답 형식 처리 (객체 배열인 경우 문자열 추출)
-        const parsedSubs =
-          Array.isArray(subs) && subs.length > 0 && typeof subs[0] === "object"
-            ? subs.map((s) => s.subcategory)
-            : subs;
+        const dongList = await RegionApiService.getDongs(province, district);
 
         // 결과 저장 및 캐싱
-        setSubCategories(parsedSubs || []);
+        setDongs(dongList);
         setDataCache((prev) => ({
           ...prev,
-          subs: { ...prev.subs, [cacheKey]: parsedSubs || [] },
+          dongs: { ...prev.dongs, [cacheKey]: dongList },
         }));
         setBackgroundLoading(false);
       }
     } catch (error) {
-      console.error("소분류 로드 중 오류:", error);
-      setSubCategories([]);
+      console.error("읍면동 로드 중 오류:", error);
+      setDongs([]);
       setBackgroundLoading(false);
     }
   };
 
-  // 중분류 선택 시 소분류 로드
+  // 시군구 선택 시 동 데이터 로드
   useEffect(() => {
-    if (selectedParent && selectedMiddle) {
-      loadSubsForMiddle(selectedParent, selectedMiddle);
+    if (selectedProvince && selectedDistrict) {
+      loadDongsForDistrict(selectedProvince, selectedDistrict);
     }
-  }, [selectedParent, selectedMiddle]);
+  }, [selectedProvince, selectedDistrict]);
 
-  // 대분류 선택 핸들러
-  const handleParentClick = (parent) => {
-    setSelectedParent(parent);
-    if (setSavedParent) setSavedParent(parent);
+  // Province selection handler
+  const handleProvinceClick = (province) => {
+    setSelectedProvince(province);
+    if (setSavedProvince) setSavedProvince(province);
 
     if (isMobile) {
-      setCurrentTab(1); // 모바일에서 중분류 탭으로 이동
+      setCurrentTab(1); // Move to districts tab
       if (setSavedTab) setSavedTab(1);
     }
 
     setTempSelectedItems((prev) => {
       const newItems = [...prev];
-      const parentPath = parent;
+      const provinceItem = {
+        regionCode: `sido_${province}`,
+        sido: province,
+        sigungu: "",
+        dong: "",
+        displayName: province,
+      };
 
-      // 이미 선택된 대분류를 클릭하면 제거
-      if (newItems.includes(parentPath)) {
-        return newItems.filter((item) => !item.startsWith(parent));
+      const existingIndex = newItems.findIndex(
+        (item) => item.sido === province && !item.sigungu && !item.dong
+      );
+
+      if (existingIndex !== -1) {
+        return newItems.filter((item) => item.sido !== province);
       } else {
-        // 선택되지 않은 대분류를 클릭하면 추가
-        return [...newItems, parentPath];
+        return [...newItems, provinceItem];
       }
     });
   };
 
-  // 중분류 선택 핸들러
-  const handleMiddleClick = (middle) => {
-    setSelectedMiddle(middle);
-    if (setSavedMiddle) setSavedMiddle(middle);
+  // District selection handler
+  const handleDistrictClick = (district) => {
+    setSelectedDistrict(district);
+    if (setSavedDistrict) setSavedDistrict(district);
 
     if (isMobile) {
-      setCurrentTab(2); // 모바일에서 소분류 탭으로 이동
+      setCurrentTab(2); // Move to dongs tab
       if (setSavedTab) setSavedTab(2);
     }
 
     setTempSelectedItems((prev) => {
       const newItems = [...prev];
-      const parentPath = selectedParent;
-      const middlePath = `${selectedParent} > ${middle}`;
+      const districtItem = {
+        regionCode: `sigungu_${selectedProvince}_${district}`,
+        sido: selectedProvince,
+        sigungu: district,
+        dong: "",
+        displayName: `${selectedProvince} ${district}`,
+      };
 
-      // 이미 선택된 중분류를 클릭하면 제거
-      const middleIndex = newItems.findIndex((item) => item === middlePath);
-      if (middleIndex !== -1) {
-        return newItems.filter((item) => !item.startsWith(middlePath));
+      const existingIndex = newItems.findIndex(
+        (item) =>
+          item.sido === selectedProvince &&
+          item.sigungu === district &&
+          !item.dong
+      );
+
+      if (existingIndex !== -1) {
+        return newItems.filter(
+          (item) =>
+            !(item.sido === selectedProvince && item.sigungu === district)
+        );
       } else {
-        // 선택되지 않은 중분류를 클릭하면 추가
-        const parentOnlyIndex = newItems.indexOf(parentPath);
-        if (parentOnlyIndex !== -1) {
-          // 대분류만 있으면 업데이트
-          newItems[parentOnlyIndex] = middlePath;
+        const provinceOnlyIndex = newItems.findIndex(
+          (item) =>
+            item.sido === selectedProvince && !item.sigungu && !item.dong
+        );
+
+        if (provinceOnlyIndex !== -1) {
+          newItems[provinceOnlyIndex] = districtItem;
         } else {
-          // 대분류가 없으면 추가
-          newItems.push(middlePath);
+          newItems.push(districtItem);
         }
+
         return newItems;
       }
     });
   };
 
-  // 소분류 선택 핸들러
-  const handleSubClick = (sub) => {
-    // 스크롤 위치 유지를 위해 현재 스크롤 위치 저장
-    if (subScrollRef.current) {
-      subScrollRef.current.scrollTop = subScrollRef.current.scrollTop;
-    }
-
+  // Dong selection handler
+  const handleDongClick = (dong) => {
     setTempSelectedItems((prev) => {
       const newItems = [...prev];
-      const middlePath = `${selectedParent} > ${selectedMiddle}`;
-      const subPath = `${selectedParent} > ${selectedMiddle} > ${sub}`;
+      const dongItem = {
+        ...dong,
+        displayName: `${dong.sido} ${dong.sigungu} ${dong.dong || ""}`.trim(),
+      };
 
-      // 이미 선택된 소분류를 클릭하면 제거
-      const subIndex = newItems.findIndex((item) => item === subPath);
-      if (subIndex !== -1) {
-        return newItems.filter((item) => item !== subPath);
+      const existingIndex = newItems.findIndex(
+        (item) => item.regionCode === dong.regionCode
+      );
+
+      if (existingIndex !== -1) {
+        return newItems.filter((item) => item.regionCode !== dong.regionCode);
       } else {
-        // 선택되지 않은 소분류를 클릭하면 추가
-        const middleOnlyIndex = newItems.findIndex(
-          (item) => item === middlePath
+        const districtOnlyIndex = newItems.findIndex(
+          (item) =>
+            item.sido === selectedProvince &&
+            item.sigungu === selectedDistrict &&
+            !item.dong
         );
-        if (middleOnlyIndex !== -1) {
-          // 중분류만 있으면 업데이트
-          newItems[middleOnlyIndex] = subPath;
+
+        if (districtOnlyIndex !== -1) {
+          newItems[districtOnlyIndex] = dongItem;
         } else {
-          // 중분류가 없으면 추가
-          newItems.push(subPath);
+          newItems.push(dongItem);
         }
+
         return newItems;
       }
     });
   };
 
-  // 초기화 핸들러
+  // Reset handler
   const handleReset = () => {
     setTempSelectedItems([]);
-    setSelectedParent("");
-    setSelectedMiddle("");
-    setSearchTerm("");
+    setSelectedProvince("");
+    setSelectedDistrict("");
+
     if (isMobile) {
       setCurrentTab(0);
     }
 
-    // 외부 상태도 초기화
-    if (setSavedParent) setSavedParent("");
-    if (setSavedMiddle) setSavedMiddle("");
+    // Reset saved state
+    if (setSavedProvince) setSavedProvince("");
+    if (setSavedDistrict) setSavedDistrict("");
     if (setSavedTab) setSavedTab(0);
   };
 
-  // 완료 핸들러
+  // Complete handler
   const handleComplete = () => {
-    onSelect(tempSelectedItems);
+    onSubmit(tempSelectedItems);
+    setSelectedDongs(tempSelectedItems);
     onClose();
   };
 
-  // 카테고리 선택 여부 확인
-  const isSelected = (path, type) => {
-    return tempSelectedItems.some((item) => {
-      if (type === "parent") {
-        // 대분류 체크: 정확히 일치하거나 하위 경로의 시작
-        return item === path || item.startsWith(path + " >");
-      } else if (type === "middle") {
-        // 중분류 체크: 정확히 일치하거나 하위 경로의 시작
-        return item === path || item.startsWith(path + " >");
+  // Check if an item is selected
+  const isSelected = (item, type) => {
+    return tempSelectedItems.some((selected) => {
+      if (type === "province") {
+        return selected.sido === item;
+      } else if (type === "district") {
+        return selected.sido === selectedProvince && selected.sigungu === item;
       } else {
-        // 소분류 체크: 정확히 일치
-        return item === path;
+        return selected.regionCode === item.regionCode;
       }
     });
   };
 
-  // 검색 필터링
-  const filterItems = (items) =>
-    searchTerm.trim()
-      ? items.filter((item) =>
-          item.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : items;
-
-  // 이 항목 선택 삭제
-  const handleDeleteItem = (item) => {
-    setTempSelectedItems((prev) => prev.filter((i) => i !== item));
+  // Mobile tab change handler
+  const handleTabChange = (_, newValue) => {
+    setCurrentTab(newValue);
+    if (setSavedTab) setSavedTab(newValue);
   };
 
-  // 모바일 뷰
+  // Delete item handler
+  const handleDeleteItem = (itemCode) => {
+    setTempSelectedItems((prev) =>
+      prev.filter((item) => item.regionCode !== itemCode)
+    );
+  };
+
+  // 모바일 뷰 렌더링
   if (isMobile) {
     return (
       <Dialog open={open} onClose={onClose} fullScreen>
@@ -368,7 +357,7 @@ export default function UnifiedCategoryFilter({
           pt={3}
           pb={2}
         >
-          {/* 상단 바 */}
+          {/* 헤더 */}
           <Box
             display="flex"
             alignItems="center"
@@ -380,38 +369,15 @@ export default function UnifiedCategoryFilter({
               <CloseIcon />
             </IconButton>
             <Typography fontSize={18} fontWeight={600}>
-              카테고리 선택
+              지역 선택
             </Typography>
             <Box width={40} />
-          </Box>
-
-          {/* 검색창 */}
-          <Box
-            display="flex"
-            alignItems="center"
-            px={1.5}
-            py={1}
-            mb={2}
-            bgcolor="var(--bg-200)"
-            borderRadius="8px"
-          >
-            <SearchIcon sx={{ color: "var(--text-400)", mr: 1 }} />
-            <InputBase
-              placeholder="과목명으로 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              fullWidth
-              sx={{
-                color: "var(--text-100)",
-                fontSize: 15,
-              }}
-            />
           </Box>
 
           {/* 탭 */}
           <Tabs
             value={currentTab}
-            onChange={(_, newValue) => setCurrentTab(newValue)}
+            onChange={handleTabChange}
             variant="fullWidth"
             sx={{
               borderBottom: 1,
@@ -427,31 +393,36 @@ export default function UnifiedCategoryFilter({
               },
             }}
           >
-            <Tab label="대분류" />
-            <Tab label="중분류" disabled={!selectedParent} />
-            <Tab label="소분류" disabled={!selectedMiddle} />
+            <Tab label="시/도" />
+            <Tab label="시/군/구" disabled={!selectedProvince} />
+            <Tab label="읍/면/동" disabled={!selectedDistrict} />
           </Tabs>
 
-          {/* 리스트 영역 */}
+          {/* 항목 목록 */}
           <Box
             flex={1}
             overflow="auto"
             py={2}
             sx={{
-              maxHeight: "calc(100vh - 340px)",
-              scrollbarWidth: "none",
+              height: "auto",
+              maxHeight: "calc(100vh - 280px)",
+              scrollbarWidth: "thin",
               "&::-webkit-scrollbar": {
-                display: "none",
+                width: "6px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                backgroundColor: "rgba(91, 141, 239, 0.3)",
+                borderRadius: "4px",
               },
             }}
           >
             {currentTab === 0 ? (
-              filterItems(parentCategories).map((item) => {
-                const selected = isSelected(item, "parent");
+              provinces.map((item) => {
+                const selected = isSelected(item, "province");
                 return (
                   <Box
                     key={item}
-                    onClick={() => handleParentClick(item)}
+                    onClick={() => handleProvinceClick(item)}
                     sx={{
                       cursor: "pointer",
                       px: 3,
@@ -481,14 +452,13 @@ export default function UnifiedCategoryFilter({
                 );
               })
             ) : currentTab === 1 ? (
-              middleCategories.length > 0 ? (
-                filterItems(middleCategories).map((item) => {
-                  const path = `${selectedParent} > ${item}`;
-                  const selected = isSelected(path, "middle");
+              districts.length > 0 ? (
+                districts.map((item) => {
+                  const selected = isSelected(item, "district");
                   return (
                     <Box
                       key={item}
-                      onClick={() => handleMiddleClick(item)}
+                      onClick={() => handleDistrictClick(item)}
                       sx={{
                         cursor: "pointer",
                         px: 3,
@@ -526,17 +496,16 @@ export default function UnifiedCategoryFilter({
                 >
                   {backgroundLoading
                     ? "데이터를 불러오는 중입니다..."
-                    : "중분류 데이터가 없습니다"}
+                    : "시군구 데이터가 없습니다"}
                 </Typography>
               )
-            ) : subCategories.length > 0 ? (
-              filterItems(subCategories).map((item) => {
-                const path = `${selectedParent} > ${selectedMiddle} > ${item}`;
-                const selected = isSelected(path, "sub");
+            ) : dongs.length > 0 ? (
+              dongs.map((item) => {
+                const selected = isSelected(item, "dong");
                 return (
                   <Box
-                    key={item}
-                    onClick={() => handleSubClick(item)}
+                    key={item.regionCode}
+                    onClick={() => handleDongClick(item)}
                     sx={{
                       cursor: "pointer",
                       px: 3,
@@ -560,7 +529,9 @@ export default function UnifiedCategoryFilter({
                       },
                     }}
                   >
-                    <Typography fontSize={15}>{item}</Typography>
+                    <Typography fontSize={15}>
+                      {item.dong || `${item.sigungu} 전체`}
+                    </Typography>
                     {selected && <CheckIcon sx={{ fontSize: 18 }} />}
                   </Box>
                 );
@@ -574,7 +545,7 @@ export default function UnifiedCategoryFilter({
               >
                 {backgroundLoading
                   ? "데이터를 불러오는 중입니다..."
-                  : "소분류 데이터가 없습니다"}
+                  : "동 데이터가 없습니다"}
               </Typography>
             )}
           </Box>
@@ -583,20 +554,34 @@ export default function UnifiedCategoryFilter({
           {tempSelectedItems.length > 0 && (
             <Box mt={2} px={2}>
               <Typography fontSize={14} fontWeight={500} mb={1}>
-                선택된 항목 ({tempSelectedItems.length})
+                선택된 지역
               </Typography>
-              <Box display="flex" flexWrap="wrap" gap={1}>
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                gap={1}
+                maxHeight={100}
+                overflow="auto"
+                sx={{
+                  scrollbarWidth: "none",
+                  "&::-webkit-scrollbar": {
+                    display: "none",
+                  },
+                }}
+              >
                 {tempSelectedItems.map((item) => (
                   <Chip
-                    key={item}
-                    label={item}
-                    onDelete={() => toggleItem(item)}
+                    key={item.regionCode}
+                    label={item.displayName}
+                    onDelete={() => handleDeleteItem(item.regionCode)}
                     sx={{
                       fontSize: 13,
+                      height: 28,
                       borderColor: "var(--primary-100)",
                       color: "var(--primary-100)",
                       "& .MuiChip-deleteIcon": {
                         color: "var(--primary-100)",
+                        fontSize: 16,
                         "&:hover": {
                           color: "var(--primary-200)",
                         },
@@ -636,6 +621,7 @@ export default function UnifiedCategoryFilter({
                 fontSize: 16,
                 color: "var(--bg-100)",
               }}
+              disabled={tempSelectedItems.length === 0}
             >
               선택 완료
             </GradientButton>
@@ -645,7 +631,7 @@ export default function UnifiedCategoryFilter({
     );
   }
 
-  // 데스크탑 뷰
+  // 데스크탑 뷰 렌더링
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <Box p={4} height="100vh" bgcolor="#fefefe">
@@ -665,44 +651,20 @@ export default function UnifiedCategoryFilter({
           </IconButton>
           <Box flex={1} textAlign="center">
             <Typography fontSize={24} fontWeight={600} color="var(--text-100)">
-              과목 필터
+              지역 필터
             </Typography>
           </Box>
         </Box>
 
-        {/* 검색창 */}
-        <Box
-          display="flex"
-          alignItems="center"
-          px={1.5}
-          py={1}
-          bgcolor="var(--bg-200)"
-          borderRadius="8px"
-          mb={4}
-        >
-          <SearchIcon sx={{ color: "var(--text-400)" }} />
-          <InputBase
-            placeholder="과목명으로 검색"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            fullWidth
-            sx={{ color: "var(--text-400)" }}
-          />
-        </Box>
-
-        {/* 3단 선택 영역 - 높이 320px로 수정해 RegionFilter와 동일하게 */}
-        <Box
-          display={isMobile ? "block" : "flex"}
-          height={isMobile ? "auto" : 300}
-          gap={2}
-        >
-          {/* 대분류 */}
+        {/* 3단 선택 영역 */}
+        <Box display="flex" height={320} gap={2}>
+          {/* 시/도 컬럼 */}
           <Box
             flex={1}
             display="flex"
             flexDirection="column"
+            gap={1}
             overflow="auto"
-            ref={parentScrollRef}
             sx={{
               px: 2,
               scrollbarWidth: "none",
@@ -712,17 +674,17 @@ export default function UnifiedCategoryFilter({
             }}
           >
             <Typography fontWeight={600} fontSize={16} mb={1}>
-              대분류
+              시/도
             </Typography>
-            {filterItems(parentCategories).map((item) => {
-              const selected = isSelected(item, "parent");
+            {provinces.map((item) => {
+              const selected = isSelected(item, "province");
               return (
                 <Box
                   key={item}
-                  onClick={() => handleParentClick(item)}
+                  onClick={() => handleProvinceClick(item)}
                   sx={{
                     cursor: "pointer",
-                    px: 3,
+                    px: 2,
                     py: 1.5,
                     borderRadius: "8px",
                     backgroundColor: selected
@@ -733,7 +695,6 @@ export default function UnifiedCategoryFilter({
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    mb: 1,
                     transition: "all 0.2s ease",
                     "&:hover": {
                       backgroundColor: selected
@@ -749,13 +710,13 @@ export default function UnifiedCategoryFilter({
             })}
           </Box>
 
-          {/* 중분류 */}
+          {/* 시군구 컬럼 */}
           <Box
             flex={1}
             display="flex"
             flexDirection="column"
+            gap={1}
             overflow="auto"
-            ref={middleScrollRef}
             sx={{
               px: 2,
               scrollbarWidth: "none",
@@ -765,22 +726,20 @@ export default function UnifiedCategoryFilter({
             }}
           >
             <Typography fontWeight={600} fontSize={16} mb={1}>
-              중분류
+              시/군/구
             </Typography>
-            {selectedParent ? (
-              middleCategories.length > 0 ? (
-                filterItems(middleCategories).map((item) => {
-                  const path = `${selectedParent} > ${item}`;
-                  const selected = isSelected(path, "middle");
+            {selectedProvince ? (
+              districts.length > 0 ? (
+                districts.map((item) => {
+                  const selected = isSelected(item, "district");
                   return (
                     <Box
                       key={item}
-                      onClick={() => handleMiddleClick(item)}
+                      onClick={() => handleDistrictClick(item)}
                       sx={{
                         cursor: "pointer",
-                        px: 3,
+                        px: 2,
                         py: 1.5,
-                        mb: 1,
                         borderRadius: "8px",
                         backgroundColor: selected
                           ? "var(--action-primary-bg)"
@@ -806,26 +765,26 @@ export default function UnifiedCategoryFilter({
                   );
                 })
               ) : (
-                <Typography pl={3} color="var(--text-300)" fontSize={14}>
+                <Typography pl={2} color="var(--text-300)" fontSize={14}>
                   {backgroundLoading
                     ? "데이터를 불러오는 중입니다..."
-                    : "중분류 데이터가 없습니다"}
+                    : "시군구 데이터가 없습니다"}
                 </Typography>
               )
             ) : (
-              <Typography pl={3} color="var(--text-300)" fontSize={14}>
-                대분류를 선택하세요
+              <Typography pl={2} color="var(--text-300)" fontSize={14}>
+                시/도를 선택하세요
               </Typography>
             )}
           </Box>
 
-          {/* 소분류 */}
+          {/* 동 컬럼 */}
           <Box
             flex={1}
             display="flex"
             flexDirection="column"
+            gap={1}
             overflow="auto"
-            ref={subScrollRef}
             sx={{
               px: 2,
               scrollbarWidth: "none",
@@ -835,22 +794,20 @@ export default function UnifiedCategoryFilter({
             }}
           >
             <Typography fontWeight={600} fontSize={16} mb={1}>
-              소분류
+              읍/면/동
             </Typography>
-            {selectedMiddle ? (
-              subCategories.length > 0 ? (
-                filterItems(subCategories).map((item) => {
-                  const path = `${selectedParent} > ${selectedMiddle} > ${item}`;
-                  const selected = isSelected(path, "sub");
+            {selectedDistrict ? (
+              dongs.length > 0 ? (
+                dongs.map((item) => {
+                  const selected = isSelected(item, "dong");
                   return (
                     <Box
-                      key={item}
-                      onClick={() => handleSubClick(item)}
+                      key={item.regionCode}
+                      onClick={() => handleDongClick(item)}
                       sx={{
                         cursor: "pointer",
-                        px: 3,
+                        px: 2,
                         py: 1.5,
-                        mb: 1,
                         borderRadius: "8px",
                         backgroundColor: selected
                           ? "var(--action-primary-bg)"
@@ -870,30 +827,32 @@ export default function UnifiedCategoryFilter({
                         },
                       }}
                     >
-                      <Typography fontSize={16}>{item}</Typography>
+                      <Typography fontSize={16}>
+                        {item.dong || `${item.sigungu} 전체`}
+                      </Typography>
                       {selected && <CheckIcon sx={{ fontSize: 18 }} />}
                     </Box>
                   );
                 })
               ) : (
-                <Typography pl={3} color="var(--text-300)" fontSize={14}>
+                <Typography pl={2} color="var(--text-300)" fontSize={14}>
                   {backgroundLoading
                     ? "데이터를 불러오는 중입니다..."
-                    : "소분류 데이터가 없습니다"}
+                    : "동 데이터가 없습니다"}
                 </Typography>
               )
             ) : (
-              <Typography pl={3} color="var(--text-300)" fontSize={14}>
-                중분류를 선택하세요
+              <Typography pl={2} color="var(--text-300)" fontSize={14}>
+                시/군/구를 선택하세요
               </Typography>
             )}
           </Box>
         </Box>
 
-        {/* 선택된 항목 - 높이를 RegionFilter와 동일하게 20%로 설정 */}
+        {/* 선택된 항목 */}
         <Box mt={4}>
           <Typography fontWeight={500} fontSize={16} mb={1}>
-            선택 항목{" "}
+            선택 지역{" "}
             {tempSelectedItems.length > 0
               ? `(${tempSelectedItems.length})`
               : ""}
@@ -902,9 +861,9 @@ export default function UnifiedCategoryFilter({
             <Box display="flex" flexWrap="wrap" gap={1}>
               {tempSelectedItems.map((item) => (
                 <Chip
-                  key={item}
-                  label={item}
-                  onDelete={() => handleDelete(item)}
+                  key={item.regionCode}
+                  label={item.displayName}
+                  onDelete={() => handleDeleteItem(item.regionCode)}
                   variant="outlined"
                   sx={{
                     borderColor: "var(--primary-100)",
@@ -921,14 +880,12 @@ export default function UnifiedCategoryFilter({
               ))}
             </Box>
           ) : (
-            <Typography color="var(--text-300)" fontSize={16}>
-              선택된 항목이 없습니다
-            </Typography>
+            <Typography color="var(--text-300)" fontSize={14}></Typography>
           )}
         </Box>
 
-        {/* 하단 버튼 - 데스크탑 뷰 */}
-        <Box display="flex" gap={2} mt={6}>
+        {/* 하단 버튼 */}
+        <Box display="flex" gap={2} mt={8}>
           <Button
             startIcon={<RestartAltIcon />}
             onClick={handleReset}
@@ -957,6 +914,7 @@ export default function UnifiedCategoryFilter({
               fontSize: 16,
               color: "var(--bg-100)",
             }}
+            disabled={selectedDongs.length === 0}
           >
             선택 완료
           </GradientButton>
