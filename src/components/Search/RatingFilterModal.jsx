@@ -62,7 +62,7 @@ export default function RatingFilterModal({
         {/* 헤더 */}
         <Box position="relative" textAlign="center" mb={3}>
           <Typography fontSize={24} fontWeight={600}>
-            평점
+            과외 평점
           </Typography>
           <IconButton
             onClick={onClose}
@@ -81,7 +81,7 @@ export default function RatingFilterModal({
         {/* 본문 */}
         <Box mt={1}>
           <Typography fontSize={14} color="var(--text-300)" mb={3}>
-            이 평점 이상인 과외만 검색할게요
+            이 과외 평점 이상인 과외만 검색할게요
           </Typography>
 
           <Slider

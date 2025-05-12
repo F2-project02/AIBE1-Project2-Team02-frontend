@@ -9,9 +9,9 @@ import {
   IconButton,
   Button,
   Chip,
+  Collapse,
 } from "@mui/material";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
-
 import { getLectures } from "../lib/api/lectureApi";
 
 // 🔍 모달 및 필터 컴포넌트
@@ -22,6 +22,8 @@ import RatingFilterModal from "../components/Search/RatingFilterModal";
 import CertifiedMentorFilterModal from "../components/Search/CertifiedMentorFilterModal";
 import RegionSelectionModal from "../components/Search/RegionSelectionModal";
 import RegionSelectionMobile from "../components/Search/RegionSelectionMobile";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
 // 🔍 레이아웃 및 목록
 import SearchLayout from "../components/Search/SearchLayout";
@@ -257,93 +259,241 @@ const CourseSearchPage = () => {
     setSelectedSubs([]);
   };
 
-  // 적용된 필터 표시 컴포넌트
-  const ActiveFilters = ({ filters, onRemove, onClear }) => {
-    if (
-      !filters ||
-      Object.values(filters).every(
-        (f) => !f || (Array.isArray(f) && f.length === 0)
-      )
-    )
-      return null;
+  // 필터 섹션 컴포넌트 (아코디언 형태)
+  const FilterSection = ({ title, children, defaultExpanded = true }) => {
+    const [expanded, setExpanded] = useState(defaultExpanded);
 
     return (
-      <Box
-        sx={{ mt: 2, mb: 3, display: "flex", flexDirection: "column", gap: 1 }}
-      >
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="subtitle2" fontWeight={600}>
-            적용된 필터
-          </Typography>
-          <Button
-            size="small"
-            onClick={onClear}
-            sx={{ color: "var(--text-300)", fontSize: 13 }}
+      <Box sx={{ mb: 1, borderRadius: "8px", overflow: "hidden" }}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          onClick={() => setExpanded(!expanded)}
+          sx={{
+            py: 0.75,
+            px: 1,
+            bgcolor: "var(--bg-200)",
+            borderRadius: "8px",
+            cursor: "pointer",
+            "&:hover": { bgcolor: "var(--bg-300)" },
+          }}
+        >
+          <Typography
+            variant="caption"
+            fontWeight={500}
+            color="var(--text-300)"
           >
-            모두 초기화
-          </Button>
+            {title}
+          </Typography>
+          <IconButton
+            size="small"
+            sx={{ p: 0, color: "var(--text-300)" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(!expanded);
+            }}
+          >
+            {expanded ? (
+              <KeyboardArrowUpIcon fontSize="small" />
+            ) : (
+              <KeyboardArrowDownIcon fontSize="small" />
+            )}
+          </IconButton>
         </Box>
 
-        <Box display="flex" flexWrap="wrap" gap={0.5}>
-          {filters.categories &&
-            filters.categories.length > 0 &&
-            filters.categories.map((cat) => (
-              <Chip
-                key={`cat-${cat}`}
-                label={cat}
-                size="small"
-                onDelete={() => onRemove("category", cat)}
-                sx={{
-                  bgcolor: "var(--action-primary-bg)",
-                  color: "var(--primary-200)",
-                  fontSize: 12,
-                }}
-              />
-            ))}
+        <Collapse in={expanded} timeout="auto">
+          <Box sx={{ pt: 1, pb: 0.5, px: 0.5 }}>{children}</Box>
+        </Collapse>
+      </Box>
+    );
+  };
+  // 적용된 필터 표시 컴포넌트
 
-          {filters.regions &&
-            filters.regions.length > 0 &&
-            filters.regions.map((region) => (
-              <Chip
-                key={`region-${region}`}
-                label={region}
-                size="small"
-                onDelete={() => onRemove("region", region)}
-                sx={{
-                  bgcolor: "var(--action-yellow-bg)",
-                  color: "var(--action-yellow)",
-                  fontSize: 12,
-                }}
-              />
-            ))}
+  const ActiveFilters = ({ filters, onRemove, onClear }) => {
+    // 아코디언 상태 관리
+    const [expanded, setExpanded] = useState(true); // 기본적으로 펼쳐진 상태
 
-          {filters.priceSet && (
-            <Chip
-              label={`${filters.price[0].toLocaleString()}원-${filters.price[1].toLocaleString()}원`}
+    // 필터가 비어있는지 확인
+    const hasFilters =
+      (filters.categories && filters.categories.length > 0) ||
+      (filters.regions && filters.regions.length > 0) ||
+      filters.priceSet ||
+      filters.rating > 0 ||
+      filters.certified;
+
+    if (!hasFilters) return null;
+
+    // 필터 개수 계산
+    const filterCount =
+      (filters.categories?.length || 0) +
+      (filters.regions?.length || 0) +
+      (filters.priceSet ? 1 : 0) +
+      (filters.rating > 0 ? 1 : 0) +
+      (filters.certified ? 1 : 0);
+
+    return (
+      <Box sx={{ mt: 2, mb: 3 }}>
+        {/* 아코디언 헤더 */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          onClick={() => setExpanded(!expanded)}
+          sx={{
+            py: 1,
+            px: 1.5,
+            bgcolor: "var(--bg-200)",
+            borderRadius: "8px",
+            cursor: "pointer",
+            mb: expanded ? 1 : 0,
+            "&:hover": { bgcolor: "var(--bg-300)" },
+          }}
+        >
+          <Box display="flex" alignItems="center">
+            <Typography variant="subtitle2" fontWeight={600} mr={1}>
+              적용된 필터
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color: "var(--text-300)",
+                bgcolor: "var(--bg-300)",
+                px: 1,
+                py: 0.2,
+                borderRadius: 5,
+                fontWeight: 500,
+              }}
+            >
+              {filterCount}
+            </Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center">
+            <Button
               size="small"
-              onDelete={() => onRemove("price")}
-              sx={{ fontSize: 12 }}
-            />
-          )}
-
-          {filters.rating > 0 && (
-            <Chip
-              label={`${filters.rating}점 이상`}
+              onClick={(e) => {
+                e.stopPropagation(); // 버블링 방지
+                onClear();
+              }}
+              sx={{ color: "var(--text-300)", fontSize: 13, mr: 1 }}
+            >
+              초기화
+            </Button>
+            <IconButton
               size="small"
-              onDelete={() => onRemove("rating")}
-              sx={{ fontSize: 12 }}
-            />
-          )}
-
-          {filters.certified && (
-            <Chip
-              label="인증 멘토만"
-              size="small"
-              onDelete={() => onRemove("certified")}
-              sx={{ fontSize: 12 }}
-            />
-          )}
+              sx={{ p: 0, color: "var(--text-300)" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded(!expanded);
+              }}
+            >
+              {expanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </Box>
         </Box>
+
+        {/* 펼쳐지는 필터 내용 */}
+        <Collapse in={expanded} timeout="auto">
+          <Box sx={{ pt: 1, pb: 1 }}>
+            {/* 카테고리 필터 */}
+            {filters.categories && filters.categories.length > 0 && (
+              <Box mb={1}>
+                <Typography
+                  variant="caption"
+                  color="var(--text-300)"
+                  sx={{ mb: 0.5, display: "block" }}
+                >
+                  카테고리
+                </Typography>
+                <Box display="flex" flexWrap="wrap" gap={0.5}>
+                  {filters.categories.map((cat) => (
+                    <Chip
+                      key={`cat-${cat}`}
+                      label={cat}
+                      size="small"
+                      onDelete={() => onRemove("category", cat)}
+                      sx={{
+                        bgcolor: "var(--action-primary-bg)",
+                        color: "var(--primary-200)",
+                        fontSize: 12,
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* 지역 필터 */}
+            {filters.regions && filters.regions.length > 0 && (
+              <Box mb={1}>
+                <Typography
+                  variant="caption"
+                  color="var(--text-300)"
+                  sx={{ mb: 0.5, display: "block" }}
+                >
+                  지역
+                </Typography>
+                <Box display="flex" flexWrap="wrap" gap={0.5}>
+                  {filters.regions.map((region) => (
+                    <Chip
+                      key={`region-${region}`}
+                      label={region}
+                      size="small"
+                      onDelete={() => onRemove("region", region)}
+                      sx={{
+                        bgcolor: "var(--action-yellow-bg)",
+                        color: "var(--action-yellow)",
+                        fontSize: 12,
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* 기타 필터(가격, 평점, 인증) */}
+            {(filters.priceSet || filters.rating > 0 || filters.certified) && (
+              <Box>
+                <Typography
+                  variant="caption"
+                  color="var(--text-300)"
+                  sx={{ mb: 0.5, display: "block" }}
+                >
+                  기타 조건
+                </Typography>
+                <Box display="flex" flexWrap="wrap" gap={0.5}>
+                  {filters.priceSet && (
+                    <Chip
+                      label={`${filters.price[0].toLocaleString()}원-${filters.price[1].toLocaleString()}원`}
+                      size="small"
+                      onDelete={() => onRemove("price")}
+                      sx={{ fontSize: 12 }}
+                    />
+                  )}
+
+                  {filters.rating > 0 && (
+                    <Chip
+                      label={`${filters.rating}점 이상`}
+                      size="small"
+                      onDelete={() => onRemove("rating")}
+                      sx={{ fontSize: 12 }}
+                    />
+                  )}
+
+                  {filters.certified && (
+                    <Chip
+                      label="인증 멘토만"
+                      size="small"
+                      onDelete={() => onRemove("certified")}
+                      sx={{ fontSize: 12 }}
+                    />
+                  )}
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Collapse>
       </Box>
     );
   };
