@@ -22,16 +22,13 @@ import { ko } from "date-fns/locale";
 import { useUserStore } from "../../store/useUserStore";
 import { useState } from "react";
 import axiosInstance from "../../lib/axiosInstance";
+import messagegif from "../../assets/message.gif";
+import warn from "../../assets/warn.gif";
 
-export default function ReviewCard({ review, onReviewUpdated }) {
+export default function ReviewCard({ review, onReviewUpdated, showToast }) {
   const { userId: currentUserId } = useUserStore();
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "info",
-  });
 
 
   // 안전 체크 및 기본값
@@ -55,7 +52,7 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       // [년,월,일,시,분,초] 형식인 경우 - 백엔드에서 LocalDateTime이 배열로 변환된 경우
       const [year, month, day, hour, minute, second] = review.updatedAt;
       updatedAtDate = new Date(year, month - 1, day, hour, minute, second);
-    } else if (typeof review?.updateddAt === "string") {
+    } else if (typeof review?.updatedAt === "string") {
       // ISO 문자열 형식인 경우 ("2025-05-06T17:42:50")
       updatedAtDate = new Date(review.updatedAt);
     } else {
@@ -97,10 +94,11 @@ export default function ReviewCard({ review, onReviewUpdated }) {
         `/api/review/${reviewId}`,
         { content: editContent, rating: editRating }
       );
-      setSnackbar({ open: true, message: '수정되었습니다.', severity: 'success' });
+      showToast({ open: true, message: '수정되었습니다!', severity: 'success', iconSrc: messagegif
+});
       onReviewUpdated();
     } catch (e) {
-      setSnackbar({ open: true, message: '수정에 실패했습니다.', severity: 'error' });
+      showToast({ open: true, message: '수정에 실패했습니다.', severity: 'error'});
     } finally {
       setEditOpen(false);
     }
@@ -126,10 +124,11 @@ export default function ReviewCard({ review, onReviewUpdated }) {
 
       if (response.data?.success) {
         // 성공적으로 삭제되면 목록 갱신
-        setSnackbar({
+        showToast({
           open: true,
           message: "리뷰가 성공적으로 삭제됐어요.",
           severity: "success",
+          iconSrc: messagegif,
         });
 
         // 부모 컴포넌트에 알림
@@ -141,20 +140,16 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       }
     } catch (err) {
       console.error("리뷰 삭제 오류:", err);
-      setSnackbar({
+      showToast({
         open: true,
         message: err.message || "리뷰 삭제 중 문제가 발생했어요.",
         severity: "error",
+        iconSrc: warn,
       });
     } finally {
       setDeleting(false);
       setDeleteDialogOpen(false);
     }
-  };
-
-  // 스낵바 닫기
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -304,22 +299,6 @@ export default function ReviewCard({ review, onReviewUpdated }) {
           <Button onClick={handleEditSave}>저장</Button>
         </DialogActions>
       </Dialog>
-
-      {/* 스낵바 메시지 */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
