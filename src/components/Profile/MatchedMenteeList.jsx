@@ -24,7 +24,9 @@ import {
   getMatchedMentees,
   cancelLectureMatchingByMatchId,
 } from "../../lib/api/lectureApi";
-import { formatDateFromArray } from "../../utils/messageDate";
+import CustomToast from "../../components/common/CustomToast";
+import warnGif from "../../assets/warn.gif";
+import successGif from "../../assets/heartsmile.gif";
 
 export default function MatchedMenteeList() {
   const [mentees, setMentees] = useState([]);
@@ -34,6 +36,18 @@ export default function MatchedMenteeList() {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedMentee, setSelectedMentee] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
 
   useEffect(() => {
     const fetchMatchedMentees = async () => {
@@ -56,6 +70,12 @@ export default function MatchedMenteeList() {
     fetchMatchedMentees();
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      showToast(error, null, "error");
+    }
+  }, [error]);
+
   const handleCancelClick = (mentee) => {
     setSelectedMentee(mentee);
     setCancelDialogOpen(true);
@@ -77,6 +97,7 @@ export default function MatchedMenteeList() {
         );
         setCancelDialogOpen(false);
         setSelectedMentee(null);
+        showToast("매칭이 성공적으로 취소되었습니다", null, "success");
       } else {
         setError(response.message || "매칭 취소에 실패했습니다.");
       }
@@ -128,7 +149,14 @@ export default function MatchedMenteeList() {
       <TableContainer component={Paper} variant="outlined">
         <Table sx={{ tableLayout: "fixed" }} size="medium">
           <TableHead>
-            <TableRow sx={{ backgroundColor: "var(--bg-200)" }}>
+            <TableRow
+              sx={{
+                backgroundColor: "var(--bg-200)",
+                "& .MuiTableCell-head": {
+                  textAlign: "center",
+                },
+              }}
+            >
               <TableCell
                 sx={{
                   padding: "12px 16px",
@@ -249,7 +277,7 @@ export default function MatchedMenteeList() {
                       },
                     }}
                   >
-                    취소
+                    매칭 취소
                   </Button>
                 </TableCell>
               </TableRow>
@@ -288,7 +316,7 @@ export default function MatchedMenteeList() {
               fontWeight: 500,
             }}
           >
-            매칭 취소
+            취소
           </Button>
           <Button
             onClick={handleConfirmCancel}
@@ -311,6 +339,13 @@ export default function MatchedMenteeList() {
           </Button>
         </DialogActions>
       </Dialog>
+      <CustomToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
+      />
     </Box>
   );
 }
