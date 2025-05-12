@@ -22,7 +22,6 @@ import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
 import fileUploadIcon from "../../assets/file-upload.png";
 import logoImage from "../../assets/navbar-logo.svg";
 import warnGif from "../../assets/warn.gif";
-import menteesuccessGif from "../../assets/smiling-face-with-hearts.gif";
 import mentorsuccessGif from "../../assets/party.gif";
 
 export default function MentorFormView({ showToast }) {
@@ -111,8 +110,7 @@ export default function MentorFormView({ showToast }) {
         await applyMentorProfile(formData);
         updateRole("MENTOR");
         showToast(
-          "멘토 신청이 완료되었습니다. 멘티와의 첫 만남을 준비해보세요!",
-          menteesuccessGif
+          "멘토 신청이 완료되었습니다. 멘티와의 첫 만남을 준비해보세요!"
         );
 
         setTimeout(() => {
