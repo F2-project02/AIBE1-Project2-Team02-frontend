@@ -59,7 +59,7 @@ export default function CertifiedMentorFilterModal({
       <Box
         p={4}
         height={isMobile ? "100vh" : "auto"}
-        bgcolor="#fff"
+        bgcolor="#fefefe"
         display="flex"
         flexDirection="column"
         justifyContent="space-between"

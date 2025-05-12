@@ -80,8 +80,8 @@ export default function LectureTabs({ lecture, loading }) {
             key={tab.value}
             label={tab.label}
             sx={{
-              fontWeight: 600,
-              color: "var(--text-300)",
+              fontWeight: 500,
+              color: "var(--text-400)",
               "&.Mui-selected": {
                 color: "var(--primary-200)",
               },

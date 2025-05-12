@@ -1,22 +1,15 @@
-// 📄 src/components/LectureDetail/MentorProfile.jsx
-
 import {
   Box,
   Typography,
   Chip,
-  Stack,
   Avatar,
   Divider,
   Alert,
-  Button,
-  Link,
-  Tooltip,
 } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
-import AttachFileIcon from "@mui/icons-material/AttachFile";
-import SchoolIcon from "@mui/icons-material/School";
-import TagIcon from "@mui/icons-material/Tag";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useState, useEffect } from "react";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
 
@@ -26,11 +19,9 @@ export default function MentorProfile({ mentor }) {
     count: 0,
   });
 
-  // 멘토 ID가 있으면 평점 정보를 가져옴
   useEffect(() => {
     const fetchMentorRating = async () => {
       if (!mentor || !mentor.mentorId) return;
-
       try {
         const response = await getRatingByMentor({ id: mentor.mentorId });
         if (response.success && response.data) {
@@ -43,11 +34,9 @@ export default function MentorProfile({ mentor }) {
         console.error("멘토 평점 조회 에러:", error);
       }
     };
-
     fetchMentorRating();
   }, [mentor]);
 
-  // 멘토 정보가 없는 경우 처리
   if (!mentor) {
     return (
       <Box>
@@ -61,169 +50,171 @@ export default function MentorProfile({ mentor }) {
     );
   }
 
-  // 안전 확인 및 기본값 설정
-  const profileImage = mentor.profileImage || "/images/default-profile.svg";
-  const nickname = mentor.nickname || "멘토";
-  const isCertified = mentor.isCertified || false;
-  const rating = mentorRating.averageRating || 0;
-  const reviewCount = mentorRating.count || 0;
-  const mbti = mentor.mbti || null;
-  const sex = mentor.sex || null;
-  const education = mentor.education || "";
-  const major = mentor.major || "";
-  const tag = mentor.tag || null;
-  const appealFileUrl = mentor.appealFileUrl || null;
-  const regions = Array.isArray(mentor.regions) ? mentor.regions : [];
-  const introduction =
-    mentor.introduction || mentor.content || "멘토 소개 내용이 없어요.";
+  const {
+    profileImage = "/images/default-profile.svg",
+    nickname = "멘토",
+    isCertified = false,
+    mbti,
+    sex,
+    age,
+    education = "",
+    major = "",
+    appealFileUrl,
+    introduction = "멘토 소개를 작성하지 않았어요.",
+    analysisComment,
+    regions = [],
+  } = mentor;
 
-  // HTML 내용을 안전하게 렌더링하는 함수
-  const createMarkup = (html) => {
-    if (typeof html !== "string") return { __html: "" };
-    return { __html: html };
-  };
-
-  // 소개 내용에 HTML이 포함되어 있는지 확인
+  const rating = mentorRating.averageRating;
+  const reviewCount = mentorRating.count;
   const containsHtml =
     typeof introduction === "string" && introduction.includes("<");
-
-  // 태그 처리 - 한 문장 전체를 하나의 태그로 사용
-  const hasTag = tag && typeof tag === "string" && tag.trim().length > 0;
+  const createMarkup = (html) => ({
+    __html: typeof html === "string" ? html : "",
+  });
 
   return (
     <Box>
-      <Typography variant="h6" fontWeight={600} gutterBottom>
-        멘토 정보
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        textAlign="center"
+        mb={2}
+        fontSize="1.25rem"
+      >
+        멘토 프로필
       </Typography>
 
-      {/* 프로필 이미지 */}
-      <Box display="flex" justifyContent="center" mt={2} mb={1}>
+      <Box display="flex" justifyContent="center">
         <Avatar src={profileImage} sx={{ width: 80, height: 80 }} />
       </Box>
 
-      {/* 닉네임 + 인증 */}
-      <Box display="flex" justifyContent="center" alignItems="center" gap={1}>
-        <Typography fontWeight={600} fontSize="1rem" color="var(--text-100)">
-          {nickname}
-        </Typography>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        gap={1}
+        mt={2}
+      >
+        <Typography fontWeight={600}>{nickname}</Typography>
         {isCertified && (
-          <Tooltip title="인증된 멘토입니다">
-              <SecurityIcon
-                sx={{
-                  fontSize: 16,
-                  fill: "url(#shield-gradient)",
-                }}
-              />
-          </Tooltip>
+          <SecurityIcon sx={{ fontSize: 16, fill: "url(#shield-gradient)" }} />
         )}
       </Box>
 
-      {/* 성별, MBTI, 별점 */}
-      <Stack
-        direction="row"
+      <Box
+        display="flex"
         justifyContent="center"
         alignItems="center"
-        spacing={1}
+        gap={1}
         mt={1}
       >
-        {sex && (
-          <Chip
-            label={sex}
-            size="small"
-            sx={{
-              backgroundColor: "var(--action-primary-bg)",
-              color: "var(--primary-200)",
-              fontWeight: 500,
-              borderRadius: "8px",
-            }}
-          />
-        )}
-
+        <Box display="flex" alignItems="center" gap={0.5}>
+          <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
+          <Typography variant="body2">{rating.toFixed(1)}</Typography>
+          {reviewCount > 0 && (
+            <Typography variant="body2" color="var(--text-300)">
+              ({reviewCount})
+            </Typography>
+          )}
+        </Box>
         {mbti && (
           <Chip
             label={mbti}
             size="small"
             sx={{
+              fontWeight: 600,
               backgroundColor: "var(--action-green-bg)",
               color: "var(--action-green)",
-              fontWeight: 600,
               borderRadius: "8px",
             }}
           />
         )}
+      </Box>
 
-        <Box display="flex" alignItems="center" gap={0.5}>
-          <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
-          <Typography fontSize="0.85rem">
-            {typeof rating === "number" ? rating.toFixed(1) : "0.0"}
-          </Typography>
-          {reviewCount > 0 && (
-            <Typography fontSize="0.75rem" color="var(--text-300)">
-              ({reviewCount})
-            </Typography>
-          )}
-        </Box>
-      </Stack>
-
-      {/* 학력 및 전공 */}
       {(education || major) && (
+        <Typography
+          variant="body2"
+          textAlign="center"
+          mt={1}
+          color="var(--text-300)"
+        >
+          {education} {major}
+        </Typography>
+      )}
+
+      {(age || sex) && (
+        <Typography
+          variant="body2"
+          textAlign="center"
+          mt={0.5}
+          color="var(--text-300)"
+        >
+          {age ? `${age}세` : ""}
+          {age && sex ? " · " : ""}
+          {sex || ""}
+        </Typography>
+      )}
+
+      {regions.length > 0 && (
         <Box
-          mt={2}
           display="flex"
           justifyContent="center"
-          alignItems="center"
+          flexWrap="wrap"
           gap={1}
+          mt={1}
         >
-          <SchoolIcon fontSize="small" sx={{ color: "var(--text-300)" }} />
-          <Typography
-            variant="body2"
-            textAlign="center"
-            color="var(--text-200)"
-          >
-            {education} {major && `${major}`}
+          {regions.map((r, idx) => (
+            <Chip
+              key={idx}
+              label={
+                r.displayName ||
+                [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ")
+              }
+              size="small"
+              sx={{
+                backgroundColor: "var(--action-primary-bg)",
+                color: "var(--primary-200)",
+                fontWeight: 500,
+                borderRadius: "8px",
+              }}
+            />
+          ))}
+        </Box>
+      )}
+
+      <Box
+        mt={3}
+        p={2}
+        borderRadius="8px"
+        sx={{
+          background:
+            "linear-gradient(90deg, rgba(255, 186, 208, 0.2) 0%, rgba(91, 141, 239, 0.2) 100%)",
+          color: "var(--text-200)",
+        }}
+      >
+        <Box display="flex" alignItems="center" gap={1} mb={0.5}>
+          <InfoOutlinedIcon fontSize="small" />
+          <Typography fontWeight={600} fontSize={14}>
+            AI 멘토 분석
           </Typography>
         </Box>
-      )}
+        <Typography fontSize={13} fontWeight={400}>
+          {analysisComment || "아직 후기가 많이 쌓이지 않아 분석할 수 없어요."}
+        </Typography>
+      </Box>
 
-      {/* 포트폴리오 파일 */}
-      {appealFileUrl && (
-        <Box mt={3} textAlign="center">
-          <Button
-            component={Link}
-            href={appealFileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            startIcon={<AttachFileIcon />}
-            variant="outlined"
-            size="small"
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              color: "var(--primary-200)",
-              borderColor: "var(--primary-100)",
-              "&:hover": {
-                borderColor: "var(--primary-200)",
-                backgroundColor: "var(--action-primary-bg)",
-              },
-            }}
-          >
-            포트폴리오 보기
-          </Button>
-        </Box>
-      )}
-
-      {/* 멘토 소개 */}
-      <Divider sx={{ my: 3 }} />
+      <Divider sx={{ my: 2 }} />
       <Typography color="var(--text-100)" variant="subtitle2" fontWeight={600}>
         멘토 소개
       </Typography>
       <Box
         sx={{
-          mt: 2,
+          mt: 1,
           backgroundColor: "var(--bg-100)",
           borderRadius: "12px",
           border: "1px solid var(--bg-300)",
-          p: 3,
+          p: 2,
         }}
       >
         {containsHtml ? (
@@ -234,18 +225,11 @@ export default function MentorProfile({ mentor }) {
                 maxWidth: "100%",
                 height: "auto",
                 borderRadius: "8px",
-                margin: "16px 0",
+                my: 2,
               },
-              "& p": {
-                margin: "0 0 16px 0",
-              },
-              "& ul, & ol": {
-                marginBottom: "16px",
-                paddingLeft: "24px",
-              },
-              "& li": {
-                marginBottom: "8px",
-              },
+              "& p": { mb: 2 },
+              "& ul, & ol": { mb: 2, pl: 3 },
+              "& li": { mb: 1 },
             }}
             dangerouslySetInnerHTML={createMarkup(introduction)}
           />
@@ -259,33 +243,40 @@ export default function MentorProfile({ mentor }) {
         )}
       </Box>
 
-      {/* 태그 (한 문장) */}
-      {hasTag && (
+      {appealFileUrl && (
         <Box mt={3}>
-          <Box display="flex" alignItems="center" gap={1} mb={2}>
-            <TagIcon fontSize="small" sx={{ color: "var(--text-300)" }} />
-            <Typography
-              variant="subtitle2"
-              fontWeight={600}
-              color="var(--text-300)"
-            >
-              멘토 태그
-            </Typography>
-          </Box>
           <Box
+            component="a"
+            href={appealFileUrl}
+            target="_blank"
             sx={{
-              backgroundColor: "var(--action-primary-bg)",
-              color: "var(--primary-200)",
-              borderRadius: "12px",
-              py: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center", 
+              gap: 1.2,
               px: 3,
+              py: 2,
+              backgroundColor: "var(--bg-100)",
+              borderRadius: "12px",
+              border: "none",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+              textDecoration: "none",
+              color: "inherit",
               fontWeight: 500,
-              fontSize: "0.95rem",
-              lineHeight: 1.5,
-              border: "1px solid var(--primary-50)",
+              transition: "all 0.2s",
+              "&:hover": {
+                backgroundColor: "var(--bg-200)",
+              },
             }}
           >
-            {tag}
+            <InsertDriveFileIcon sx={{ color: "var(--primary-100)" }} />
+            <Typography
+              color={"var(--text-300)"}
+              fontSize={14}
+              fontWeight={600}
+            >
+              멘토가 등록한 포트폴리오 보러가기 🚀
+            </Typography>
           </Box>
         </Box>
       )}
