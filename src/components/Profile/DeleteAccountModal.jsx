@@ -25,7 +25,12 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
       }}
     >
       <DialogTitle
-        sx={{ color: "var(--text-100)", fontWeight: 600, fontSize: "1.2rem" }}
+        sx={{
+          color: "var(--text-100)",
+          fontWeight: 600,
+          fontSize: "1.2rem",
+          textAlign: "center",
+        }}
       >
         정말로 탈퇴하시겠습니까?
       </DialogTitle>
