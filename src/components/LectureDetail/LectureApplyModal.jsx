@@ -51,13 +51,9 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
 
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
   const isSlotSelected = (index) => selectedSlotIndex === index;
-
-  const toggleSlot = (index) => {
+  const toggleSlot = (index) =>
     setSelectedSlotIndex((prev) => (prev === index ? null : index));
-  };
-  const selectDay = (day) => {
-    setSelectedDay(selectedDay === day ? null : day);
-  };
+  const selectDay = (day) => setSelectedDay(selectedDay === day ? null : day);
 
   useEffect(() => {
     if (!open) {
@@ -67,7 +63,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
       setFormData(null);
       return;
     }
-
     if (lectureId) {
       const fetchData = async () => {
         setLoading(true);
@@ -76,24 +71,24 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
           setFormData(data);
         } catch (err) {
         } finally {
-          setLoading(false); // 로딩 끝
+          setLoading(false);
         }
       };
       fetchData();
     }
   }, [open, lectureId]);
 
-  const availableDays = useMemo(() => {
-    return [...new Set(formData?.availableTimeSlots?.map((s) => s.dayOfWeek))];
-  }, [formData]);
-
-  const selectedDaySlots = useMemo(() => {
-    return (
+  const availableDays = useMemo(
+    () => [...new Set(formData?.availableTimeSlots?.map((s) => s.dayOfWeek))],
+    [formData]
+  );
+  const selectedDaySlots = useMemo(
+    () =>
       formData?.availableTimeSlots?.filter(
         (s) => s.dayOfWeek === selectedDay
-      ) || []
-    );
-  }, [formData, selectedDay]);
+      ) || [],
+    [formData, selectedDay]
+  );
   const selectedSlot = selectedDaySlots[selectedSlotIndex];
 
   const handleSubmit = async () => {
@@ -109,9 +104,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
     try {
       await applyLecture(payload);
       showToast("수업이 신청 되었어요!", heartsmileGif);
-      setTimeout(() => {
-        onClose();
-      }, 3000);
+      setTimeout(() => onClose(), 3000);
     } catch (error) {
       const errorMessage = error?.response?.data?.message ?? "";
       const codeMatch = errorMessage.match(/\[(.*?)\]/);
@@ -163,23 +156,13 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               </Typography>
             </Stack>
 
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={2}
-              sx={{ mb: 1 }}
-            >
+            <Stack direction="row" alignItems="center" spacing={2} mb={2}>
               <Avatar
                 src={formData?.profileImage || ""}
                 sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
               />
               <Box>
-                <Stack
-                  direction="row"
-                  alignItems="center"
-                  spacing={1}
-                  sx={{ whiteSpace: "nowrap" }}
-                >
+                <Stack direction="row" alignItems="center" spacing={1}>
                   <Typography
                     variant="subtitle1"
                     fontWeight={600}
@@ -189,10 +172,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                   </Typography>
                   {formData?.isCertified && (
                     <SecurityIcon
-                      sx={{
-                        fontSize: 14,
-                        fill: "url(#shield-gradient)",
-                      }}
+                      sx={{ fontSize: 14, fill: "url(#shield-gradient)" }}
                     />
                   )}
                 </Stack>
@@ -227,7 +207,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               </Box>
             </FormFieldWrapper>
 
-            {/* 시간 설정 */}
             <FormFieldWrapper label="시간대 설정">
               <Typography
                 variant="body2"
@@ -236,7 +215,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               >
                 요일을 선택하면 시간대를 설정할 수 있어요.
               </Typography>
-
               {selectedDaySlots.map((slot, index) => (
                 <Box key={index}>
                   {index === 0 && (
@@ -253,7 +231,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                       </Typography>
                     </Box>
                   )}
-
                   <TimeSlotOptionItem
                     slot={{ ...slot, id: index }}
                     checked={isSlotSelected(index)}
@@ -281,23 +258,16 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                   borderRadius: "12px",
                   "& .MuiOutlinedInput-root": {
                     borderRadius: "12px",
-
-                    // 기본 상태
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "var(--bg-300)",
                     },
-
-                    // hover 상태
                     "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "var(--primary-100)", // 예: 호버 시 파란색
+                      borderColor: "var(--primary-100)",
                     },
-
-                    // focus 상태
                     "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "var(--primary-100)", // 예: 포커스 시 더 진한 파란색
+                      borderColor: "var(--primary-100)",
                     },
                   },
-
                   "& textarea": {
                     fontSize: "15px",
                     color: "var(--text-200)",
@@ -305,7 +275,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                   },
                 }}
               />
-              {/* 최대 글자 수 표시 */}
               <Typography
                 textAlign="right"
                 fontSize="13px"
@@ -316,7 +285,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               </Typography>
             </Stack>
 
-            <Box display="flex" gap={2} sx={{ flexShrink: 0 }}>
+            <Box display="flex" gap={2}>
               <Box sx={{ width: "50%", height: "52px" }}>
                 <Button
                   onClick={onClose}
@@ -329,9 +298,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                     borderColor: "var(--bg-300)",
                     color: "var(--text-400)",
                     fontWeight: 600,
-                    ":hover": {
-                      backgroundColor: "var(--bg-200)",
-                    },
+                    ":hover": { backgroundColor: "var(--bg-200)" },
                   }}
                 >
                   닫기
@@ -341,7 +308,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                 <GradientButton
                   fullWidth
                   size="md"
-                  onClick={handleSubmit}
+                  onClick={() => setConfirmOpen(true)}
                   sx={{ height: "100%", borderRadius: "12px", padding: 0 }}
                 >
                   보내기
@@ -351,6 +318,75 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
           </Box>
         </Modal>
       )}
+
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
+            px: 4,
+            py: 3,
+            backgroundColor: "var(--bg-100)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{ fontWeight: 600, fontSize: "1.1rem", textAlign: "center" }}
+        >
+          정말 신청하시겠어요?
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            component="img"
+            src={thinking}
+            alt="생각 중"
+            sx={{
+              display: "block",
+              mx: "auto",
+              my: 2,
+              width: 80,
+              height: 80,
+              borderRadius: "8px",
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", gap: 2 }}>
+          <Button
+            onClick={() => setConfirmOpen(false)}
+            sx={{
+              color: "var(--text-300)",
+              fontWeight: 600,
+              px: 3,
+              borderRadius: "8px",
+              "&:hover": { backgroundColor: "var(--bg-200)" },
+            }}
+          >
+            취소
+          </Button>
+          <Button
+            onClick={() => {
+              handleSubmit();
+              setConfirmOpen(false);
+            }}
+            variant="contained"
+            sx={{
+              background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
+              boxShadow: "none",
+              fontWeight: 500,
+              px: 3,
+              borderRadius: "8px",
+              color: "var(--bg-100)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
+              },
+            }}
+          >
+            신청하기
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <CustomToast
         open={toastOpen}
         onClose={() => setToastOpen(false)}
