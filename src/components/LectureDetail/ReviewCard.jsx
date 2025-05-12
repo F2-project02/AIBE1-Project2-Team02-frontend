@@ -48,24 +48,24 @@ export default function ReviewCard({ review, onReviewUpdated }) {
   // 날짜 처리 부분 - 여러 가능한 형식 대응
   let timeAgo = "";
   try {
-    let createdAtDate;
+    let updatedAtDate;
 
     // 백엔드에서 다양한 형식으로 날짜가 올 수 있음
-    if (Array.isArray(review?.createdAt)) {
+    if (Array.isArray(review?.updatedAt)) {
       // [년,월,일,시,분,초] 형식인 경우 - 백엔드에서 LocalDateTime이 배열로 변환된 경우
-      const [year, month, day, hour, minute, second] = review.createdAt;
-      createdAtDate = new Date(year, month - 1, day, hour, minute, second);
-    } else if (typeof review?.createdAt === "string") {
+      const [year, month, day, hour, minute, second] = review.updatedAt;
+      updatedAtDate = new Date(year, month - 1, day, hour, minute, second);
+    } else if (typeof review?.updateddAt === "string") {
       // ISO 문자열 형식인 경우 ("2025-05-06T17:42:50")
-      createdAtDate = new Date(review.createdAt);
+      updatedAtDate = new Date(review.updatedAt);
     } else {
       // 기본값은 현재 시간
-      createdAtDate = new Date();
+      updatedAtDate = new Date();
     }
 
     // 유효한 날짜인지 확인
-    if (!isNaN(createdAtDate.getTime())) {
-      timeAgo = formatDistanceToNow(createdAtDate, {
+    if (!isNaN(updatedAtDate.getTime())) {
+      timeAgo = formatDistanceToNow(updatedAtDate, {
         addSuffix: true,
         locale: ko,
       });
@@ -73,7 +73,7 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       timeAgo = "날짜 정보 없음";
     }
   } catch (error) {
-    console.error("날짜 변환 오류:", error, review?.createdAt);
+    console.error("날짜 변환 오류:", error, review?.updatedAt);
     timeAgo = "날짜 정보 없음";
   }
 
@@ -81,29 +81,6 @@ export default function ReviewCard({ review, onReviewUpdated }) {
   const isMyReview = writerId === currentUserId;
 
   // 수정 상태 관리
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [editContent, setEditContent] = useState(review.content);
-  // const [editRating, setEditRating]   = useState(review.rating);
-
-  // const handleEditClick    = () => setIsEditing(true);
-  // const handleEditCancel   = () => {
-  //   setIsEditing(false);
-  //   setEditContent(review.content);
-  //   setEditRating(review.rating);
-  // };
-  // const handleEditSave = async () => {
-  //   try {
-  //     await axiosInstance.patch(
-  //       `/api/review/${review.reviewId}`,
-  //       { content: editContent, rating: editRating }
-  //     );
-  //     setIsEditing(false);
-  //     onReviewUpdated(); // 부모에 “리스트 새로고침” 신호
-  //   } catch (err) {
-  //     console.error('리뷰 수정 실패', err);
-  //     alert('리뷰 수정 중 오류가 발생했습니다.');
-  //   }
-  // };
   const [editOpen, setEditOpen] = useState(false);
   const [editContent, setEditContent] = useState(content);
   const [editRating, setEditRating] = useState(rating);

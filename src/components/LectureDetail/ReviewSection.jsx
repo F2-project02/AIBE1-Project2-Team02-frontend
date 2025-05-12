@@ -21,18 +21,25 @@ export default function ReviewSection({ lecture }) {
   const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { isLoggedIn, myLectureIds = [] } = useUserStore();
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const { isLoggedIn, myLectureIds = [], userId } = useUserStore();
 
-  // 로그인한 사용자가 해당 강의를 수강 중인지 확인
-  const canWriteReview =
-    isLoggedIn &&
-    Array.isArray(myLectureIds) &&
-    myLectureIds.includes(lecture?.lectureId);
+
+  // 로그인한 사용자가 해당 강의에 대한 리뷰를 작성했는지 확인
+  useEffect(() => {
+  if (!userId || !lecture?.lectureId) return;
+
+  axiosInstance
+    .get(`/api/review/check/${lecture.lectureId}`)
+    .then(res => setUserHasReviewed(res.data.data.hasReview))
+    .catch(console.error);
+  }, [userId, lecture?.lectureId]);
+
 
   // 리뷰 데이터 로드
   useEffect(() => {
     const fetchReviews = async () => {
-      if (!lecture?.lectureId) return;
+      if (!userId || !lecture?.lectureId) return;
 
       try {
         setLoading(true);
@@ -74,6 +81,14 @@ export default function ReviewSection({ lecture }) {
       fetchReviews();
     }
   }, [lecture]);
+
+
+  // 로그인한 사용자가 해당 강의를 수강 중인지 확인
+  const canWriteReview =
+    isLoggedIn &&
+    Array.isArray(myLectureIds) &&
+    myLectureIds.includes(lecture?.lectureId) &&
+    !userHasReviewed;
 
   // 리뷰 추가 핸들러
   const handleReviewAdded = (newReview) => {
