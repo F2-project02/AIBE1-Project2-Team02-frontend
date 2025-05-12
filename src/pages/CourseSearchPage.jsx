@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -32,13 +33,20 @@ import MobileFilterDrawer from "../components/Search/MobileFilterDrawer";
 import CourseList from "../components/CourseSection/CourseList";
 
 const CourseSearchPage = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialKeyword = queryParams.get("keyword") || "";
+  const initialParent = queryParams.get("parent") || "";
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [isPriceFilterSet, setIsPriceFilterSet] = useState(false);
 
   // 📌 필터 상태 관리
   const [selectedItems, setSelectedItems] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(
+    initialParent ? [initialParent] : []
+  );
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 300000]);
   const [ratingRange, setRatingRange] = useState(0);
@@ -50,13 +58,13 @@ const CourseSearchPage = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
 
   // 📂 3단 카테고리
-  const [selectedParent, setSelectedParent] = useState("");
+  const [selectedParent, setSelectedParent] = useState(initialParent);
   const [selectedMiddle, setSelectedMiddle] = useState("");
   const [selectedSubs, setSelectedSubs] = useState([]);
 
   // 🔍 검색 상태
-  const [keyword, setKeyword] = useState("");
-  const [search, setSearch] = useState("");
+  const [keyword, setKeyword] = useState(initialKeyword);
+  const [search, setSearch] = useState(initialKeyword);
 
   // 📦 강의 데이터
   const [courses, setCourses] = useState([]);

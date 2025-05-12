@@ -2,6 +2,7 @@
 
 import { Box, Typography, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 const categories = [
   { label: "전체보기", icon: "/icons/categories/all.png" },
@@ -17,6 +18,15 @@ const categories = [
 export default function CategoryBar() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (label) => {
+    if (label === "전체보기") {
+      navigate("/search"); // 전체 보기
+    } else {
+      navigate(`/search?parent=${encodeURIComponent(label)}`);
+    }
+  };
 
   return (
     <Box
@@ -33,6 +43,7 @@ export default function CategoryBar() {
       {categories.map(({ label, icon }) => (
         <Box
           key={label}
+          onClick={() => handleCategoryClick(label)}
           display="flex"
           flexDirection="column"
           alignItems="center"
