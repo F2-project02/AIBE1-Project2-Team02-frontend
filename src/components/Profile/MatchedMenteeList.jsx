@@ -29,6 +29,7 @@ import {
   getMatchedMentees,
   cancelLectureMatchingByMatchId,
 } from "../../lib/api/lectureApi";
+import MatchedMenteeListSkeleton from "./skeletons/MatchedMenteeListSkeleton";
 import CustomToast from "../../components/common/CustomToast";
 import warnGif from "../../assets/warn.gif";
 import thumbsupGif from "../../assets/thumbsup.gif";
@@ -122,11 +123,7 @@ export default function MatchedMenteeList() {
   };
 
   if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" p={4}>
-        <CircularProgress />
-      </Box>
-    );
+    return <MatchedMenteeListSkeleton />;
   }
 
   if (error) {
@@ -469,10 +466,7 @@ export default function MatchedMenteeList() {
         variant="h6"
         fontWeight={600}
         mb={3}
-        sx={{
-          textAlign: "center",
-          fontSize: isMobile ? "1.25rem" : "1.5rem",
-        }}
+        sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
       >
         매칭된 수강생 목록
       </Typography>
