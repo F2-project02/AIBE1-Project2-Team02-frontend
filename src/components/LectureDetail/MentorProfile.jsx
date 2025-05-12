@@ -1,3 +1,5 @@
+// 📄 src/components/LectureDetail/MentorProfile.jsx
+
 import {
   Box,
   Typography,
@@ -5,13 +7,15 @@ import {
   Avatar,
   Divider,
   Alert,
+  Tooltip,
 } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 export default function MentorProfile({ mentor }) {
   const [mentorRating, setMentorRating] = useState({
@@ -21,7 +25,7 @@ export default function MentorProfile({ mentor }) {
 
   useEffect(() => {
     const fetchMentorRating = async () => {
-      if (!mentor || !mentor.mentorId) return;
+      if (!mentor?.mentorId) return;
       try {
         const response = await getRatingByMentor({ id: mentor.mentorId });
         if (response.success && response.data) {
@@ -60,18 +64,15 @@ export default function MentorProfile({ mentor }) {
     education = "",
     major = "",
     appealFileUrl,
-    introduction = "멘토 소개를 작성하지 않았어요.",
+    content = "멘토 소개를 작성하지 않았어요.",
     analysisComment,
     regions = [],
   } = mentor;
 
   const rating = mentorRating.averageRating;
   const reviewCount = mentorRating.count;
-  const containsHtml =
-    typeof introduction === "string" && introduction.includes("<");
-  const createMarkup = (html) => ({
-    __html: typeof html === "string" ? html : "",
-  });
+  const containsHtml = typeof content === "string" && content.includes("<");
+  const createMarkup = (html) => ({ __html: html });
 
   return (
     <Box>
@@ -164,22 +165,63 @@ export default function MentorProfile({ mentor }) {
           gap={1}
           mt={1}
         >
-          {regions.map((r, idx) => (
+          {/* 최대 3개까지 Chip 렌더링 */}
+          {regions.slice(0, 3).map((r, idx) => (
             <Chip
-              key={idx}
+              key={`region-${idx}`}
               label={
                 r.displayName ||
                 [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ")
               }
+              icon={
+                <LocationOnIcon
+                  sx={{ fontSize: 14, color: "var(--action-yellow)" }}
+                />
+              }
               size="small"
               sx={{
-                backgroundColor: "var(--action-primary-bg)",
-                color: "var(--primary-200)",
+                backgroundColor: "var(--action-yellow-bg)",
+                color: "var(--action-yellow)",
                 fontWeight: 500,
                 borderRadius: "8px",
+                fontSize: 12,
               }}
             />
           ))}
+
+          {/* 초과된 지역은 +N Chip + Tooltip */}
+          {regions.length > 3 && (
+            <Tooltip
+              arrow
+              placement="top"
+              title={
+                <Box display="flex" flexDirection="column">
+                  {regions.slice(3).map((r, i) => (
+                    <Typography
+                      key={`hidden-region-${i}`}
+                      variant="body2"
+                      sx={{ fontSize: 13, color: "white" }}
+                    >
+                      {r.displayName ||
+                        [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ")}
+                    </Typography>
+                  ))}
+                </Box>
+              }
+            >
+              <Chip
+                label={`+${regions.length - 3}`}
+                size="small"
+                sx={{
+                  backgroundColor: "var(--bg-200)",
+                  color: "var(--text-300)",
+                  fontWeight: 500,
+                  borderRadius: "8px",
+                  fontSize: 12,
+                }}
+              />
+            </Tooltip>
+          )}
         </Box>
       )}
 
@@ -231,14 +273,14 @@ export default function MentorProfile({ mentor }) {
               "& ul, & ol": { mb: 2, pl: 3 },
               "& li": { mb: 1 },
             }}
-            dangerouslySetInnerHTML={createMarkup(introduction)}
+            dangerouslySetInnerHTML={createMarkup(content)}
           />
         ) : (
           <Typography
             variant="body2"
             sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
           >
-            {introduction}
+            {content}
           </Typography>
         )}
       </Box>
@@ -252,7 +294,7 @@ export default function MentorProfile({ mentor }) {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center", 
+              justifyContent: "center",
               gap: 1.2,
               px: 3,
               py: 2,
@@ -275,7 +317,7 @@ export default function MentorProfile({ mentor }) {
               fontSize={14}
               fontWeight={600}
             >
-              멘토가 등록한 포트폴리오 보러가기 🚀
+              멘토가 등록한 포트폴리오 보러가기
             </Typography>
           </Box>
         </Box>
