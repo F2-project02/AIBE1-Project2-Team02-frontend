@@ -8,6 +8,10 @@ import {
   Avatar,
   useMediaQuery,
   useTheme,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
@@ -20,6 +24,7 @@ import SelectableButtonGroup from "../common/SelectableButtonGroup";
 import TimeSlotOptionItem from "../common/TimeSlotOptionItem";
 import CustomToast from "../common/CustomToast";
 import warnGif from "../../assets/warn.gif";
+import thinking from "../../assets/thinking.gif";
 import heartsmileGif from "../../assets/heartsmile.gif";
 
 export default function LectureApplyModal({ lectureId, onClose, open }) {
@@ -33,6 +38,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
   const [toastMessage, setToastMessage] = useState("");
   const [toastIcon, setToastIcon] = useState(null);
   const [toastType, setToastType] = useState("info");
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const showToast = (message, icon = null, type = "info") => {
     setToastMessage(message);
@@ -66,7 +72,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
           const data = await fetchLectureApplyForm(lectureId);
           setFormData(data);
         } catch (err) {
-          console.error("신청 폼 데이터 조회 실패", err);
+          // console.error("신청 폼 데이터 조회 실패", err);
         }
       };
       fetchData();
@@ -101,10 +107,9 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
       showToast("수업이 신청 되었어요!", heartsmileGif);
       setTimeout(() => {
         onClose();
-      }, 2000);
+      }, 3000);
     } catch (error) {
       const errorMessage = error?.response?.data?.message ?? "";
-
       const codeMatch = errorMessage.match(/\[(.*?)\]/);
       const errorCode = codeMatch?.[1];
       if (errorCode === "DUPLICATE_APPLICATION") {
@@ -151,39 +156,42 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
             </Typography>
           </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-            <Avatar
-              src={formData?.profileImage || ""}
-              sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
-            />
-            <Box>
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={1}
-                sx={{ whiteSpace: "nowrap" }}
-              >
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={600}
-                  color="var(--text-100)"
-                >
-                  {formData?.nickname}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            mb={2}
+          >
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Avatar
+                src={formData?.profileImage || ""}
+                sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
+              />
+              <Box>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={600}
+                    color="var(--text-100)"
+                  >
+                    {formData?.nickname}
+                  </Typography>
+                  {formData?.isCertified && (
+                    <SecurityIcon
+                      sx={{
+                        fontSize: 14,
+                        fill: "url(#shield-gradient)",
+                      }}
+                    />
+                  )}
+                </Stack>
+                <Typography variant="body2" color="var(--text-400)">
+                  {formData?.education} {formData?.major}
                 </Typography>
-                {formData?.isCertified && (
-                  <SecurityIcon
-                    sx={{
-                      fontSize: 14,
-                      fill: "url(#shield-gradient)",
-                    }}
-                  />
-                )}
-              </Stack>
-              <Typography variant="body2" color="var(--text-400)">
-                {formData?.education} {formData?.major}
-              </Typography>
-            </Box>
-            <Stack direction="row" spacing={0.5} alignItems="center" ml="auto">
+              </Box>
+            </Stack>
+
+            <Stack direction="row" spacing={0.5} alignItems="center">
               <StarIcon sx={{ fontSize: 16, color: "#FFB400" }} />
               <Typography
                 variant="body2"
@@ -193,7 +201,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                 {(formData?.averageRating ?? 0).toFixed(1)}
               </Typography>
             </Stack>
-          </Stack>
+          </Box>
 
           <FormFieldWrapper label="요일 선택" required>
             <Box sx={{ justifyContent: "flex-start", display: "flex" }}>
@@ -205,7 +213,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
             </Box>
           </FormFieldWrapper>
 
-          {/* 시간 설정 */}
           <FormFieldWrapper label="시간대 설정">
             <Typography variant="body2" color="var(--text-300)" sx={{ mb: 1 }}>
               요일을 선택하면 시간대를 설정할 수 있어요.
@@ -290,7 +297,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               <GradientButton
                 fullWidth
                 size="md"
-                onClick={handleSubmit}
+                onClick={() => setConfirmOpen(true)}
                 sx={{ height: "100%", borderRadius: "12px", padding: 0 }}
               >
                 보내기
@@ -299,6 +306,76 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
           </Box>
         </Box>
       </Modal>
+
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: "16px",
+            px: 4,
+            py: 3,
+            backgroundColor: "var(--bg-100)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{ fontWeight: 600, fontSize: "1.1rem", textAlign: "center" }}
+        >
+          정말 신청하시겠어요?
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            component="img"
+            src={thinking}
+            alt="생각 중"
+            sx={{
+              display: "block",
+              mx: "auto",
+              my: 2,
+              width: 80,
+              height: 80,
+              borderRadius: "8px",
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", gap: 2 }}>
+          <Button
+            onClick={() => setConfirmOpen(false)}
+            sx={{
+              color: "var(--text-300)",
+              fontWeight: 600,
+              px: 3,
+              borderRadius: "8px",
+              "&:hover": {
+                backgroundColor: "var(--bg-200)",
+              },
+            }}
+          >
+            취소
+          </Button>
+          <Button
+            onClick={() => {
+              handleSubmit();
+              setConfirmOpen(false);
+            }}
+            variant="contained"
+            sx={{
+              background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
+              boxShadow: "none",
+              fontWeight: 500,
+              px: 3,
+              borderRadius: "8px",
+              color: "var(--bg-100)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #F7A8C3, #4E79DA)",
+              },
+            }}
+          >
+            신청하기
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <CustomToast
         open={toastOpen}

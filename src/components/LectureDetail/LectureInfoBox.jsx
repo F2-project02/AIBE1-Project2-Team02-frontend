@@ -1,94 +1,92 @@
-// 📄 src/components/LectureDetail/LectureInfoBox.jsx
-
 import { useState } from "react";
-import {
-  Box,
-  Typography,
-  Stack,
-  Button,
-  FormControlLabel,
-  Switch,
-  Snackbar,
-  Alert,
-  CircularProgress,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, Stack, Button } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import RoomIcon from "@mui/icons-material/Room";
 import { useUserStore } from "../../store/useUserStore";
-import LectureApplyModal from "./LectureApplyModal";
 import useLecturePermission from "../../hooks/useLecturePermission";
+import LectureApplyModal from "./LectureApplyModal";
+import CustomToast from "../common/CustomToast";
+import warnGif from "../../assets/warn.gif";
+import smileGif from "../../assets/heartsmile.gif";
 
 export default function LectureInfoBox({ lecture }) {
   const { isLoggedIn } = useUserStore();
-  const { hasPermission, isOwner } = useLecturePermission(lecture);
+  const { isOwner } = useLecturePermission(lecture);
   const [openApply, setOpenApply] = useState(false);
-  const [isClosed, setIsClosed] = useState(lecture?.isClosed || false);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
-  const [snackbar, setSnackbar] = useState({
+
+  const [toast, setToast] = useState({
     open: false,
     message: "",
     severity: "info",
+    icon: null,
   });
 
-  // 디버깅용 로그
-  console.log("작성자 여부(isOwner):", isOwner);
-  console.log("강의 마감 여부(isClosed):", lecture?.isClosed);
-
-  // 안전 확인 및 기본값 설정
-  if (!lecture) {
-    return (
-      <Box
-        sx={{
-          p: 3,
-          borderRadius: 1,
-          boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
-          backgroundColor: "var(--bg-100)",
-          minWidth: 280,
-          width: "100%",
-        }}
-      >
-        <Alert severity="warning">강의 정보를 불러올 수 없어요.</Alert>
-      </Box>
-    );
-  }
-
-  // 스낵바 닫기
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
   };
 
-  // 데이터 안전하게 가져오기
-  const lecturePrice = lecture.price || 0;
-  const timeSlots = lecture.availableTimeSlots || [];
-  const regions = lecture.regions || [];
-
-  // 요일 추출하기
-  const getDaysOfWeek = () => {
-    if (!timeSlots || timeSlots.length === 0) return "요일 정보 없음";
-
-    // 타입 체크 후 데이터 추출
-    const days = timeSlots
-      .map((slot) => slot.dayOfWeek || slot.day || "")
-      .filter(Boolean);
-
-    // 중복 제거 후 문자열로 변환
-    return [...new Set(days)].join(", ") || "요일 정보 없음";
-  };
-
-  // 신청하기 버튼 클릭 핸들러
   const handleApplyClick = () => {
     if (lecture.isClosed) {
-      setSnackbar({
+      setToast({
         open: true,
-        message: "이미 마감된 강의입니다.",
-        severity: "warning",
+        message: "이런, 이미 마감된 강의예요",
+        severity: "error",
+        icon: warnGif,
       });
     } else {
       setOpenApply(true);
     }
   };
+
+  const handleLikeClick = () => {
+    setToast({
+      open: true,
+      message: "찜하기는 곧 구현될 기능이에요!",
+      severity: "info",
+      icon: smileGif,
+    });
+  };
+
+  const getDaysOfWeek = () => {
+    const timeSlots = lecture.availableTimeSlots || [];
+    if (timeSlots.length === 0) return "요일 정보 없음";
+
+    const days = timeSlots
+      .map((slot) => slot.dayOfWeek || slot.day || "")
+      .filter(Boolean);
+
+    return [...new Set(days)].join(", ") || "요일 정보 없음";
+  };
+
+  const lecturePrice = lecture.price || 0;
+  const timeSlots = lecture.availableTimeSlots || [];
+  const regions = lecture.regions || [];
+
+  if (!lecture) {
+    return (
+      <>
+        <Box
+          sx={{
+            p: 3,
+            borderRadius: 1,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.06)",
+            backgroundColor: "var(--bg-100)",
+            minWidth: 280,
+            width: "100%",
+          }}
+        />
+        <CustomToast
+          open={true}
+          onClose={() => {}}
+          message="강의 정보를 불러올 수 없어요."
+          type="error"
+          duration={4000}
+          iconSrc={warnGif}
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -114,6 +112,7 @@ export default function LectureInfoBox({ lecture }) {
             / 회
           </Typography>
         </Typography>
+
         {/* 수업 요일 */}
         <Stack direction="row" alignItems="center" spacing={1} mt={2}>
           <EventIcon sx={{ color: "var(--text-300)", fontSize: 20 }} />
@@ -124,6 +123,7 @@ export default function LectureInfoBox({ lecture }) {
         <Typography variant="body2" color="var(--text-100)" ml={3} mt={0.5}>
           {getDaysOfWeek()}
         </Typography>
+
         {/* 수업 시간 */}
         <Stack direction="row" alignItems="center" spacing={1} mt={2}>
           <ScheduleIcon sx={{ color: "var(--text-300)", fontSize: 20 }} />
@@ -149,7 +149,7 @@ export default function LectureInfoBox({ lecture }) {
           )}
         </Stack>
 
-        {/* 지역 */}
+        {/* 과외 지역 */}
         <Stack direction="row" alignItems="center" spacing={1} mt={2}>
           <RoomIcon sx={{ color: "var(--text-300)", fontSize: 20 }} />
           <Typography variant="body2" color="var(--text-200)">
@@ -157,7 +157,7 @@ export default function LectureInfoBox({ lecture }) {
           </Typography>
         </Stack>
         <Stack spacing={0.5} ml={3} mt={0.5}>
-          {regions && regions.length > 0 ? (
+          {regions.length > 0 ? (
             regions.map((r, i) => (
               <Typography key={i} variant="body2" color="var(--text-100)">
                 {typeof r === "string"
@@ -172,10 +172,9 @@ export default function LectureInfoBox({ lecture }) {
           )}
         </Stack>
 
-        {/* 액션 버튼 - 작성자가 아닌 경우에만 버튼들 표시 */}
+        {/* 액션 버튼 */}
         {isLoggedIn && !isOwner && (
           <Stack spacing={1.5} mt={4}>
-            {/* 모집중인 경우에만 신청하기 버튼 표시 */}
             {!lecture.isClosed && (
               <Button
                 fullWidth
@@ -183,7 +182,7 @@ export default function LectureInfoBox({ lecture }) {
                 onClick={handleApplyClick}
                 sx={{
                   background: "linear-gradient(90deg, #FFBAD0, #5B8DEF)",
-                  color: "#fff",
+                  color: "var(--bg-100)",
                   fontWeight: 600,
                   borderRadius: "12px",
                   py: 1.5,
@@ -195,11 +194,10 @@ export default function LectureInfoBox({ lecture }) {
                 수업 신청하기
               </Button>
             )}
-
-            {/* 찜하기 버튼은 항상 표시 */}
             <Button
               fullWidth
               variant="outlined"
+              onClick={handleLikeClick}
               sx={{
                 borderRadius: "12px",
                 color: "var(--text-300)",
@@ -215,26 +213,22 @@ export default function LectureInfoBox({ lecture }) {
             </Button>
           </Stack>
         )}
-        {/* 스낵바 메시지 */}
-        <Snackbar
-          open={snackbar.open}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <Alert
-            onClose={handleCloseSnackbar}
-            severity={snackbar.severity}
-            sx={{ width: "100%" }}
-          >
-            {snackbar.message}
-          </Alert>
-        </Snackbar>
+
+        {/* 토스트 알림 */}
+        <CustomToast
+          open={toast.open}
+          onClose={handleCloseToast}
+          message={toast.message}
+          type={toast.severity}
+          duration={4000}
+          iconSrc={toast.icon}
+        />
       </Box>
+
       <LectureApplyModal
         lectureId={lecture.lectureId}
-        onClose={() => setOpenApply(false)}
         open={openApply}
+        onClose={() => setOpenApply(false)}
       />
     </>
   );
