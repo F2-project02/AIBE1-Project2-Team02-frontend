@@ -194,14 +194,6 @@ export async function fetchLectureApplyForm(lectureId) {
  */
 
 export const applyLecture = async (payload) => {
-  try {
-    const response = await axiosInstance.post(
-      `/api/application/apply`,
-      payload
-    );
-    return response.data;
-  } catch (error) {
-    console.error("수업 신청 실패", error);
-    throw error;
-  }
+  const response = await axiosInstance.post(`/api/application/apply`, payload);
+  return response.data;
 };
