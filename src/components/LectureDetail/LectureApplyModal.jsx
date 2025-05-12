@@ -9,7 +9,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -171,9 +171,11 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                   {formData?.nickname}
                 </Typography>
                 {formData?.isCertified && (
-                  <ShieldIcon
-                    fontSize="small"
-                    sx={{ color: "var(--primary-100)" }}
+                  <SecurityIcon
+                    sx={{
+                      fontSize: 14,
+                      fill: "url(#shield-gradient)",
+                    }}
                   />
                 )}
               </Stack>

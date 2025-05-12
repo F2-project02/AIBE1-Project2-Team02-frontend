@@ -1,6 +1,6 @@
 // src/pages/MyPage.jsx
 import { useState, useEffect } from "react";
-import { Box, useMediaQuery, useTheme } from "@mui/material";
+import { Box, CircularProgress, useMediaQuery, useTheme } from "@mui/material";
 import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageUploader from "../components/Profile/ProfileImageUploader";
 import MyPageSidebar from "../components/Profile/MyPageSidebar";
