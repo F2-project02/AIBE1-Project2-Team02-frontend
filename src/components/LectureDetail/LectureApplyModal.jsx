@@ -163,49 +163,59 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               </Typography>
             </Stack>
 
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-            <Avatar
-              src={formData?.profileImage || ""}
-              sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
-            />
-            <Box>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={2}
+              sx={{ mb: 1 }}
+            >
+              <Avatar
+                src={formData?.profileImage || ""}
+                sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
+              />
+              <Box>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={1}
+                  sx={{ whiteSpace: "nowrap" }}
+                >
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={600}
+                    color="var(--text-100)"
+                  >
+                    {formData?.nickname}
+                  </Typography>
+                  {formData?.isCertified && (
+                    <SecurityIcon
+                      sx={{
+                        fontSize: 14,
+                        fill: "url(#shield-gradient)",
+                      }}
+                    />
+                  )}
+                </Stack>
+                <Typography variant="body2" color="var(--text-400)">
+                  {formData?.education} {formData?.major}
+                </Typography>
+              </Box>
               <Stack
                 direction="row"
+                spacing={0.5}
                 alignItems="center"
-                spacing={1}
-                sx={{ whiteSpace: "nowrap" }}
+                ml="auto"
               >
+                <StarIcon sx={{ fontSize: 16, color: "#FFB400" }} />
                 <Typography
-                  variant="subtitle1"
+                  variant="body2"
                   fontWeight={600}
                   color="var(--text-100)"
                 >
-                  {formData?.nickname}
+                  {(formData?.averageRating ?? 0).toFixed(1)}
                 </Typography>
-                {formData?.isCertified && (
-                  <SecurityIcon
-                    sx={{
-                      fontSize: 14,
-                      fill: "url(#shield-gradient)",
-                    }}
-                  />
-                )}
               </Stack>
-              <Typography variant="body2" color="var(--text-400)">
-                {formData?.education} {formData?.major}
-              </Typography>
-            </Box>
-            <Stack direction="row" spacing={0.5} alignItems="center" ml="auto">
-              <StarIcon sx={{ fontSize: 16, color: "#FFB400" }} />
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                color="var(--text-100)"
-              >
-                {(formData?.averageRating ?? 0).toFixed(1)}
-              </Typography>
             </Stack>
-          </Stack>
 
             <FormFieldWrapper label="요일 선택" required>
               <Box sx={{ justifyContent: "flex-start", display: "flex" }}>
@@ -217,11 +227,15 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               </Box>
             </FormFieldWrapper>
 
-          {/* 시간 설정 */}
-          <FormFieldWrapper label="시간대 설정">
-            <Typography variant="body2" color="var(--text-300)" sx={{ mb: 1 }}>
-              요일을 선택하면 시간대를 설정할 수 있어요.
-            </Typography>
+            {/* 시간 설정 */}
+            <FormFieldWrapper label="시간대 설정">
+              <Typography
+                variant="body2"
+                color="var(--text-300)"
+                sx={{ mb: 1 }}
+              >
+                요일을 선택하면 시간대를 설정할 수 있어요.
+              </Typography>
 
               {selectedDaySlots.map((slot, index) => (
                 <Box key={index}>
@@ -302,41 +316,41 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               </Typography>
             </Stack>
 
-          <Box display="flex" gap={2} sx={{ flexShrink: 0 }}>
-            <Box sx={{ width: "50%", height: "52px" }}>
-              <Button
-                onClick={onClose}
-                variant="outlined"
-                fullWidth
-                sx={{
-                  height: "100%",
-                  backgroundColor: "var(--bg-100)",
-                  borderRadius: "12px",
-                  borderColor: "var(--bg-300)",
-                  color: "var(--text-400)",
-                  fontWeight: 600,
-                  ":hover": {
-                    backgroundColor: "var(--bg-200)",
-                  },
-                }}
-              >
-                닫기
-              </Button>
-            </Box>
-            <Box sx={{ width: "50%", height: "52px" }}>
-              <GradientButton
-                fullWidth
-                size="md"
-                onClick={handleSubmit}
-                sx={{ height: "100%", borderRadius: "12px", padding: 0 }}
-              >
-                보내기
-              </GradientButton>
+            <Box display="flex" gap={2} sx={{ flexShrink: 0 }}>
+              <Box sx={{ width: "50%", height: "52px" }}>
+                <Button
+                  onClick={onClose}
+                  variant="outlined"
+                  fullWidth
+                  sx={{
+                    height: "100%",
+                    backgroundColor: "var(--bg-100)",
+                    borderRadius: "12px",
+                    borderColor: "var(--bg-300)",
+                    color: "var(--text-400)",
+                    fontWeight: 600,
+                    ":hover": {
+                      backgroundColor: "var(--bg-200)",
+                    },
+                  }}
+                >
+                  닫기
+                </Button>
+              </Box>
+              <Box sx={{ width: "50%", height: "52px" }}>
+                <GradientButton
+                  fullWidth
+                  size="md"
+                  onClick={handleSubmit}
+                  sx={{ height: "100%", borderRadius: "12px", padding: 0 }}
+                >
+                  보내기
+                </GradientButton>
+              </Box>
             </Box>
           </Box>
-        </Box>
-      </Modal>
-
+        </Modal>
+      )}
       <CustomToast
         open={toastOpen}
         onClose={() => setToastOpen(false)}
