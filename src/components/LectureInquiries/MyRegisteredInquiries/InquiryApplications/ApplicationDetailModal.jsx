@@ -8,7 +8,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 
@@ -78,10 +78,12 @@ export default function ApplicationDetailModal({ open, onClose, data }) {
                 {nickname}
               </Typography>
               {isCertified && (
-                <ShieldIcon
-                  fontSize="small"
-                  sx={{ color: "var(--primary-100)" }}
-                />
+              <SecurityIcon
+              sx={{
+                fontSize: 16,
+                fill: "url(#shield-gradient)",
+              }}
+            />
               )}
             </Stack>
             <Typography variant="body2" color="var(--text-400)">
