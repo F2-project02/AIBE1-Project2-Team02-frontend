@@ -12,7 +12,7 @@ import TextStyle from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Heading from "@tiptap/extension-heading";
 import Placeholder from "@tiptap/extension-placeholder";
-import { Box, CircularProgress } from "@mui/material";
+import { Box } from "@mui/material";
 import axiosInstance from "../../lib/axiosInstance";
 
 import Toolbar from "./Toolbar";
