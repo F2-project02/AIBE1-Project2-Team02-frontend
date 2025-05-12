@@ -98,10 +98,6 @@ const CourseSearchPage = () => {
 
           // 중복 제거
           params.categories = [...new Set(specificCategories)].filter(Boolean);
-
-          // 디버그용 로그
-          console.log("선택된 카테고리:", selectedCategory);
-          console.log("전송되는 카테고리 파라미터:", params.categories);
         }
 
         // 지역 필터

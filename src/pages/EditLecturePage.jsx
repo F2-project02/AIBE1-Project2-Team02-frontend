@@ -169,9 +169,6 @@ export default function EditLecturePage() {
       showToast("빠진 정보가 없는지 확인해주세요.");
       return;
     }
-    console.log("제출할 강의 데이터:", formData);
-    console.log("제출할 description:", formData.description);
-    console.log("제출할 curriculum:", formData.curriculum);
 
     try {
       setIsLoading(true);

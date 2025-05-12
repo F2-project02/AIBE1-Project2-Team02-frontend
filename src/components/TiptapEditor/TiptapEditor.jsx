@@ -43,7 +43,6 @@ export default function TiptapEditor({ value, onChange, placeholder }) {
       const html = editor.getHTML();
       setEditorContent(html);
       if (onChange) {
-        console.log("에디터 내용 변경:", html);
         onChange(html);
       }
     },
@@ -67,8 +66,6 @@ export default function TiptapEditor({ value, onChange, placeholder }) {
       formData.append("file", file);
       formData.append("directory", "lecture-images");
 
-      console.log("업로드할 파일:", file.name, file.type, file.size);
-
       const response = await axiosInstance.post(
         "/api/lectures/images/upload",
         formData,
@@ -78,8 +75,6 @@ export default function TiptapEditor({ value, onChange, placeholder }) {
           },
         }
       );
-
-      console.log("응답 데이터:", response.data);
 
       if (response.data.success) {
         const imageUrl = response.data.data;
@@ -91,8 +86,6 @@ export default function TiptapEditor({ value, onChange, placeholder }) {
         const updatedContent = editor.getHTML();
         setEditorContent(updatedContent);
 
-        console.log("이미지 삽입 후 에디터 내용:", updatedContent);
-
         if (onChange) {
           onChange(updatedContent);
         }
@@ -100,7 +93,6 @@ export default function TiptapEditor({ value, onChange, placeholder }) {
         throw new Error(response.data.message || "이미지 업로드 실패");
       }
     } catch (error) {
-      console.error("이미지 업로드 오류:", error);
       alert("이미지 업로드 중 오류가 발생했습니다");
     } finally {
       setUploading(false);
@@ -135,7 +127,6 @@ export default function TiptapEditor({ value, onChange, placeholder }) {
             zIndex: 10,
           }}
         >
-          <CircularProgress size={40} color="primary" />
           <Box ml={2}>이미지 업로드 중...</Box>
         </Box>
       )}
