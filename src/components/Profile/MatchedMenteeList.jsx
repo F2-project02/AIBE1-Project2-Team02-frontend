@@ -78,31 +78,80 @@ export default function MatchedMenteeList() {
       </Typography>
 
       <TableContainer component={Paper} variant="outlined">
-        <Table>
+        <Table sx={{ tableLayout: "fixed" }} size="medium">
           <TableHead>
             <TableRow sx={{ backgroundColor: "var(--bg-200)" }}>
-              <TableCell>수강생</TableCell>
-              <TableCell>과외명</TableCell>
-              <TableCell>시간대</TableCell>
-              <TableCell>매칭일</TableCell>
+              <TableCell
+                sx={{
+                  padding: "12px 16px",
+                  width: "160px",
+                  overflow: "hidden",
+                }}
+              >
+                수강생
+              </TableCell>
+              <TableCell sx={{ padding: "12px 16px" }}>과외명</TableCell>
+              <TableCell sx={{ padding: "12px 16px", width: "130px" }}>
+                시간대
+              </TableCell>
+              <TableCell sx={{ padding: "12px 16px", width: "110px" }}>
+                매칭일
+              </TableCell>
+              <TableCell sx={{ padding: "12px 16px", width: "80px" }}>
+                관리
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {mentees.map((mentee) => (
               <TableRow key={mentee.matchId} hover>
-                <TableCell>
-                  <Box display="flex" alignItems="center" gap={2}>
+                <TableCell sx={{ padding: "12px 16px" }}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                    sx={{
+                      maxWidth: "100%",
+                    }}
+                  >
                     <Avatar
                       src={mentee.profileImage || "/images/default-profile.svg"}
                       alt={mentee.nickname}
-                      sx={{ width: 40, height: 40 }}
+                      sx={{ width: 40, height: 40, flexShrink: 0 }}
                     />
-                    <Typography variant="body2" fontWeight={500}>
+                    <Typography
+                      variant="body2"
+                      fontWeight={500}
+                      sx={{
+                        width: "85px",
+                        textOverflow: "ellipsis",
+                        wordWrap: "break-word",
+                        display: "flex",
+                        alignItems: "center",
+                        maxWidth: "85px",
+                        wordBreak: "break-all",
+                        overflowWrap: "break-word",
+                        boxSizing: "border-box",
+                      }}
+                    >
                       {mentee.nickname}
                     </Typography>
                   </Box>
                 </TableCell>
-                <TableCell>{mentee.lectureTitle}</TableCell>
+                <TableCell>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      maxWidth: "200px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "block",
+                    }}
+                  >
+                    {mentee.lectureTitle}
+                  </Typography>
+                </TableCell>
                 <TableCell>
                   {mentee.matchedTimeSlots ? (
                     <Box display="flex" flexWrap="wrap" gap={0.5}>
@@ -124,9 +173,11 @@ export default function MatchedMenteeList() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {mentee.joinedAt
-                    ? formatDateFromArray(mentee.joinedAt).split(" ")[0]
-                    : "-"}
+                  <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+                    {mentee.joinedAt
+                      ? formatDateFromArray(mentee.joinedAt).split(" ")[0]
+                      : "-"}
+                  </Typography>
                 </TableCell>
               </TableRow>
             ))}

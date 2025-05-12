@@ -63,6 +63,7 @@ export default function ProfileCard({
         mb: 4,
         p: { xs: 2, sm: 0 },
         width: "100%",
+        overflow: "visible",
       }}
     >
       {/* 프로필 이미지 */}
@@ -74,10 +75,18 @@ export default function ProfileCard({
           height: { xs: 100, sm: 80 },
           mr: { xs: 0, sm: 3 },
           mb: { xs: 2, sm: 0 },
+          flexShrink: 0,
         }}
       />
 
-      <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
+      <Box
+        sx={{
+          textAlign: { xs: "center", sm: "left" },
+          flex: 3,
+          whiteSpace: "nowrap",
+          overflow: "visible",
+        }}
+      >
         {/* 닉네임과 인증 아이콘을 포함한 상단 행 */}
         <Box
           sx={{
@@ -85,9 +94,20 @@ export default function ProfileCard({
             alignItems: "center",
             mb: 0.5,
             justifyContent: { xs: "center", sm: "flex-start" },
+            whiteSpace: "nowrap",
+            width: "100%",
+            overflow: "visible",
           }}
         >
-          <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.8rem" }}>
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            sx={{
+              fontSize: "1.8rem",
+              whiteSpace: "nowrap",
+              overflow: "visible",
+            }}
+          >
             {profileData?.nickname || ""}
           </Typography>
 
@@ -128,7 +148,11 @@ export default function ProfileCard({
         <Typography
           variant="body2"
           color="var(--text-300)"
-          sx={{ fontSize: "0.95rem" }}
+          sx={{
+            fontSize: "0.95rem",
+            whiteSpace: "nowrap",
+            overflow: "visible",
+          }}
         >
           {mentorProfile?.education || ""} {mentorProfile?.major || ""}
         </Typography>
@@ -145,6 +169,7 @@ export default function ProfileCard({
             justifyContent: { xs: "center", sm: "flex-start" },
             width: "100%",
             alignSelf: { xs: "center", sm: "center" },
+            flexShrink: 0,
           }}
         >
           <Box
@@ -152,6 +177,7 @@ export default function ProfileCard({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              whiteSpace: "nowrap",
             }}
           >
             <StarIcon
@@ -161,7 +187,14 @@ export default function ProfileCard({
                 fontSize: 28,
               }}
             />
-            <Typography variant="body1" fontWeight={600} fontSize="1.1rem">
+            <Typography
+              variant="body1"
+              fontWeight={600}
+              fontSize="1.1rem"
+              sx={{
+                whiteSpace: "nowrap",
+              }}
+            >
               {rating > 0 ? rating.toFixed(1) : "아직 평점이 없습니다"}
             </Typography>
           </Box>
