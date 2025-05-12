@@ -15,55 +15,54 @@ import {
   DialogTitle,
   Snackbar,
   Alert,
+  TextField
 } from "@mui/material";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useUserStore } from "../../store/useUserStore";
 import { useState } from "react";
 import axiosInstance from "../../lib/axiosInstance";
+import messagegif from "../../assets/message.gif";
+import warn from "../../assets/warn.gif";
 
-export default function ReviewCard({ review, onReviewUpdated }) {
+export default function ReviewCard({ review, onReviewUpdated, showToast }) {
   const { userId: currentUserId } = useUserStore();
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "info",
-  });
+
 
   // 안전 체크 및 기본값
   const reviewId = review?.reviewId || 0;
   const lectureId = review?.lectureId;
   const writerId = review?.writer?.userId || review?.writerId;
   const writerNickname =
-    review?.writer?.nickname || review?.writerNickname || "사용자";
+    review.writerNickname || review.writer?.nickname || "사용자";
   const writerImage =
-    review?.writer?.profileImage || "/images/default-profile.svg";
+    review.writerProfileImage || review.writer?.profileImage || "/images/default-profile.svg";
   const content = review?.content || "";
   const rating = review?.rating || 0;
 
   // 날짜 처리 부분 - 여러 가능한 형식 대응
   let timeAgo = "";
   try {
-    let createdAtDate;
+    let updatedAtDate;
 
     // 백엔드에서 다양한 형식으로 날짜가 올 수 있음
-    if (Array.isArray(review?.createdAt)) {
+    if (Array.isArray(review?.updatedAt)) {
       // [년,월,일,시,분,초] 형식인 경우 - 백엔드에서 LocalDateTime이 배열로 변환된 경우
-      const [year, month, day, hour, minute, second] = review.createdAt;
-      createdAtDate = new Date(year, month - 1, day, hour, minute, second);
-    } else if (typeof review?.createdAt === "string") {
+      const [year, month, day, hour, minute, second] = review.updatedAt;
+      updatedAtDate = new Date(year, month - 1, day, hour, minute, second);
+    } else if (typeof review?.updatedAt === "string") {
       // ISO 문자열 형식인 경우 ("2025-05-06T17:42:50")
-      createdAtDate = new Date(review.createdAt);
+      updatedAtDate = new Date(review.updatedAt);
     } else {
       // 기본값은 현재 시간
-      createdAtDate = new Date();
+      updatedAtDate = new Date();
     }
 
     // 유효한 날짜인지 확인
-    if (!isNaN(createdAtDate.getTime())) {
-      timeAgo = formatDistanceToNow(createdAtDate, {
+    if (!isNaN(updatedAtDate.getTime())) {
+      timeAgo = formatDistanceToNow(updatedAtDate, {
         addSuffix: true,
         locale: ko,
       });
@@ -71,12 +70,39 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       timeAgo = "날짜 정보 없음";
     }
   } catch (error) {
-    console.error("날짜 변환 오류:", error, review?.createdAt);
+    console.error("날짜 변환 오류:", error, review?.updatedAt);
     timeAgo = "날짜 정보 없음";
   }
 
   // 현재 로그인한 사용자의 리뷰인지 확인
   const isMyReview = writerId === currentUserId;
+
+  // 수정 상태 관리
+  const [editOpen, setEditOpen] = useState(false);
+  const [editContent, setEditContent] = useState(content);
+  const [editRating, setEditRating] = useState(rating);
+
+  const handleEdit = () => setEditOpen(true);
+  const handleEditClose = () => {
+    setEditOpen(false);
+    setEditContent(content);
+    setEditRating(rating);
+  };
+  const handleEditSave = async () => {
+    try {
+      await axiosInstance.patch(
+        `/api/review/${reviewId}`,
+        { content: editContent, rating: editRating }
+      );
+      showToast({ open: true, message: '수정되었습니다!', severity: 'success', iconSrc: messagegif
+});
+      onReviewUpdated();
+    } catch (e) {
+      showToast({ open: true, message: '수정에 실패했습니다.', severity: 'error'});
+    } finally {
+      setEditOpen(false);
+    }
+  };
 
   // 삭제 다이얼로그 열기
   const handleOpenDeleteDialog = () => {
@@ -98,10 +124,11 @@ export default function ReviewCard({ review, onReviewUpdated }) {
 
       if (response.data?.success) {
         // 성공적으로 삭제되면 목록 갱신
-        setSnackbar({
+        showToast({
           open: true,
           message: "리뷰가 성공적으로 삭제됐어요.",
           severity: "success",
+          iconSrc: messagegif,
         });
 
         // 부모 컴포넌트에 알림
@@ -113,20 +140,16 @@ export default function ReviewCard({ review, onReviewUpdated }) {
       }
     } catch (err) {
       console.error("리뷰 삭제 오류:", err);
-      setSnackbar({
+      showToast({
         open: true,
         message: err.message || "리뷰 삭제 중 문제가 발생했어요.",
         severity: "error",
+        iconSrc: warn,
       });
     } finally {
       setDeleting(false);
       setDeleteDialogOpen(false);
     }
-  };
-
-  // 스낵바 닫기
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
   };
 
   return (
@@ -187,6 +210,8 @@ export default function ReviewCard({ review, onReviewUpdated }) {
         <Stack direction="row" spacing={2} justifyContent="flex-end" mt={2}>
           <Button
             variant="outlined"
+            onClick={handleEdit}
+            disabled={deleting}
             sx={{
               borderRadius: "8px",
               fontWeight: 600,
@@ -253,21 +278,27 @@ export default function ReviewCard({ review, onReviewUpdated }) {
         </DialogActions>
       </Dialog>
 
-      {/* 스낵바 메시지 */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      {/* 수정 다이얼로그 */}
+      <Dialog open={editOpen} onClose={handleEditClose}>
+        <DialogTitle>리뷰 수정</DialogTitle>
+        <DialogContent>
+          <Rating
+            value={editRating}
+            onChange={(e, v) => setEditRating(v)}
+          />
+          <TextField
+            fullWidth
+            multiline
+            minRows={3}
+            value={editContent}
+            onChange={e => setEditContent(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose}>취소</Button>
+          <Button onClick={handleEditSave}>저장</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

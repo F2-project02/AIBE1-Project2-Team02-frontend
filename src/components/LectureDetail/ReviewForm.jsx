@@ -11,18 +11,19 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
-} from "@mui/material";
+} from "@mui/material";   
 import { useState } from "react";
 import { useUserStore } from "../../store/useUserStore";
 import { getModerationMessage } from "../../utils/moderationHelper";
 import axiosInstance from "../../lib/axiosInstance";
+import heartsmile from "../../assets/heartsmile.gif";
+import warn from "../../assets/warn.gif";
 
-export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
+export default function ReviewForm({ lectureId, mentorId, onReviewAdded, showToast }) {
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
   const { nickname, profileImage, userId } = useUserStore();
 
   const handleSubmit = async () => {
@@ -48,13 +49,19 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
 
       if (response.data?.success) {
         // 성공 메시지 표시
-        setSuccess(true);
+        showToast({
+          open: true,
+          message: "리뷰가 성공적으로 등록되었어요!",
+          type:    "info",
+          iconSrc: heartsmile,
+        });
         // 입력값 초기화
         setContent("");
         setRating(5);
         // 부모 컴포넌트에 리뷰 추가 알림
         if (onReviewAdded) {
           onReviewAdded({
+            reviewId: response.data.data,
             content,
             rating,
             createdAt: new Date().toISOString(),
@@ -71,20 +78,16 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
     } catch (err) {
       const reason = err?.response?.data?.message;
       const friendlyMessage = getModerationMessage(reason);
-      setError(friendlyMessage || "리뷰 작성 중 문제가 발생했어요. 다시 시도해주세요.");
+      const msg = friendlyMessage || "리뷰 작성 중 문제가 발생했어요. 다시 시도해주세요.";
+      showToast({
+        open: true,
+        message: msg,
+        type:    "error",
+        iconSrc: warn,
+      });
     } finally {
       setLoading(false);
     }
-  };
-
-  // 성공 메시지 닫기
-  const handleCloseSuccess = () => {
-    setSuccess(false);
-  };
-
-  // 에러 메시지 닫기
-  const handleCloseError = () => {
-    setError(null);
   };
 
   return (
@@ -161,38 +164,6 @@ export default function ReviewForm({ lectureId, mentorId, onReviewAdded }) {
           )}
         </Button>
       </Box>
-
-      {/* 성공 메시지 Snackbar */}
-      <Snackbar
-        open={success}
-        autoHideDuration={5000}
-        onClose={handleCloseSuccess}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSuccess}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          리뷰가 성공적으로 등록되었어요!
-        </Alert>
-      </Snackbar>
-
-      {/* 에러 메시지 Snackbar */}
-      <Snackbar
-        open={!!error}
-        autoHideDuration={5000}
-        onClose={handleCloseError}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseError}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }

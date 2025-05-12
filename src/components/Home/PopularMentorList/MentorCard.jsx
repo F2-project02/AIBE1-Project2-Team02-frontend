@@ -1,7 +1,7 @@
 // src/components/Home/PopularMentorList/MentorCard.jsx
 
 import { Box, Avatar, Typography, Chip, Card, Tooltip } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 
 import { useProfileModalStore } from "../../../store/useProfileModalStore";
@@ -57,7 +57,12 @@ export default function MentorCard({
           {nickname}
         </Typography>
         {isCertified && (
-          <ShieldIcon sx={{ fontSize: 16, color: "var(--primary-100)" }} />
+          <SecurityIcon
+          sx={{
+            fontSize: 16,
+            fill: "url(#shield-gradient)",
+          }}
+        />
         )}
       </Box>
       <Box display="flex" alignItems="center" gap={0.5} mt={0.5}>

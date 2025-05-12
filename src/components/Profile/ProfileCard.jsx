@@ -120,20 +120,6 @@ export default function ProfileCard({
                 display: "inline-flex",
               }}
             >
-              <svg width="0" height="0">
-                <defs>
-                  <linearGradient
-                    id="shield-gradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%"
-                  >
-                    <stop offset="0%" stopColor="#ffbad0" />
-                    <stop offset="100%" stopColor="var(--primary-100)" />
-                  </linearGradient>
-                </defs>
-              </svg>
               <SecurityIcon
                 sx={{
                   fontSize: 20,
