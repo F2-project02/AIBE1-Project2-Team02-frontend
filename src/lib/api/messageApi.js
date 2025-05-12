@@ -24,3 +24,8 @@ export const sendMessage = async ({ receiverId, content }) => {
   const res = await axiosInstance.post("/api/message", { receiverId, content });
   return res.data.data;
 };
+
+export const deleteMessages = async ({ messageIds }) => {
+  const res = await axiosInstance.post("/api/message/delete", { messageIds });
+  return res.data.data;
+};

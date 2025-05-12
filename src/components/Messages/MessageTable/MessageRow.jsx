@@ -3,7 +3,7 @@
 import { TableRow, TableCell, Checkbox, Typography, Box } from "@mui/material";
 import { useTheme } from "@mui/material/styles"; // theme 객체 사용
 import { formatDateFromArray } from "../../../utils/messageDate";
-
+import { useMessageStore } from "../../../store/useMessageStore";
 export default function MessageRow({
   messageId,
   nickname,

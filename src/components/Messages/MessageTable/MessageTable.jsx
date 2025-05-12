@@ -29,64 +29,52 @@ export default function MessageTable({
   totalItems,
   totalPages,
 }) {
-  const { page, setPage } = useMessageStore();
-  const [selectedMessageId, setSelectedMessageId] = useState(null);
-  const [selectedAll, setSelectedAll] = useState(false);
-  const [selectedMessages, setSelectedMessages] = useState([]);
+  const {
+    page,
+    setPage,
+    selectedMessageIds,
+    toggleSelectedMessageId,
+    setSelectedMessageIds,
+  } = useMessageStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const displayedMessages = messages;
-
   const isPageFull = displayedMessages.length === 10;
 
+  const isMessageSelected = (id) => selectedMessageIds.includes(id);
+
+  const handleSelect = (messageId) => {
+    toggleSelectedMessageId(messageId);
+  };
+
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
   const handleRowClick = (messageId) => {
     setSelectedMessageId(messageId);
   };
 
-  const handleSelect = useCallback(
-    (messageId) => {
-      const newSelectedMessages = [...selectedMessages];
-      const messageIndex = newSelectedMessages.indexOf(messageId);
-
-      if (messageIndex === -1) {
-        newSelectedMessages.push(messageId);
-      } else {
-        newSelectedMessages.splice(messageIndex, 1);
-      }
-
-      setSelectedMessages(newSelectedMessages);
-      setSelectedAll(newSelectedMessages.length === displayedMessages.length);
-    },
-    [displayedMessages, selectedMessages, setSelectedAll, setSelectedMessages]
-  );
-
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = displayedMessages.map((n) => n.messageId);
-      setSelectedMessages(newSelecteds);
+      const newSelected = displayedMessages.map((m) => m.messageId);
+      setSelectedMessageIds(newSelected);
     } else {
-      setSelectedMessages([]);
+      setSelectedMessageIds([]);
     }
-    setSelectedAll(event.target.checked);
   };
 
   useEffect(() => {
     if (!displayedMessages.length) {
-      setSelectedAll(false);
-      setSelectedMessages([]);
-      return;
+      setSelectedMessageIds([]);
     }
-    setSelectedAll(selectedMessages.length === displayedMessages.length);
-  }, [displayedMessages.length, selectedMessages.length]);
+  }, [displayedMessages.length]);
 
   useEffect(() => {
-    setSelectedAll(false);
-    setSelectedMessages([]);
+    setSelectedMessageIds([]);
   }, [messages.length]);
 
-  const isMessageSelected = (messageId) =>
-    selectedMessages.indexOf(messageId) !== -1;
+  const selectedAll =
+    displayedMessages.length > 0 &&
+    selectedMessageIds.length === displayedMessages.length;
 
   return (
     <>
@@ -155,7 +143,7 @@ export default function MessageTable({
           >
             <TableHeaderRow
               tab={tab}
-              numSelected={selectedMessages.length}
+              numSelected={selectedMessageIds.length}
               rowCount={displayedMessages.length}
               onSelectAllClick={handleSelectAllClick}
               selectedAll={selectedAll}
