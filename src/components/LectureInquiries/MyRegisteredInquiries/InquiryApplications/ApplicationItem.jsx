@@ -2,38 +2,31 @@ import { useState } from "react";
 import { Box, Card, Avatar, Typography, Stack, Button } from "@mui/material";
 import GradientButton from "../../../Button/GradientButton";
 import RejectReasonModal from "./RejectReasonModal";
-import ApplicationDetailModal from "./ApplicationDetailModal";
 import { approveApplication } from "../../../../lib/api/inquiryApi";
 import useInquiryStore from "../../../../store/useInquiryStore";
-import partyGif from "../../../../assets/party.gif";
-import warnGif from "../../../../assets/warn.gif";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import ApproveConfirmModal from "./ApproveConfirmModal";
 
 export default function ApplicationItem({ data, showToast }) {
-  const { applicationId, nickname, lectureTitle, createdAt, profileImage } =
-    data;
+  const {
+    applicationId,
+    nickname,
+    lectureTitle,
+    createdAt,
+    profileImage,
+    requestedTimeSlot,
+  } = data;
   const [openReject, setOpenReject] = useState(false);
-  const [approving, setApproving] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const closeModal = () => {
-    setModalOpen(false);
-  };
+
   const { applicants, setApplicants } = useInquiryStore();
+  const [openApproveModal, setOpenApproveModal] = useState(false);
 
   const handleApprove = async () => {
-    if (approving) return;
-    setApproving(true);
-    try {
-      await approveApplication(applicationId);
-      showToast("과외 신청 수락 되었어요!", partyGif);
-      const filtered = applicants.filter(
-        (app) => app.applicationId !== applicationId
-      );
-      setApplicants(filtered);
-    } catch (err) {
-      showToast("과외 신청 수락이 실패했어요.", warnGif, "error");
-    } finally {
-      setApproving(false);
-    }
+    await approveApplication(applicationId);
+    const filtered = applicants.filter(
+      (app) => app.applicationId !== applicationId
+    );
+    setApplicants(filtered);
   };
 
   const handleRejectSubmitted = (rejectedId) => {
@@ -44,20 +37,14 @@ export default function ApplicationItem({ data, showToast }) {
     setApplicants(filtered);
   };
 
-  const handleCardClick = () => {
-    setModalOpen(true);
-  };
-
   return (
     <>
       <Card
-        onClick={handleCardClick}
         sx={{
           borderRadius: "12px",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.04)",
           width: 400,
           p: 2,
-          cursor: "pointer",
         }}
       >
         {/* 프로필 */}
@@ -81,13 +68,39 @@ export default function ApplicationItem({ data, showToast }) {
           {lectureTitle || "강의명이 없어요."}
         </Typography>
 
+        {requestedTimeSlot && (
+          <>
+            <Box
+              mt={1}
+              sx={{
+                backgroundColor: "var(--bg-100)",
+                borderRadius: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <AccessTimeIcon
+                sx={{ color: "var(--primary-300)", fontSize: 18 }}
+              />
+              <Typography
+                fontWeight={500}
+                fontSize={14}
+                color="var(--text-300)"
+              >
+                {requestedTimeSlot.dayOfWeek}요일 |{" "}
+                {requestedTimeSlot.startTime} - {requestedTimeSlot.endTime}
+              </Typography>
+            </Box>
+          </>
+        )}
+
         {/* 버튼 */}
         <Box display="flex" justifyContent="flex-end" gap={1}>
           <Button
             variant="outlined"
             size="small"
             onClick={(e) => {
-              e.stopPropagation();
               setOpenReject(true);
             }}
             sx={{
@@ -108,13 +121,11 @@ export default function ApplicationItem({ data, showToast }) {
               fontWeight: 500,
               borderRadius: "10px",
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleApprove();
+            onClick={() => {
+              setOpenApproveModal(true);
             }}
-            disabled={approving}
           >
-            {approving ? "처리 중..." : "수락하기"}
+            수락하기
           </GradientButton>
         </Box>
       </Card>
@@ -127,16 +138,12 @@ export default function ApplicationItem({ data, showToast }) {
         onRejectSubmitted={handleRejectSubmitted}
       />
 
-      {modalOpen &&
-        (data ? (
-          <ApplicationDetailModal
-            open={modalOpen}
-            onClose={closeModal}
-            data={data}
-          />
-        ) : (
-          <ApplicationDetailSkeleton open={modalOpen} onClose={closeModal} />
-        ))}
+      <ApproveConfirmModal
+        open={openApproveModal}
+        onClose={() => setOpenApproveModal(false)}
+        onApprove={handleApprove}
+        showToast={showToast}
+      />
     </>
   );
 }
