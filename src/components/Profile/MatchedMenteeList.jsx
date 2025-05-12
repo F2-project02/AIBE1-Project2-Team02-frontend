@@ -13,17 +13,17 @@ import {
   Avatar,
   Chip,
   CircularProgress,
-  IconButton,
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  DialogActions,
-  Button,
+  DialogTitle,
 } from "@mui/material";
-import CancelIcon from "@mui/icons-material/Cancel";
-// import { getMatchedMentees, cancelMatching } from "../../lib/api/lectureApi";
-import { getMatchedMentees } from "../../lib/api/lectureApi";
+import {
+  getMatchedMentees,
+  cancelLectureMatchingByMatchId,
+} from "../../lib/api/lectureApi";
 import { formatDateFromArray } from "../../utils/messageDate";
 
 export default function MatchedMenteeList() {
@@ -61,63 +61,34 @@ export default function MatchedMenteeList() {
     setCancelDialogOpen(true);
   };
 
-  // // 취소 확인 핸들러
-  // const handleConfirmCancel = async () => {
-  //   if (!selectedMentee) return;
-
-  //   setCancelLoading(true);
-  //   try {
-  //     // API 호출로 매칭 취소 처리
-  //     const response = await cancelMatching(selectedMentee.matchId);
-
-  //     if (response.success) {
-  //       // 성공 시 목록 다시 불러오기
-  //       await fetchMentees();
-  //     } else {
-  //       alert(
-  //         "매칭 취소 중 오류가 발생했습니다: " +
-  //           (response.message || "알 수 없는 오류")
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.error("매칭 취소 오류:", error);
-  //     alert(
-  //       "매칭 취소 중 오류가 발생했습니다: " +
-  //         (error.message || "알 수 없는 오류")
-  //     );
-  //   } finally {
-  //     setCancelLoading(false);
-  //     setCancelDialogOpen(false);
-  //     setSelectedMentee(null);
-  //   }
-  // };
-
-  // 취소 확인 핸들러 - API 연결 없이 임시 구현
   const handleConfirmCancel = async () => {
     if (!selectedMentee) return;
 
-    setCancelLoading(true);
+    try {
+      setCancelLoading(true);
 
-    // API 연결 대신 타이머로 로딩 시뮬레이션
-    setTimeout(() => {
-      // 임시로 성공 처리 - 목록에서 해당 항목만 제거
-      setMentees((prev) =>
-        prev.filter((m) => m.matchId !== selectedMentee.matchId)
+      const response = await cancelLectureMatchingByMatchId(
+        selectedMentee.matchId
       );
 
+      if (response.success) {
+        setMentees(
+          mentees.filter((mentee) => mentee.matchId !== selectedMentee.matchId)
+        );
+        setCancelDialogOpen(false);
+        setSelectedMentee(null);
+      } else {
+        setError(response.message || "매칭 취소에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("매칭 취소 중 오류 발생:", error);
+      setError(
+        "매칭 취소 중 오류가 발생했습니다: " +
+          (error.message || "알 수 없는 오류")
+      );
+    } finally {
       setCancelLoading(false);
-      setCancelDialogOpen(false);
-      setSelectedMentee(null);
-
-      // 성공 메시지 (선택 사항)
-      alert("매칭이 취소되었습니다.");
-    }, 1000); // 1초 후 완료
-  };
-
-  // 취소 대화상자 닫기 핸들러
-  const handleCancelDialogClose = () => {
-    setCancelDialogOpen(false);
-    setSelectedMentee(null);
+    }
   };
 
   if (loading) {
@@ -167,7 +138,7 @@ export default function MatchedMenteeList() {
               >
                 수강생
               </TableCell>
-              <TableCell sx={{ padding: "12px 16px", width: "200px" }}>
+              <TableCell sx={{ padding: "12px 16px", width: "160px" }}>
                 과외명
               </TableCell>
               <TableCell sx={{ padding: "12px 16px", width: "130px" }}>
@@ -176,8 +147,8 @@ export default function MatchedMenteeList() {
               <TableCell sx={{ padding: "12px 16px", width: "110px" }}>
                 매칭일
               </TableCell>
-              <TableCell sx={{ padding: "12px 16px", width: "110px" }}>
-                관리
+              <TableCell sx={{ padding: "12px 16px", width: "90px" }}>
+                취소
               </TableCell>
             </TableRow>
           </TableHead>
@@ -254,30 +225,31 @@ export default function MatchedMenteeList() {
                 <TableCell>
                   <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
                     {mentee.joinedAt
-                      ? formatDateFromArray(mentee.joinedAt).split(" ")[0]
+                      ? `${mentee.joinedAt[0]}-${String(
+                          mentee.joinedAt[1]
+                        ).padStart(2, "0")}-${String(
+                          mentee.joinedAt[2]
+                        ).padStart(2, "0")}`
                       : "-"}
                   </Typography>
                 </TableCell>
-                <TableCell sx={{ padding: "4px 8px", textAlign: "center" }}>
+                <TableCell sx={{ padding: "12px 16px" }}>
                   <Button
-                    onClick={() => handleCancelClick(mentee)}
                     variant="outlined"
-                    color="error"
                     size="small"
+                    color="error"
+                    onClick={() => handleCancelClick(mentee)}
                     sx={{
+                      borderColor: "var(--action-red)",
                       color: "var(--action-red)",
-                      borderColor: "var(--action-red-bg)",
-                      fontSize: "0.7rem",
-                      padding: "2px 8px",
-                      minWidth: "60px",
-                      whiteSpace: "nowrap",
+                      fontSize: 12,
                       "&:hover": {
-                        backgroundColor: "var(--action-red-bg)",
                         borderColor: "var(--action-red)",
+                        backgroundColor: "var(--action-red-bg)",
                       },
                     }}
                   >
-                    매칭 취소
+                    취소
                   </Button>
                 </TableCell>
               </TableRow>
@@ -285,55 +257,57 @@ export default function MatchedMenteeList() {
           </TableBody>
         </Table>
       </TableContainer>
-
-      {/* 취소 확인 대화상자 */}
+      {/* 매칭 취소 확인 대화상자 */}
       <Dialog
         open={cancelDialogOpen}
-        onClose={handleCancelDialogClose}
+        onClose={() => setCancelDialogOpen(false)}
         PaperProps={{
           sx: {
-            borderRadius: "12px",
-            padding: "8px",
+            borderRadius: "16px",
+            backgroundColor: "var(--bg-100)",
+            px: 2,
+            py: 2,
           },
         }}
       >
-        <DialogTitle sx={{ fontWeight: 600 }}>매칭 취소</DialogTitle>
+        <DialogTitle sx={{ color: "var(--text-100)", fontWeight: 600 }}>
+          매칭 취소 확인
+        </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {selectedMentee && (
-              <>
-                <strong>{selectedMentee.nickname}</strong> 님과의{" "}
-                <strong>{selectedMentee.lectureTitle}</strong> 매칭을
-                취소하시겠습니까?
-                <br />
-                <br />
-                취소 후에는 복구할 수 없으며, 수강생에게 알림이 발송됩니다.
-              </>
-            )}
+          <DialogContentText sx={{ color: "var(--text-300)" }}>
+            {selectedMentee?.nickname}님과의 과외 매칭을 취소하시겠습니까?
+            <br />
+            취소 후에는 복구할 수 없습니다.
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ padding: "0 24px 16px 0" }}>
+        <DialogActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
           <Button
-            onClick={handleCancelDialogClose}
-            sx={{ color: "var(--text-300)" }}
-            disabled={cancelLoading}
+            onClick={() => setCancelDialogOpen(false)}
+            sx={{
+              color: "var(--text-300)",
+              fontWeight: 500,
+            }}
           >
-            아니오
+            매칭 취소
           </Button>
           <Button
             onClick={handleConfirmCancel}
             variant="contained"
+            disabled={cancelLoading}
             sx={{
               backgroundColor: "var(--action-red)",
+              color: "white",
+              fontWeight: 600,
               "&:hover": {
-                backgroundColor: "var(--action-red)",
-                opacity: 0.9,
+                backgroundColor: "rgba(204, 105, 105, 0.9)",
               },
             }}
-            disabled={cancelLoading}
-            autoFocus
           >
-            {cancelLoading ? <CircularProgress size={24} /> : "취소하기"}
+            {cancelLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "매칭 취소"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
