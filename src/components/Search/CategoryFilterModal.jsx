@@ -12,7 +12,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import CheckIcon from "@mui/icons-material/Check";
 import SearchIcon from "@mui/icons-material/Search";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { CategoryService } from "../../lib/api/categoryApi";
 import GradientButton from "../Button/GradientButton";
 
@@ -20,8 +20,12 @@ export default function CategoryFilterModal({
   open,
   onClose,
   onSelect,
-  selectedItems,
+  selectedItems = [],
   setSelectedItems,
+  selectedParent = "",
+  setSelectedParent,
+  selectedMiddle = "",
+  setSelectedMiddle,
 }) {
   // 카테고리 데이터
   const [parentCategories, setParentCategories] = useState([]);
@@ -31,52 +35,81 @@ export default function CategoryFilterModal({
 
   // 내부 상태
   const [tempSelectedItems, setTempSelectedItems] = useState([]);
-  const [selectedParent, setSelectedParent] = useState("");
-  const [selectedMiddle, setSelectedMiddle] = useState("");
+  const [tempSelectedParent, setTempSelectedParent] = useState("");
+  const [tempSelectedMiddle, setTempSelectedMiddle] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 다이얼로그가 열릴 때 데이터 초기화
+  // 다이얼로그가 열릴 때 데이터 초기화 및 이전 선택 상태 복원
   useEffect(() => {
+    // 모달이 새로 열릴 때만 초기화 로직 실행
     if (open) {
-      CategoryService.getParentCategories().then(setParentCategories);
+      // 부모 컴포넌트에서 받은 상태로 초기화
       setTempSelectedItems(selectedItems ? [...selectedItems] : []);
+      setTempSelectedParent(selectedParent || "");
+      setTempSelectedMiddle(selectedMiddle || "");
       setSearchTerm("");
+
+      // 대분류 카테고리 로드
+      CategoryService.getParentCategories().then(setParentCategories);
+
+      // 이미 선택된 상위 카테고리가 있다면 하위 카테고리 로드
+      if (selectedParent) {
+        CategoryService.getMiddleCategories(selectedParent).then(
+          setMiddleCategories
+        );
+
+        if (selectedMiddle) {
+          CategoryService.getSubcategories(selectedParent, selectedMiddle).then(
+            (subs) => {
+              const parsedSubs =
+                Array.isArray(subs) && typeof subs[0] === "object"
+                  ? subs.map((s) => s.subcategory)
+                  : subs;
+              setSubCategories(parsedSubs || []);
+            }
+          );
+        }
+      }
     }
-  }, [open, selectedItems]);
+  }, [open, selectedItems, selectedParent, selectedMiddle]);
 
   // 대분류 선택시 중분류 로드
   useEffect(() => {
-    if (selectedParent) {
-      CategoryService.getMiddleCategories(selectedParent).then(
+    if (tempSelectedParent) {
+      CategoryService.getMiddleCategories(tempSelectedParent).then(
         setMiddleCategories
       );
     } else {
       setMiddleCategories([]);
     }
-    setSelectedMiddle("");
-    setSubCategories([]);
-  }, [selectedParent]);
+
+    if (tempSelectedParent !== selectedParent) {
+      setTempSelectedMiddle("");
+      setSubCategories([]);
+    }
+  }, [tempSelectedParent, selectedParent]);
 
   // 중분류 선택시 소분류 로드
   useEffect(() => {
-    if (selectedMiddle) {
-      CategoryService.getSubcategories(selectedParent, selectedMiddle).then(
-        (subs) => {
-          const parsedSubs =
-            Array.isArray(subs) && typeof subs[0] === "object"
-              ? subs.map((s) => s.subcategory)
-              : subs;
-          setSubCategories(parsedSubs || []);
-        }
-      );
+    if (tempSelectedMiddle && tempSelectedParent) {
+      CategoryService.getSubcategories(
+        tempSelectedParent,
+        tempSelectedMiddle
+      ).then((subs) => {
+        const parsedSubs =
+          Array.isArray(subs) && typeof subs[0] === "object"
+            ? subs.map((s) => s.subcategory)
+            : subs;
+        setSubCategories(parsedSubs || []);
+      });
     } else {
       setSubCategories([]);
     }
-  }, [selectedMiddle, selectedParent]);
+  }, [tempSelectedMiddle, tempSelectedParent]);
 
   // 대분류 선택 핸들러
   const handleParentClick = (parent) => {
-    setSelectedParent(parent);
+    setTempSelectedParent(parent);
 
     setTempSelectedItems((prev) => {
       const newItems = [...prev];
@@ -94,12 +127,12 @@ export default function CategoryFilterModal({
 
   // 중분류 선택 핸들러
   const handleMiddleClick = (middle) => {
-    setSelectedMiddle(middle);
+    setTempSelectedMiddle(middle);
 
     setTempSelectedItems((prev) => {
       const newItems = [...prev];
-      const parentPath = selectedParent;
-      const middlePath = `${selectedParent} > ${middle}`;
+      const parentPath = tempSelectedParent;
+      const middlePath = `${tempSelectedParent} > ${middle}`;
 
       // 중분류가 이미 선택되어 있는지 확인
       const middleIndex = newItems.findIndex((item) => item === middlePath);
@@ -128,8 +161,8 @@ export default function CategoryFilterModal({
   const handleSubClick = (sub) => {
     setTempSelectedItems((prev) => {
       const newItems = [...prev];
-      const middlePath = `${selectedParent} > ${selectedMiddle}`;
-      const subPath = `${selectedParent} > ${selectedMiddle} > ${sub}`;
+      const middlePath = `${tempSelectedParent} > ${tempSelectedMiddle}`;
+      const subPath = `${tempSelectedParent} > ${tempSelectedMiddle} > ${sub}`;
 
       // 소분류가 이미 선택되어 있는지 확인
       const subIndex = newItems.findIndex((item) => item === subPath);
@@ -158,16 +191,21 @@ export default function CategoryFilterModal({
 
   // 완료 핸들러
   const handleComplete = () => {
-    onSelect(tempSelectedItems);
+    // 부모 컴포넌트의 상태 업데이트
     setSelectedItems(tempSelectedItems);
+    setSelectedParent(tempSelectedParent);
+    setSelectedMiddle(tempSelectedMiddle);
+
+    // 검색 실행
+    onSelect(tempSelectedItems);
     onClose();
   };
 
   // 초기화 핸들러
   const handleReset = () => {
     setTempSelectedItems([]);
-    setSelectedParent("");
-    setSelectedMiddle("");
+    setTempSelectedParent("");
+    setTempSelectedMiddle("");
     setSearchTerm("");
   };
 
@@ -196,7 +234,7 @@ export default function CategoryFilterModal({
       : items;
 
   // 카테고리 컬럼 렌더링
-  const CategoryColumn = ({ label, items, selectedItems, onItemClick }) => (
+  const CategoryColumn = ({ label, items, onItemClick }) => (
     <Box
       flex={1}
       display="flex"
@@ -232,10 +270,10 @@ export default function CategoryFilterModal({
           if (label === "대분류") {
             selected = isSelected(item, "parent");
           } else if (label === "중분류") {
-            const path = `${selectedParent} > ${item}`;
+            const path = `${tempSelectedParent} > ${item}`;
             selected = isSelected(path, "middle");
           } else {
-            const path = `${selectedParent} > ${selectedMiddle} > ${item}`;
+            const path = `${tempSelectedParent} > ${tempSelectedMiddle} > ${item}`;
             selected = isSelected(path, "sub");
           }
 
@@ -328,19 +366,16 @@ export default function CategoryFilterModal({
           <CategoryColumn
             label="대분류"
             items={parentCategories}
-            selectedItems={tempSelectedItems}
             onItemClick={handleParentClick}
           />
           <CategoryColumn
             label="중분류"
             items={middleCategories}
-            selectedItems={tempSelectedItems}
             onItemClick={handleMiddleClick}
           />
           <CategoryColumn
             label="소분류"
             items={subCategories}
-            selectedItems={tempSelectedItems}
             onItemClick={handleSubClick}
           />
         </Box>

@@ -12,60 +12,105 @@ import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import GradientButton from "../Button/GradientButton";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { CategoryService } from "../../lib/api/categoryApi";
 
 export default function CategoryFilterMobile({
   open,
   onClose,
   onSelect,
-  selectedItems,
+  selectedItems = [],
   setSelectedItems,
+  selectedParent = "",
+  setSelectedParent,
+  selectedMiddle = "",
+  setSelectedMiddle,
 }) {
   const [tab, setTab] = useState(0); // 0: 대, 1: 중, 2: 소
   const [parentCategories, setParentCategories] = useState([]);
   const [middleCategories, setMiddleCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+
+  // 내부 임시 상태 추가
   const [tempSelectedItems, setTempSelectedItems] = useState([]);
-  const [selectedParent, setSelectedParent] = useState("");
-  const [selectedMiddle, setSelectedMiddle] = useState("");
+  const [tempSelectedParent, setTempSelectedParent] = useState("");
+  const [tempSelectedMiddle, setTempSelectedMiddle] = useState("");
 
+  // 이전 open 상태 추적
+  const prevOpenRef = useRef(false);
+
+  // 모달이 열릴 때 데이터 초기화 및 이전 선택 상태 복원
   useEffect(() => {
-    if (open) {
-      CategoryService.getParentCategories().then(setParentCategories);
+    // 모달이 새로 열릴 때만 초기화 로직 실행
+    if (open && !prevOpenRef.current) {
+      // 부모 컴포넌트에서 받은 상태로 초기화
       setTempSelectedItems(selectedItems ? [...selectedItems] : []);
-      setTab(0);
-    }
-  }, [open, selectedItems]);
+      setTempSelectedParent(selectedParent || "");
+      setTempSelectedMiddle(selectedMiddle || "");
 
+      // 대분류 카테고리 로드
+      CategoryService.getParentCategories().then(setParentCategories);
+
+      // 이미 선택된 상위 카테고리가 있다면 하위 카테고리 로드
+      if (selectedParent) {
+        CategoryService.getMiddleCategories(selectedParent).then(
+          setMiddleCategories
+        );
+
+        if (selectedMiddle) {
+          CategoryService.getSubcategories(selectedParent, selectedMiddle).then(
+            (subs) => {
+              const parsed =
+                Array.isArray(subs) && typeof subs[0] === "object"
+                  ? subs.map((s) => s.subcategory)
+                  : subs;
+              setSubCategories(parsed || []);
+            }
+          );
+          setTab(2); // 소분류 탭으로 초기화
+        } else {
+          setTab(1); // 중분류 탭으로 초기화
+        }
+      } else {
+        setTab(0); // 대분류 탭으로 초기화
+      }
+    }
+
+    // open 상태 업데이트
+    prevOpenRef.current = open;
+  }, [open, selectedItems, selectedParent, selectedMiddle]);
+
+  // 대분류 선택 시 중분류 로드
   useEffect(() => {
-    if (selectedParent) {
-      CategoryService.getMiddleCategories(selectedParent).then(
+    if (tempSelectedParent) {
+      CategoryService.getMiddleCategories(tempSelectedParent).then(
         setMiddleCategories
       );
     }
-  }, [selectedParent]);
+  }, [tempSelectedParent]);
 
+  // 중분류 선택 시 소분류 로드
   useEffect(() => {
-    if (selectedMiddle) {
-      CategoryService.getSubcategories(selectedParent, selectedMiddle).then(
-        (subs) => {
-          const parsed =
-            Array.isArray(subs) && typeof subs[0] === "object"
-              ? subs.map((s) => s.subcategory)
-              : subs;
-          setSubCategories(parsed || []);
-        }
-      );
+    if (tempSelectedMiddle && tempSelectedParent) {
+      CategoryService.getSubcategories(
+        tempSelectedParent,
+        tempSelectedMiddle
+      ).then((subs) => {
+        const parsed =
+          Array.isArray(subs) && typeof subs[0] === "object"
+            ? subs.map((s) => s.subcategory)
+            : subs;
+        setSubCategories(parsed || []);
+      });
     }
-  }, [selectedMiddle, selectedParent]);
+  }, [tempSelectedMiddle, tempSelectedParent]);
 
   const handleTabChange = (_, newValue) => setTab(newValue);
 
   const handleItemClick = (item) => {
     if (tab === 0) {
       // 대분류 선택
-      setSelectedParent(item);
+      setTempSelectedParent(item);
       setTab(1);
 
       setTempSelectedItems((prev) => {
@@ -81,13 +126,13 @@ export default function CategoryFilterMobile({
       });
     } else if (tab === 1) {
       // 중분류 선택
-      setSelectedMiddle(item);
+      setTempSelectedMiddle(item);
       setTab(2);
 
       setTempSelectedItems((prev) => {
         const newItems = [...prev];
-        const parentPath = selectedParent;
-        const middlePath = `${selectedParent} > ${item}`;
+        const parentPath = tempSelectedParent;
+        const middlePath = `${tempSelectedParent} > ${item}`;
 
         const middleIndex = newItems.findIndex((i) => i === middlePath);
 
@@ -113,8 +158,8 @@ export default function CategoryFilterMobile({
       // 소분류 선택
       setTempSelectedItems((prev) => {
         const newItems = [...prev];
-        const middlePath = `${selectedParent} > ${selectedMiddle}`;
-        const subPath = `${selectedParent} > ${selectedMiddle} > ${item}`;
+        const middlePath = `${tempSelectedParent} > ${tempSelectedMiddle}`;
+        const subPath = `${tempSelectedParent} > ${tempSelectedMiddle} > ${item}`;
 
         const subIndex = newItems.findIndex((i) => i === subPath);
 
@@ -140,20 +185,22 @@ export default function CategoryFilterMobile({
   };
 
   const handleComplete = () => {
-    onSelect(tempSelectedItems);
+    // 부모 컴포넌트의 상태 업데이트
     setSelectedItems(tempSelectedItems);
+    setSelectedParent(tempSelectedParent);
+    setSelectedMiddle(tempSelectedMiddle);
+
+    // 검색 실행
+    onSelect(tempSelectedItems);
     onClose();
   };
 
   const handleReset = () => {
     setTempSelectedItems([]);
-    setSelectedParent("");
-    setSelectedMiddle("");
+    setTempSelectedParent("");
+    setTempSelectedMiddle("");
     setTab(0);
   };
-
-  const items =
-    tab === 0 ? parentCategories : tab === 1 ? middleCategories : subCategories;
 
   // 카테고리 선택 여부 확인 (상위 카테고리도 체크)
   const isSelected = (path, type) => {
@@ -170,6 +217,9 @@ export default function CategoryFilterMobile({
       }
     });
   };
+
+  const items =
+    tab === 0 ? parentCategories : tab === 1 ? middleCategories : subCategories;
 
   return (
     <Dialog open={open} onClose={onClose} fullScreen>
@@ -202,8 +252,8 @@ export default function CategoryFilterMobile({
 
         <Tabs value={tab} onChange={handleTabChange} variant="fullWidth">
           <Tab label="대분류" />
-          <Tab label="중분류" disabled={!selectedParent} />
-          <Tab label="소분류" disabled={!selectedMiddle} />
+          <Tab label="중분류" disabled={!tempSelectedParent} />
+          <Tab label="소분류" disabled={!tempSelectedMiddle} />
         </Tabs>
 
         {/* 리스트 */}
@@ -227,10 +277,10 @@ export default function CategoryFilterMobile({
             if (tab === 0) {
               selected = isSelected(item, "parent");
             } else if (tab === 1) {
-              const path = `${selectedParent} > ${item}`;
+              const path = `${tempSelectedParent} > ${item}`;
               selected = isSelected(path, "middle");
             } else {
-              const path = `${selectedParent} > ${selectedMiddle} > ${item}`;
+              const path = `${tempSelectedParent} > ${tempSelectedMiddle} > ${item}`;
               selected = isSelected(path, "sub");
             }
 
