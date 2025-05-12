@@ -16,11 +16,11 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { getLectures } from "../lib/api/lectureApi";
 
 // 🔍 모달 및 필터 컴포넌트
-import UnifiedCategoryFilter from "../components/Search/UnifiedCategoryFilter";
+import CategoryFilter from "../components/Search/CategoryFilter";
 import PriceFilterModal from "../components/Search/PriceFilterModal";
 import RatingFilterModal from "../components/Search/RatingFilterModal";
 import CertifiedMentorFilterModal from "../components/Search/CertifiedMentorFilterModal";
-import UnifiedRegionFilter from "../components/Search/UnifiedRegionFilter";
+import RegionFilter from "../components/Search/RegionFilter";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
@@ -621,7 +621,7 @@ const CourseSearchPage = () => {
       )}
 
       {/* 모달들 */}
-      <UnifiedCategoryFilter
+      <CategoryFilter
         open={categoryDialogOpen}
         onClose={() => setCategoryDialogOpen(false)}
         selectedCategories={selectedCategory}
@@ -639,7 +639,7 @@ const CourseSearchPage = () => {
         }}
       />
 
-      <UnifiedRegionFilter
+      <RegionFilter
         open={regionDialogOpen}
         onClose={() => setRegionDialogOpen(false)}
         selectedDongs={selectedDongs}

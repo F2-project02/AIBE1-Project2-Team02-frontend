@@ -1,4 +1,3 @@
-// src/components/Search/UnifiedCategoryFilter.jsx - 개선된 버전
 import {
   Dialog,
   Box,
@@ -20,7 +19,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { CategoryService } from "../../lib/api/categoryApi";
 import GradientButton from "../Button/GradientButton";
 
-export default function UnifiedCategoryFilter({
+export default function CategoryFilter({
   open,
   onClose,
   onSelect,

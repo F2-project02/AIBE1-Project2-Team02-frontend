@@ -35,10 +35,13 @@ export default function LectureDetailPage() {
         if (response.success && response.data) {
           const lectureData = response.data;
 
+          const baseFormattedLecture = formatLectureData(lectureData);
+
           // 공개 멘토 프로필 API로 변경
           const publicProfileRes = await axiosInstance.get(
             `/api/account/mentor/${lectureData.mentorId}/public-profile`
           );
+
           const mergedMentor = publicProfileRes?.data?.data;
 
           const formattedLecture = formatLectureData({
