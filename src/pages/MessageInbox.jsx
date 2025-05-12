@@ -1,7 +1,8 @@
 // src/pages/MessageInbox.jsx
 
-import { Box, Button } from "@mui/material";
+import { Box, Button, useMediaQuery } from "@mui/material";
 import { useState, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
 import MessageTabs from "../components/Messages/MessageTabs";
 import MessageSearchFilter from "../components/Messages/MessageSearchFilter";
 import MessageTable from "../components/Messages/MessageTable/MessageTable";
@@ -11,7 +12,8 @@ import MessageReportModal from "../components/Messages/MessageReportModal";
 import MessageDeleteModal from "../components/Messages/MessageDeleteModal";
 import CustomToast from "../components/common/CustomToast";
 import warnGif from "../assets/warn.gif";
-import messageGif from "../assets/message.gif";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import ReportGmailerrorredIcon from "@mui/icons-material/ReportGmailerrorred";
 
 export default function MessageInbox() {
   const {
@@ -24,6 +26,9 @@ export default function MessageInbox() {
     selectedMessageIds,
     clearSelectedMessageIds,
   } = useMessageStore();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -60,7 +65,7 @@ export default function MessageInbox() {
     );
 
     if (!selected) {
-      showToast("선택한 메시지를 찾을 수 없습니다.", warnGif, "error");
+      showToast("선택한 메시지를 찾을 수 없어요", warnGif, "error");
       return;
     }
 
@@ -130,35 +135,52 @@ export default function MessageInbox() {
         <Box
           mt={2}
           display="flex"
+          flexDirection={isMobile ? "column" : "row"}
           justifyContent="space-between"
-          alignItems="center"
+          alignItems={isMobile ? "flex-end" : "center"}
+          gap={isMobile ? 1 : 0}
         >
-          {/* 왼쪽: 버튼 영역 */}
-
-          <Box display="flex" gap={1}>
+          {/* 버튼 영역 */}
+          <Box
+            display="flex"
+            gap={1}
+            justifyContent={isMobile ? "flex-end" : "flex-start"}
+            order={isMobile ? 2 : 1}
+          >
             <Button
               variant="outlined"
               onClick={handleDeleteClick}
+              startIcon={<DeleteOutlineIcon />}
               sx={{
-                borderRadius: "10px",
+                borderRadius: "8px",
                 minWidth: 80,
                 fontWeight: 500,
-                color: "var(--text-300)",
-                borderColor: "var(--bg-300)",
+                color: "var(--action-red)",
+                borderColor: "var(--action-red)",
+                "&:hover": {
+                  backgroundColor: "var(--action-red-bg)",
+                  borderColor: "var(--action-red)",
+                },
               }}
             >
               삭제
             </Button>
+
             {tab === 0 && (
               <Button
                 variant="outlined"
                 onClick={handleReportClick}
+                startIcon={<ReportGmailerrorredIcon />}
                 sx={{
-                  borderRadius: "10px",
+                  borderRadius: "8px",
                   minWidth: 80,
                   fontWeight: 500,
-                  color: "var(--text-300)",
-                  borderColor: "var(--bg-300)",
+                  color: "var(--action-yellow)",
+                  borderColor: "var(--action-yellow)",
+                  "&:hover": {
+                    backgroundColor: "var(--action-yellow-bg)",
+                    borderColor: "var(--action-yellow)",
+                  },
                 }}
               >
                 신고
@@ -166,8 +188,10 @@ export default function MessageInbox() {
             )}
           </Box>
 
-          {/* 오른쪽: 필터 */}
-          <MessageSearchFilter onSearch={handleSearch} />
+          {/* 검색 필터 */}
+          <Box order={isMobile ? 1 : 2}>
+            <MessageSearchFilter onSearch={handleSearch} />
+          </Box>
         </Box>
 
         {/* 쪽지 리스트 */}
