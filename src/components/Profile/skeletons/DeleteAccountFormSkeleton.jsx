@@ -22,7 +22,7 @@ export default function DeleteAccountFormSkeleton() {
           mb: 4,
           borderRadius: "8px",
           bgcolor: "var(--bg-200)",
-          opacity: 0.7, // 약간 투명하게
+          opacity: 0.7,
         }}
         animation="wave"
       />

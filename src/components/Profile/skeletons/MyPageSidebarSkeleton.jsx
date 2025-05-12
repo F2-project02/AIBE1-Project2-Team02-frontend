@@ -2,8 +2,7 @@
 import { Box, List, ListItem, Skeleton } from "@mui/material";
 
 export default function MyPageSidebarSkeleton() {
-  // 사이드바에 있는 메뉴 항목 수만큼 반복
-  const menuItems = [1, 2, 3]; // 메뉴 항목 수
+  const menuItems = [1, 2, 3];
 
   return (
     <Box sx={{ width: 240 }}>
@@ -21,7 +20,7 @@ export default function MyPageSidebarSkeleton() {
             >
               <Skeleton
                 variant="text"
-                width={Math.floor(Math.random() * 40) + 80} // 80~120px 사이의 랜덤 너비
+                width={Math.floor(Math.random() * 40) + 80}
                 height={24}
                 animation="wave"
                 sx={{ bgcolor: "var(--bg-300)" }}

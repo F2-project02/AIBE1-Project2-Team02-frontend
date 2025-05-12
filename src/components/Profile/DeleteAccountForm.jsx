@@ -4,8 +4,10 @@ import { Box, Typography, Button } from "@mui/material";
 import DeleteAccountModal from "./DeleteAccountModal";
 import { deleteAccount } from "../../lib/api/profileApi";
 import { useUserStore } from "../../store/useUserStore";
+import sadGif from "../../assets/cryingface.gif";
+import warnGif from "../../assets/warn.gif";
 
-export default function DeleteAccountForm() {
+export default function DeleteAccountForm({ showToast }) {
   const [modalOpen, setModalOpen] = useState(false);
   const logout = useUserStore((state) => state.logout);
 
@@ -20,12 +22,16 @@ export default function DeleteAccountForm() {
   const handleConfirmDelete = async () => {
     try {
       await deleteAccount();
-      alert("회원 탈퇴가 완료됐어요.");
-      logout(); // 로그아웃 처리
-      window.location.href = "/"; // 홈으로 리다이렉트
+      showToast("회원 탈퇴가 완료되었습니다. 홈으로 이동합니다.", sadGif);
+      logout();
+      window.location.href = "/";
     } catch (error) {
       console.error("회원 탈퇴 오류:", error);
-      alert("회원 탈퇴 중 오류가 발생했어요: " + error.message);
+      showToast(
+        "회원 탈퇴 중 오류가 발생했습니다: " + error.message,
+        warnGif,
+        "error"
+      );
     } finally {
       setModalOpen(false);
     }
@@ -33,10 +39,6 @@ export default function DeleteAccountForm() {
 
   return (
     <Box>
-      <Typography variant="h6" fontWeight={600} sx={{ mb: 3 }}>
-        회원 탈퇴
-      </Typography>
-
       <Box
         sx={{
           bgcolor: "var(--action-red-bg)",
