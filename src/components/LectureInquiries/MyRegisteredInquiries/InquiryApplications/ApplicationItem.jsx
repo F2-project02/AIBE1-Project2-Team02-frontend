@@ -30,7 +30,6 @@ export default function ApplicationItem({ data, showToast }) {
       );
       setApplicants(filtered);
     } catch (err) {
-      console.error("수락 실패:", err);
       showToast("과외 신청 수락이 실패했어요.", warnGif, "error");
     } finally {
       setApproving(false);
