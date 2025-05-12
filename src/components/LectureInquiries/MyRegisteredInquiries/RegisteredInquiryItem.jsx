@@ -11,8 +11,11 @@ import {
 import StarIcon from "@mui/icons-material/Star";
 import ShieldIcon from "@mui/icons-material/VerifiedUser";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisteredLectureItem({ data, onToggle }) {
+  const navigate = useNavigate();
+
   const {
     lectureId,
     lectureTitle,
@@ -52,8 +55,13 @@ export default function RegisteredLectureItem({ data, onToggle }) {
     onToggle(lectureId, isClosed);
   };
 
+  const handleCardClick = () => {
+    navigate(`/lectures/${lectureId}`);
+  };
+
   return (
     <Card
+      onClick={handleCardClick}
       sx={{
         width: 400,
         minHeight: 220,
@@ -66,6 +74,7 @@ export default function RegisteredLectureItem({ data, onToggle }) {
         borderRadius: 0,
         backgroundColor: "unset",
         boxShadow: "none",
+        cursor: "pointer",
       }}
     >
       {/* 프로필 */}
@@ -168,7 +177,10 @@ export default function RegisteredLectureItem({ data, onToggle }) {
 
         <Switch
           checked={!isClosed}
-          onChange={handleToggle}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => {
+            handleToggle();
+          }}
           color="primary"
           sx={{ ml: 2 }}
         />
