@@ -19,6 +19,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  useTheme,
+  useMediaQuery,
+  Card,
+  CardContent,
+  Grid,
 } from "@mui/material";
 import {
   getMatchedMentees,
@@ -26,9 +31,13 @@ import {
 } from "../../lib/api/lectureApi";
 import CustomToast from "../../components/common/CustomToast";
 import warnGif from "../../assets/warn.gif";
-import successGif from "../../assets/heartsmile.gif";
+import thumbsupGif from "../../assets/thumbsup.gif";
 
 export default function MatchedMenteeList() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
   const [mentees, setMentees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -72,7 +81,7 @@ export default function MatchedMenteeList() {
 
   useEffect(() => {
     if (error) {
-      showToast(error, null, "error");
+      showToast(error, warnGif, "error");
     }
   }, [error]);
 
@@ -97,7 +106,7 @@ export default function MatchedMenteeList() {
         );
         setCancelDialogOpen(false);
         setSelectedMentee(null);
-        showToast("매칭이 성공적으로 취소되었습니다", null, "success");
+        showToast("매칭이 성공적으로 취소되었습니다", thumbsupGif, "success");
       } else {
         setError(response.message || "매칭 취소에 실패했습니다.");
       }
@@ -140,151 +149,340 @@ export default function MatchedMenteeList() {
     );
   }
 
-  return (
-    <Box>
-      <Typography variant="h6" fontWeight={600} mb={3}>
-        매칭된 수강생 목록
-      </Typography>
+  // 날짜 형식 변환 함수
+  const formatDate = (dateArray) => {
+    if (!dateArray) return "-";
+    return `${dateArray[0]}-${String(dateArray[1]).padStart(2, "0")}-${String(
+      dateArray[2]
+    ).padStart(2, "0")}`;
+  };
 
-      <TableContainer component={Paper} variant="outlined">
-        <Table sx={{ tableLayout: "fixed" }} size="medium">
-          <TableHead>
-            <TableRow
+  // 모바일 뷰 - 카드 형태로 표시
+  const renderMobileView = () => (
+    <Box>
+      {mentees.map((mentee) => (
+        <Card
+          key={mentee.matchId}
+          variant="outlined"
+          sx={{
+            mb: 2,
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <CardContent>
+            <Box display="flex" alignItems="center" gap={2} mb={2}>
+              <Avatar
+                src={mentee.profileImage || "/images/default-profile.svg"}
+                alt={mentee.nickname}
+                sx={{ width: 48, height: 48 }}
+              />
+              <Box>
+                <Typography fontWeight={600}>{mentee.nickname}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {formatDate(mentee.joinedAt)}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="subtitle1" fontWeight={500} mb={1}>
+              {mentee.lectureTitle}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" mb={2}>
+              시간대:
+            </Typography>
+
+            {mentee.matchedTimeSlots ? (
+              <Box display="flex" flexWrap="wrap" gap={0.5} mb={2}>
+                {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
+                  <Chip
+                    key={idx}
+                    label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
+                    size="small"
+                    sx={{
+                      backgroundColor: "var(--action-primary-bg)",
+                      color: "var(--primary-200)",
+                      fontSize: 12,
+                    }}
+                  />
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body2" mb={2}>
+                시간 정보 없음
+              </Typography>
+            )}
+
+            <Button
+              variant="outlined"
+              fullWidth
+              color="error"
+              onClick={() => handleCancelClick(mentee)}
               sx={{
-                backgroundColor: "var(--bg-200)",
-                "& .MuiTableCell-head": {
-                  textAlign: "center",
+                mt: 1,
+                borderColor: "var(--action-red)",
+                color: "var(--action-red)",
+                fontSize: 14,
+                "&:hover": {
+                  borderColor: "var(--action-red)",
+                  backgroundColor: "var(--action-red-bg)",
                 },
               }}
             >
-              <TableCell
+              매칭 취소
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </Box>
+  );
+
+  // 태블릿 뷰 - 그리드 형태로 표시
+  const renderTabletView = () => (
+    <Grid container spacing={2}>
+      {mentees.map((mentee) => (
+        <Grid item xs={12} sm={6} key={mentee.matchId}>
+          <Card
+            variant="outlined"
+            sx={{
+              height: "100%",
+              borderRadius: "8px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
+          >
+            <CardContent>
+              <Box display="flex" alignItems="center" gap={2} mb={2}>
+                <Avatar
+                  src={mentee.profileImage || "/images/default-profile.svg"}
+                  alt={mentee.nickname}
+                  sx={{ width: 40, height: 40 }}
+                />
+                <Box>
+                  <Typography fontWeight={600}>{mentee.nickname}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(mentee.joinedAt)}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Typography
+                variant="subtitle1"
+                fontWeight={500}
+                mb={1}
                 sx={{
-                  padding: "12px 16px",
-                  width: "130px",
+                  whiteSpace: "nowrap",
                   overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
-                수강생
-              </TableCell>
-              <TableCell sx={{ padding: "12px 16px", width: "160px" }}>
-                과외명
-              </TableCell>
-              <TableCell sx={{ padding: "12px 16px", width: "130px" }}>
-                시간대
-              </TableCell>
-              <TableCell sx={{ padding: "12px 16px", width: "110px" }}>
-                매칭일
-              </TableCell>
-              <TableCell sx={{ padding: "12px 16px", width: "90px" }}>
-                취소
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {mentees.map((mentee) => (
-              <TableRow key={mentee.matchId} hover>
-                <TableCell sx={{ padding: "12px 16px" }}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    gap={2}
-                    sx={{
-                      maxWidth: "100%",
-                    }}
-                  >
-                    <Avatar
-                      src={mentee.profileImage || "/images/default-profile.svg"}
-                      alt={mentee.nickname}
-                      sx={{ width: 40, height: 40, flexShrink: 0 }}
-                    />
-                    <Typography
-                      variant="body2"
-                      fontWeight={500}
+                {mentee.lectureTitle}
+              </Typography>
+
+              {mentee.matchedTimeSlots ? (
+                <Box display="flex" flexWrap="wrap" gap={0.5} mb={2}>
+                  {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
+                    <Chip
+                      key={idx}
+                      label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
+                      size="small"
                       sx={{
-                        width: "85px",
-                        textOverflow: "ellipsis",
-                        wordWrap: "break-word",
-                        display: "flex",
-                        alignItems: "center",
-                        maxWidth: "85px",
-                        wordBreak: "break-all",
-                        overflowWrap: "break-word",
-                        boxSizing: "border-box",
+                        backgroundColor: "var(--action-primary-bg)",
+                        color: "var(--primary-200)",
+                        fontSize: 12,
+                        mb: 0.5,
                       }}
-                    >
-                      {mentee.nickname}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
+                    />
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" mb={2}>
+                  시간 정보 없음
+                </Typography>
+              )}
+
+              <Button
+                variant="outlined"
+                fullWidth
+                color="error"
+                onClick={() => handleCancelClick(mentee)}
+                sx={{
+                  mt: "auto",
+                  borderColor: "var(--action-red)",
+                  color: "var(--action-red)",
+                  fontSize: 12,
+                  "&:hover": {
+                    borderColor: "var(--action-red)",
+                    backgroundColor: "var(--action-red-bg)",
+                  },
+                }}
+              >
+                매칭 취소
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+  );
+
+  // 데스크탑 뷰 - 테이블 형태
+  const renderDesktopView = () => (
+    <TableContainer component={Paper} variant="outlined">
+      <Table sx={{ tableLayout: "fixed" }} size="medium">
+        <TableHead>
+          <TableRow
+            sx={{
+              backgroundColor: "var(--bg-200)",
+              "& .MuiTableCell-head": {
+                textAlign: "center",
+              },
+            }}
+          >
+            <TableCell
+              sx={{
+                padding: "12px 16px",
+                width: "130px",
+                overflow: "hidden",
+              }}
+            >
+              수강생
+            </TableCell>
+            <TableCell sx={{ padding: "12px 16px", width: "160px" }}>
+              과외명
+            </TableCell>
+            <TableCell sx={{ padding: "12px 16px", width: "130px" }}>
+              시간대
+            </TableCell>
+            <TableCell sx={{ padding: "12px 16px", width: "110px" }}>
+              매칭일
+            </TableCell>
+            <TableCell sx={{ padding: "12px 16px", width: "90px" }}>
+              취소
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {mentees.map((mentee) => (
+            <TableRow key={mentee.matchId} hover>
+              <TableCell sx={{ padding: "12px 16px" }}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  sx={{
+                    maxWidth: "100%",
+                  }}
+                >
+                  <Avatar
+                    src={mentee.profileImage || "/images/default-profile.svg"}
+                    alt={mentee.nickname}
+                    sx={{ width: 40, height: 40, flexShrink: 0 }}
+                  />
                   <Typography
                     variant="body2"
+                    fontWeight={500}
                     sx={{
-                      maxWidth: "200px",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
+                      width: "85px",
                       textOverflow: "ellipsis",
-                      display: "block",
+                      wordWrap: "break-word",
+                      display: "flex",
+                      alignItems: "center",
+                      maxWidth: "85px",
+                      wordBreak: "break-all",
+                      overflowWrap: "break-word",
+                      boxSizing: "border-box",
                     }}
                   >
-                    {mentee.lectureTitle}
+                    {mentee.nickname}
                   </Typography>
-                </TableCell>
-                <TableCell>
-                  {mentee.matchedTimeSlots ? (
-                    <Box display="flex" flexWrap="wrap" gap={0.5}>
-                      {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
-                        <Chip
-                          key={idx}
-                          label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
-                          size="small"
-                          sx={{
-                            backgroundColor: "var(--action-primary-bg)",
-                            color: "var(--primary-200)",
-                            fontSize: 12,
-                          }}
-                        />
-                      ))}
-                    </Box>
-                  ) : (
-                    "시간 정보 없음"
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
-                    {mentee.joinedAt
-                      ? `${mentee.joinedAt[0]}-${String(
-                          mentee.joinedAt[1]
-                        ).padStart(2, "0")}-${String(
-                          mentee.joinedAt[2]
-                        ).padStart(2, "0")}`
-                      : "-"}
-                  </Typography>
-                </TableCell>
-                <TableCell sx={{ padding: "12px 16px" }}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    color="error"
-                    onClick={() => handleCancelClick(mentee)}
-                    sx={{
+                </Box>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    maxWidth: "200px",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    display: "block",
+                  }}
+                >
+                  {mentee.lectureTitle}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                {mentee.matchedTimeSlots ? (
+                  <Box display="flex" flexWrap="wrap" gap={0.5}>
+                    {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
+                      <Chip
+                        key={idx}
+                        label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
+                        size="small"
+                        sx={{
+                          backgroundColor: "var(--action-primary-bg)",
+                          color: "var(--primary-200)",
+                          fontSize: 12,
+                        }}
+                      />
+                    ))}
+                  </Box>
+                ) : (
+                  "시간 정보 없음"
+                )}
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>
+                  {formatDate(mentee.joinedAt)}
+                </Typography>
+              </TableCell>
+              <TableCell sx={{ padding: "12px 16px" }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  onClick={() => handleCancelClick(mentee)}
+                  sx={{
+                    borderColor: "var(--action-red)",
+                    color: "var(--action-red)",
+                    fontSize: 12,
+                    "&:hover": {
                       borderColor: "var(--action-red)",
-                      color: "var(--action-red)",
-                      fontSize: 12,
-                      "&:hover": {
-                        borderColor: "var(--action-red)",
-                        backgroundColor: "var(--action-red-bg)",
-                      },
-                    }}
-                  >
-                    매칭 취소
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                      backgroundColor: "var(--action-red-bg)",
+                    },
+                  }}
+                >
+                  매칭 취소
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+
+  return (
+    <Box>
+      <Typography
+        variant="h6"
+        fontWeight={600}
+        mb={3}
+        sx={{
+          textAlign: "center",
+          fontSize: isMobile ? "1.25rem" : "1.5rem",
+        }}
+      >
+        매칭된 수강생 목록
+      </Typography>
+
+      {isMobile
+        ? renderMobileView()
+        : isTablet
+        ? renderTabletView()
+        : renderDesktopView()}
+
       {/* 매칭 취소 확인 대화상자 */}
       <Dialog
         open={cancelDialogOpen}
@@ -293,27 +491,48 @@ export default function MatchedMenteeList() {
           sx: {
             borderRadius: "16px",
             backgroundColor: "var(--bg-100)",
-            px: 2,
-            py: 2,
+            px: isMobile ? 1 : 2,
+            py: isMobile ? 1 : 2,
+            width: isMobile ? "90%" : "auto",
+            maxWidth: isMobile ? "none" : undefined,
           },
         }}
       >
-        <DialogTitle sx={{ color: "var(--text-100)", fontWeight: 600 }}>
+        <DialogTitle
+          sx={{
+            color: "var(--text-100)",
+            fontWeight: 600,
+            fontSize: isMobile ? "1.1rem" : "1.25rem",
+            pt: isMobile ? 2 : 3,
+          }}
+        >
           매칭 취소 확인
         </DialogTitle>
         <DialogContent>
-          <DialogContentText sx={{ color: "var(--text-300)" }}>
+          <DialogContentText
+            sx={{
+              color: "var(--text-300)",
+              fontSize: isMobile ? "0.9rem" : "1rem",
+            }}
+          >
             {selectedMentee?.nickname}님과의 과외 매칭을 취소하시겠습니까?
             <br />
             취소 후에는 복구할 수 없습니다.
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: "space-between", px: 2, pb: 2 }}>
+        <DialogActions
+          sx={{
+            justifyContent: "space-between",
+            px: isMobile ? 1 : 2,
+            pb: isMobile ? 2 : 3,
+          }}
+        >
           <Button
             onClick={() => setCancelDialogOpen(false)}
             sx={{
               color: "var(--text-300)",
               fontWeight: 500,
+              fontSize: isMobile ? "0.875rem" : "0.95rem",
             }}
           >
             취소
@@ -326,13 +545,14 @@ export default function MatchedMenteeList() {
               backgroundColor: "var(--action-red)",
               color: "white",
               fontWeight: 600,
+              fontSize: isMobile ? "0.875rem" : "0.95rem",
               "&:hover": {
                 backgroundColor: "rgba(204, 105, 105, 0.9)",
               },
             }}
           >
             {cancelLoading ? (
-              <CircularProgress size={24} color="inherit" />
+              <CircularProgress size={isMobile ? 20 : 24} color="inherit" />
             ) : (
               "매칭 취소"
             )}
