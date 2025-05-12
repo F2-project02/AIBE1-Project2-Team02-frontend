@@ -132,6 +132,7 @@ export default function MyPage() {
             <ProfileImageUploader
               imagePreview={imagePreview}
               onImageUpdate={handleProfileImageUpdate}
+              showToast={showToast}
             />
             {profileData && (
               <ProfileForm
