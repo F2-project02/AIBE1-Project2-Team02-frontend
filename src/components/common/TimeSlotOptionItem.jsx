@@ -25,10 +25,11 @@ export default function TimeSlotOptionItem({
         onClick={(e) => e.preventDefault()}
         size="small"
         sx={{
-          width: { xs: 120, sm: 130, md: 180 },
+          width: { xs: "40%", sm: 130, md: 180 },
           "& .MuiOutlinedInput-root": { borderRadius: "8px" },
         }}
         inputProps={{ step: 600 }}
+        disabled={true}
       />
 
       <Typography variant="body1" fontWeight={500}>
@@ -42,10 +43,11 @@ export default function TimeSlotOptionItem({
         onClick={(e) => e.preventDefault()}
         size="small"
         sx={{
-          width: { xs: 120, sm: 130, md: 180 },
+          width: { xs: "40%", sm: 130, md: 180 },
           "& .MuiOutlinedInput-root": { borderRadius: "8px" },
         }}
         inputProps={{ step: 600 }}
+        disabled={true}
       />
 
       {/* 체크박스 */}
