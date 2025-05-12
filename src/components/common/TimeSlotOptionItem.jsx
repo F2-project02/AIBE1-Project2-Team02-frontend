@@ -22,7 +22,7 @@ export default function TimeSlotOptionItem({
       <TextField
         type="time"
         value={slot.startTime}
-        onChange={(e) => onChange(slot.id, "startTime", e.target.value)}
+        onClick={(e) => e.preventDefault()}
         size="small"
         sx={{
           width: { xs: 120, sm: 130, md: 180 },
@@ -39,7 +39,7 @@ export default function TimeSlotOptionItem({
       <TextField
         type="time"
         value={slot.endTime}
-        onChange={(e) => onChange(slot.id, "endTime", e.target.value)}
+        onClick={(e) => e.preventDefault()}
         size="small"
         sx={{
           width: { xs: 120, sm: 130, md: 180 },

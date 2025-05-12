@@ -1,14 +1,18 @@
 // src/pages/MyPage.jsx
 import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, CircularProgress, useMediaQuery, useTheme } from "@mui/material";
 import ProfileCard from "../components/Profile/ProfileCard";
 import ProfileImageUploader from "../components/Profile/ProfileImageUploader";
 import MyPageSidebar from "../components/Profile/MyPageSidebar";
 import ProfileForm from "../components/Profile/ProfileForm";
 import MentorFormView from "../components/Profile/MentorFormView";
 import DeleteAccountForm from "../components/Profile/DeleteAccountForm";
+import MatchedMenteeList from "../components/Profile/MatchedMenteeList";
 import { fetchProfileData, fetchMentorProfile } from "../lib/api/profileApi";
 import { useLocation } from "react-router-dom";
+import CustomToast from "../components/common/CustomToast";
+import warnGif from "../assets/warn.gif";
+import successGif from "../assets/message.gif";
 
 import ProfileCardSkeleton from "../components/Profile/skeletons/ProfileCardSkeleton";
 import ProfileFormSkeleton from "../components/Profile/skeletons/ProfileFormSkeleton";
@@ -27,9 +31,29 @@ export default function MyPage() {
   );
 
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const tabParam = searchParams.get("tab");
+
   const [activeTab, setActiveTab] = useState(
-    location.state?.activeTab || "profile"
+    tabParam || location.state?.activeTab || "profile"
   );
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
+
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
+  const [toastType, setToastType] = useState("info");
+
+  // showToast 함수 추가
+  const showToast = (message, icon = null, type = "info") => {
+    setToastMessage(message);
+    setToastIcon(icon);
+    setToastType(type);
+    setToastOpen(true);
+  };
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -91,6 +115,12 @@ export default function MyPage() {
           );
         case "mentor":
           return <MentorFormViewSkeleton />;
+        case "mentees":
+          return (
+            <Box sx={{ p: 4 }}>
+              <CircularProgress />
+            </Box>
+          );
         case "delete":
           return <DeleteAccountFormSkeleton />;
         default:
@@ -110,21 +140,26 @@ export default function MyPage() {
               <ProfileForm
                 profileData={profileData}
                 onProfileUpdate={handleProfileUpdate}
+                showToast={showToast}
               />
             )}
           </>
         );
       case "mentor":
-        return <MentorFormView onProfileUpdate={() => {}} />;
+        return (
+          <MentorFormView onProfileUpdate={() => {}} showToast={showToast} />
+        );
+      case "mentees":
+        return <MatchedMenteeList />;
       case "delete":
-        return <DeleteAccountForm />;
+        return <DeleteAccountForm showToast={showToast} />;
       default:
         return null;
     }
   };
 
   return (
-    <Box sx={{ mt: 4, mb: 8 }}>
+    <Box sx={{ mt: 4, mb: 8, px: { xs: 1, sm: 2, md: 3 } }}>
       {/* 상단 프로필 카드 영역 */}
       {loading ? (
         <ProfileCardSkeleton />
@@ -136,19 +171,51 @@ export default function MyPage() {
         />
       )}
 
-      {/* 하단 메뉴 및 폼 영역 - flex로 좌우 분리 */}
-      <Box sx={{ display: "flex", gap: 4 }}>
-        {loading ? (
-          <MyPageSidebarSkeleton />
-        ) : (
-          <MyPageSidebar
-            activeTab={activeTab}
-            onTabChange={handleTabChange}
-            isLoading={tabLoading}
-          />
-        )}
-        <Box sx={{ flex: 1 }}>{renderActiveTabContent()}</Box>
+      {/* 하단 메뉴 및 폼 영역 */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: { xs: 2, md: 4 },
+          mt: { xs: 2, md: 4 },
+        }}
+      >
+        {/* 사이드바 영역 */}
+        <Box
+          sx={{
+            width: { xs: "100%", md: 240 },
+            mb: { xs: 3, md: 0 },
+          }}
+        >
+          {loading ? (
+            <MyPageSidebarSkeleton />
+          ) : (
+            <MyPageSidebar
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              isLoading={tabLoading}
+            />
+          )}
+        </Box>
+
+        {/* 콘텐츠 영역 */}
+        <Box
+          sx={{
+            flex: 1,
+            width: { xs: "100%", md: "auto" },
+          }}
+        >
+          {renderActiveTabContent()}
+        </Box>
       </Box>
+
+      <CustomToast
+        open={toastOpen}
+        onClose={() => setToastOpen(false)}
+        message={toastMessage}
+        iconSrc={toastIcon}
+        type={toastType}
+      />
     </Box>
   );
 }

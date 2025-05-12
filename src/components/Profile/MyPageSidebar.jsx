@@ -1,8 +1,17 @@
 // src/components/Profile/MyPageSidebar.jsx
-import { Box, List, ListItem, Typography, Skeleton } from "@mui/material";
+import {
+  Box,
+  List,
+  ListItem,
+  Typography,
+  Skeleton,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 
 import PersonIcon from "@mui/icons-material/Person";
 import SchoolIcon from "@mui/icons-material/School";
+import PeopleIcon from "@mui/icons-material/People";
 import PersonOffIcon from "@mui/icons-material/PersonOff";
 
 export default function MyPageSidebar({
@@ -10,20 +19,43 @@ export default function MyPageSidebar({
   onTabChange,
   isLoading = false,
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const tabItems = [
     { id: "profile", label: "내 정보 수정", icon: <PersonIcon /> },
     { id: "mentor", label: "멘토 프로필", icon: <SchoolIcon /> },
+    { id: "mentees", label: "수강생 목록", icon: <PeopleIcon /> },
     { id: "delete", label: "회원탈퇴", icon: <PersonOffIcon /> },
   ];
 
   return (
-    <Box sx={{ width: 240 }}>
-      <List component="nav" aria-label="마이페이지 메뉴">
+    <Box
+      sx={{
+        width: isMobile ? "100%" : 240,
+        mb: isMobile ? 3 : 0,
+      }}
+    >
+      <List
+        component="nav"
+        aria-label="마이페이지 메뉴"
+        sx={{
+          display: "flex",
+          flexDirection: isMobile ? "row" : "column",
+          justifyContent: isMobile ? "space-between" : "flex-start",
+          flexWrap: "wrap",
+          gap: 1,
+        }}
+      >
         {tabItems.map((tab) => (
           <ListItem
             key={tab.id}
             disablePadding
-            sx={{ mb: 1 }}
+            sx={{
+              mb: isMobile ? 0 : 1,
+              width: isMobile ? "auto" : "100%",
+              flex: isMobile ? "1 1 0" : "auto",
+            }}
             onClick={() => onTabChange && onTabChange(tab.id)}
           >
             {isLoading ? (
@@ -45,12 +77,14 @@ export default function MyPageSidebar({
                     activeTab === tab.id
                       ? "var(--action-primary-bg)"
                       : "transparent",
-                  py: 1.5,
+                  py: isMobile ? 1 : 1.5,
                   px: 2,
                   cursor: "pointer",
                   display: "flex",
+                  flexDirection: isMobile ? "column" : "row",
                   alignItems: "center",
-                  gap: 2,
+                  justifyContent: isMobile ? "center" : "flex-start",
+                  gap: isMobile ? 0.5 : 2,
                   "&:hover": {
                     bgcolor:
                       activeTab === tab.id
@@ -78,6 +112,8 @@ export default function MyPageSidebar({
                       activeTab === tab.id
                         ? "var(--primary-200)"
                         : "var(--text-300)",
+                    fontSize: isMobile ? "0.75rem" : "1rem",
+                    textAlign: isMobile ? "center" : "left",
                   }}
                 >
                   {tab.label}

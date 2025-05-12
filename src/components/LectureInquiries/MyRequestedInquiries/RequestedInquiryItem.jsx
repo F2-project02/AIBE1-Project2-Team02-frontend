@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import { useNavigate } from "react-router-dom";
 
@@ -102,7 +102,12 @@ export default function RequestedInquiryItem({ data }) {
           {nickname}
         </Typography>
         {isCertified && (
-          <ShieldIcon sx={{ fontSize: 16, color: "var(--primary-100)" }} />
+              <SecurityIcon
+              sx={{
+                fontSize: 16,
+                fill: "url(#shield-gradient)",
+              }}
+            />
         )}
         <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
         <Typography variant="body2" fontWeight={500}>

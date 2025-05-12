@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Box, Card, Avatar, Typography, Stack, Button } from "@mui/material";
 import GradientButton from "../../../Button/GradientButton";
 import RejectReasonModal from "./RejectReasonModal";
+import ApplicationDetailModal from "./ApplicationDetailModal";
 import { approveApplication } from "../../../../lib/api/inquiryApi";
 import useInquiryStore from "../../../../store/useInquiryStore";
 import partyGif from "../../../../assets/party.gif";
@@ -12,7 +13,10 @@ export default function ApplicationItem({ data, showToast }) {
     data;
   const [openReject, setOpenReject] = useState(false);
   const [approving, setApproving] = useState(false);
-
+  const [modalOpen, setModalOpen] = useState(false);
+  const closeModal = () => {
+    setModalOpen(false);
+  };
   const { applicants, setApplicants } = useInquiryStore();
 
   const handleApprove = async () => {
@@ -41,14 +45,20 @@ export default function ApplicationItem({ data, showToast }) {
     setApplicants(filtered);
   };
 
+  const handleCardClick = () => {
+    setModalOpen(true);
+  };
+
   return (
     <>
       <Card
+        onClick={handleCardClick}
         sx={{
           borderRadius: "12px",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.04)",
           width: 400,
           p: 2,
+          cursor: "pointer",
         }}
       >
         {/* 프로필 */}
@@ -77,7 +87,10 @@ export default function ApplicationItem({ data, showToast }) {
           <Button
             variant="outlined"
             size="small"
-            onClick={() => setOpenReject(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpenReject(true);
+            }}
             sx={{
               borderRadius: "10px",
               minWidth: 80,
@@ -96,7 +109,10 @@ export default function ApplicationItem({ data, showToast }) {
               fontWeight: 500,
               borderRadius: "10px",
             }}
-            onClick={handleApprove}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleApprove();
+            }}
             disabled={approving}
           >
             {approving ? "처리 중..." : "수락하기"}
@@ -111,6 +127,17 @@ export default function ApplicationItem({ data, showToast }) {
         menteeNickname={nickname}
         onRejectSubmitted={handleRejectSubmitted}
       />
+
+      {modalOpen &&
+        (data ? (
+          <ApplicationDetailModal
+            open={modalOpen}
+            onClose={closeModal}
+            data={data}
+          />
+        ) : (
+          <ApplicationDetailSkeleton open={modalOpen} onClose={closeModal} />
+        ))}
     </>
   );
 }

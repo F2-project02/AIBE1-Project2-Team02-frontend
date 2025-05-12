@@ -1,6 +1,12 @@
 // src/components/Profile/ProfileCard.jsx
 
-import { Box, Typography, Avatar } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Avatar,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { useState, useEffect } from "react";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
 import StarIcon from "@mui/icons-material/Star";
@@ -12,14 +18,13 @@ export default function ProfileCard({
   imagePreview,
 }) {
   const [rating, setRating] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // useEffect 추가
   useEffect(() => {
-    // profileData와 mentorProfile 둘 다 존재하는지 확인
     if (profileData?.role === "MENTOR" && mentorProfile) {
       const fetchRating = async () => {
         try {
-          // mentorProfile.mentorId가 정확한 필드인지 확인
           const mentorId = mentorProfile.mentorId;
 
           if (!mentorId) {
@@ -53,9 +58,10 @@ export default function ProfileCard({
     <Box
       sx={{
         display: "flex",
-        alignItems: "center",
+        flexDirection: { xs: "column", sm: "row" },
+        alignItems: { xs: "center", sm: "flex-start" },
         mb: 4,
-        p: 0,
+        p: { xs: 2, sm: 0 },
         width: "100%",
       }}
     >
@@ -64,16 +70,24 @@ export default function ProfileCard({
         src={imagePreview}
         alt="프로필 이미지"
         sx={{
-          width: 80,
-          height: 80,
-          mr: 3,
+          width: { xs: 100, sm: 80 },
+          height: { xs: 100, sm: 80 },
+          mr: { xs: 0, sm: 3 },
+          mb: { xs: 2, sm: 0 },
         }}
       />
 
-      <Box>
+      <Box sx={{ textAlign: { xs: "center", sm: "left" } }}>
         {/* 닉네임과 인증 아이콘을 포함한 상단 행 */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 0.5 }}>
-          <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.2rem" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            mb: 0.5,
+            justifyContent: { xs: "center", sm: "flex-start" },
+          }}
+        >
+          <Typography variant="h6" fontWeight={600} sx={{ fontSize: "1.8rem" }}>
             {profileData?.nickname || ""}
           </Typography>
 
@@ -86,20 +100,6 @@ export default function ProfileCard({
                 display: "inline-flex",
               }}
             >
-              <svg width="0" height="0">
-                <defs>
-                  <linearGradient
-                    id="shield-gradient"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="0%"
-                  >
-                    <stop offset="0%" stopColor="#ffbad0" />
-                    <stop offset="100%" stopColor="var(--primary-100)" />
-                  </linearGradient>
-                </defs>
-              </svg>
               <SecurityIcon
                 sx={{
                   fontSize: 20,
@@ -124,21 +124,33 @@ export default function ProfileCard({
       {profileData?.role === "MENTOR" && (
         <Box
           sx={{
-            ml: 4,
+            ml: { xs: 0, sm: 4 },
+            mt: { xs: 2, sm: 0 },
             display: "flex",
             alignItems: "center",
+            justifyContent: { xs: "center", sm: "flex-start" },
+            width: "100%",
+            alignSelf: { xs: "center", sm: "center" },
           }}
         >
-          <StarIcon
+          <Box
             sx={{
-              color: "#FFC107",
-              mr: 0.5,
-              fontSize: 28,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
-          />
-          <Typography variant="body2" fontWeight={500}>
-            {rating > 0 ? rating.toFixed(1) : "아직 평점이 없어요."}
-          </Typography>
+          >
+            <StarIcon
+              sx={{
+                color: "#FFC107",
+                mr: 0.5,
+                fontSize: 28,
+              }}
+            />
+            <Typography variant="body1" fontWeight={600} fontSize="1.1rem">
+              {rating > 0 ? rating.toFixed(1) : "아직 평점이 없습니다"}
+            </Typography>
+          </Box>
         </Box>
       )}
     </Box>

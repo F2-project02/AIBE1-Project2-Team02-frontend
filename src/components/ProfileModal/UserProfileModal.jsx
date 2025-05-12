@@ -12,7 +12,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -93,7 +93,12 @@ export default function UserProfileModal() {
 
           {/* 인증 아이콘 */}
           {isCertified && (
-            <ShieldIcon sx={{ fontSize: 16, color: "var(--primary-100)" }} />
+              <SecurityIcon
+              sx={{
+                fontSize: 16,
+                fill: "url(#shield-gradient)",
+              }}
+            />
           )}
         </Box>
 

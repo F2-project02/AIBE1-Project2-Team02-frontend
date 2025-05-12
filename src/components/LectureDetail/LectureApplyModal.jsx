@@ -9,7 +9,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -103,8 +103,15 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
         onClose();
       }, 2000);
     } catch (error) {
-      console.error("과외 신청 실패", error);
-      showToast("이런, 과외 신청이 실패했어요.", warnGif, "error");
+      const errorMessage = error?.response?.data?.message ?? "";
+
+      const codeMatch = errorMessage.match(/\[(.*?)\]/);
+      const errorCode = codeMatch?.[1];
+      if (errorCode === "DUPLICATE_APPLICATION") {
+        showToast("이미 신청한 과외입니다.", warnGif, "error");
+      } else {
+        showToast("이런, 과외 신청이 실패했어요.", warnGif, "error");
+      }
     }
   };
 
@@ -164,9 +171,11 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
                   {formData?.nickname}
                 </Typography>
                 {formData?.isCertified && (
-                  <ShieldIcon
-                    fontSize="small"
-                    sx={{ color: "var(--primary-100)" }}
+                  <SecurityIcon
+                    sx={{
+                      fontSize: 14,
+                      fill: "url(#shield-gradient)",
+                    }}
                   />
                 )}
               </Stack>
@@ -221,19 +230,6 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
 
                 <TimeSlotOptionItem
                   slot={{ ...slot, id: index }}
-                  onChange={(id, field, value) => {
-                    const updated = [...formData.availableTimeSlots];
-                    const i = updated.findIndex(
-                      (s, idx) => s.dayOfWeek === selectedDay && idx === id
-                    );
-                    if (i !== -1) {
-                      updated[i] = { ...updated[i], [field]: value };
-                      setFormData({
-                        ...formData,
-                        availableTimeSlots: updated,
-                      });
-                    }
-                  }}
                   checked={isSlotSelected(index)}
                   onToggle={toggleSlot}
                 />

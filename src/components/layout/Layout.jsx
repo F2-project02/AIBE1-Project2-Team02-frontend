@@ -21,13 +21,27 @@ export default function Layout({ children }) {
         alignItems: "center",
       }}
     >
+      <svg width="0" height="0">
+        <defs>
+          <linearGradient
+            id="shield-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="#ffbad0" />
+            <stop offset="100%" stopColor="var(--primary-100)" />
+          </linearGradient>
+        </defs>
+      </svg>
       {/* 중앙 콘텐츠 컨테이너 */}
       <Box
         sx={{
           width: "100%",
-          maxWidth: "1040px",     // 콘텐츠 최대 너비 제한
+          maxWidth: "1040px", // 콘텐츠 최대 너비 제한
           px: { xs: 2, sm: 3, md: 4 }, // 작은 화면 내부 여백
-          mx: "auto",             // 큰 화면에서 중앙 정렬
+          mx: "auto", // 큰 화면에서 중앙 정렬
           flexGrow: 1,
           position: "relative",
         }}

@@ -9,10 +9,13 @@ import {
   Switch,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisteredLectureItem({ data, onToggle }) {
+  const navigate = useNavigate();
+
   const {
     lectureId,
     lectureTitle,
@@ -52,8 +55,13 @@ export default function RegisteredLectureItem({ data, onToggle }) {
     onToggle(lectureId, isClosed);
   };
 
+  const handleCardClick = () => {
+    navigate(`/lectures/${lectureId}`);
+  };
+
   return (
     <Card
+      onClick={handleCardClick}
       sx={{
         width: 400,
         minHeight: 220,
@@ -66,6 +74,7 @@ export default function RegisteredLectureItem({ data, onToggle }) {
         borderRadius: 0,
         backgroundColor: "unset",
         boxShadow: "none",
+        cursor: "pointer",
       }}
     >
       {/* 프로필 */}
@@ -78,7 +87,12 @@ export default function RegisteredLectureItem({ data, onToggle }) {
           {nickname}
         </Typography>
         {isCertified && (
-          <ShieldIcon sx={{ fontSize: 16, color: "var(--primary-100)" }} />
+              <SecurityIcon
+              sx={{
+                fontSize: 16,
+                fill: "url(#shield-gradient)",
+              }}
+            />
         )}
         <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
         <Typography variant="body2" fontWeight={500}>
@@ -168,7 +182,10 @@ export default function RegisteredLectureItem({ data, onToggle }) {
 
         <Switch
           checked={!isClosed}
-          onChange={handleToggle}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => {
+            handleToggle();
+          }}
           color="primary"
           sx={{ ml: 2 }}
         />

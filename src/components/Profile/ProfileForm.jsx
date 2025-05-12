@@ -10,12 +10,15 @@ import {
   CircularProgress,
   MenuItem,
   Chip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
 import ProfileRegionModal from "./ProfileRegionModal";
 import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
+import warnGif from "../../assets/warn.gif";
+import successGif from "../../assets/party.gif";
 
-// MBTI 목록
 const mbtiOptions = [
   "ISTJ",
   "ISFJ",
@@ -35,7 +38,11 @@ const mbtiOptions = [
   "ENTJ",
 ];
 
-export default function ProfileForm({ profileData, onProfileUpdate }) {
+export default function ProfileForm({
+  profileData,
+  onProfileUpdate,
+  showToast,
+}) {
   // 편집을 위한 상태 변수들
   const [nickname, setNickname] = useState("");
   const [originalNickname, setOriginalNickname] = useState("");
@@ -52,6 +59,9 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [regionDialogOpen, setRegionDialogOpen] = useState(false);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   // 프로필 데이터 로드 시 초기화
   useEffect(() => {
     if (profileData) {
@@ -65,13 +75,11 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
         setSelectedRegions(profileData.regions);
       }
 
-      // 같은 닉네임이면 중복 확인 상태 초기화
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
     }
   }, [profileData]);
 
-  // 지역 선택 완료 처리 함수
   const handleRegionSelect = (regions) => {
     setSelectedRegions(regions);
     setRegionDialogOpen(false);
@@ -82,7 +90,6 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
     const newNickname = e.target.value;
     setNickname(newNickname);
 
-    // 원래 닉네임과 같다면 검사 필요 없음
     if (newNickname === originalNickname) {
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
@@ -95,7 +102,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   // 닉네임 중복 확인 함수
   const checkNicknameDuplicate = async () => {
     if (!nickname.trim()) {
-      alert("닉네임을 입력해주세요.");
+      showToast("닉네임을 입력해주세요.", warnGif, "error");
       return;
     }
 
@@ -107,13 +114,21 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
       setIsNicknameAvailable(isAvailable);
 
       if (isAvailable) {
-        alert("사용 가능한 닉네임입니다.");
+        showToast("사용 가능한 닉네임입니다.", successGif, "info");
       } else {
-        alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+        showToast(
+          "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.",
+          warnGif,
+          "error"
+        );
       }
     } catch (error) {
       console.error("닉네임 중복 확인 오류:", error);
-      alert("닉네임 확인 중 오류가 발생했어요: " + error.message);
+      showToast(
+        "닉네임 확인 중 오류가 발생했습니다: " + error.message,
+        warnGif,
+        "error"
+      );
     } finally {
       setCheckingNickname(false);
     }
@@ -121,27 +136,18 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
 
   // 유효한 날짜인지 확인하는 함수
   const isValidDate = (dateString) => {
-    // 길이가 8자가 아니면 유효하지 않음
     if (dateString.length !== 8) return false;
 
-    // YYYY, MM, DD로 분리
     const year = parseInt(dateString.substring(0, 4), 10);
     const month = parseInt(dateString.substring(4, 6), 10);
     const day = parseInt(dateString.substring(6, 8), 10);
-
-    // 현재 연도 구하기
     const currentYear = new Date().getFullYear();
 
-    // 연도 범위 체크 (예: 1900년부터 현재 연도까지)
     if (year < 1900 || year > currentYear) return false;
-
-    // 월 체크 (1-12)
     if (month < 1 || month > 12) return false;
 
-    // 각 월의 마지막 날짜
     const lastDayOfMonth = new Date(year, month, 0).getDate();
 
-    // 일 체크 (1부터 해당 월의 마지막 날짜까지)
     if (day < 1 || day > lastDayOfMonth) return false;
 
     return true;
@@ -151,7 +157,6 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   const handleBirthDateChange = (e) => {
     const value = e.target.value;
 
-    // 숫자만 입력 가능하도록 함
     if (value && !/^\d*$/.test(value)) {
       setBirthDateError("숫자만 입력 가능합니다");
       return;
@@ -164,13 +169,11 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
 
     setBirthDate(value);
 
-    // 비어있을 때는 에러 메시지 없음
     if (value.length === 0) {
       setBirthDateError("");
       return;
     }
 
-    // 8자리일 때는 유효한 날짜인지 확인
     if (value.length === 8) {
       if (!isValidDate(value)) {
         setBirthDateError("유효하지 않은 날짜입니다.");
@@ -178,7 +181,6 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
         setBirthDateError("");
       }
     } else {
-      // 8자리가 아닐 때는 입력 중인 상태로 간주
       setBirthDateError("YYYYMMDD 형식의 8자리로 입력해주세요");
     }
   };
@@ -187,44 +189,51 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 닉네임이 변경되었는데 중복 체크를 하지 않은 경우
     if (nickname !== originalNickname && !isNicknameChecked) {
-      alert("닉네임 중복 확인을 해주세요.");
+      showToast("닉네임 중복 확인을 해주세요.", warnGif, "error");
       return;
     }
 
-    // 닉네임이 중복인 경우
     if (nickname !== originalNickname && !isNicknameAvailable) {
-      alert("이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.");
+      showToast(
+        "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.",
+        warnGif,
+        "error"
+      );
       return;
     }
 
-    // 생년월일 유효성 검사
     if (!birthDate || birthDate.trim() === "") {
-      alert("생년월일을 입력해주세요.");
+      showToast("생년월일을 입력해주세요.", warnGif, "error");
       return;
     }
 
     if (birthDate.length !== 8) {
-      alert("생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.");
+      showToast(
+        "생년월일을 YYYYMMDD 형식의 8자리로 입력해주세요.",
+        warnGif,
+        "error"
+      );
       return;
     }
 
     if (!isValidDate(birthDate)) {
-      alert("유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.");
+      showToast(
+        "유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.",
+        warnGif,
+        "error"
+      );
       return;
     }
 
-    // 지역 유효성 검사
     if (selectedRegions.length === 0) {
-      alert("최소 한 개 이상의 지역을 선택해주세요.");
+      showToast("최소 한 개 이상의 지역을 선택해주세요.", warnGif, "error");
       return;
     }
 
     setUpdating(true);
 
     try {
-      // 업데이트 요청 데이터
       const updateData = {
         nickname,
         birthDate,
@@ -235,23 +244,22 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
 
       await updateProfile(updateData);
 
-      // 부모 컴포넌트에 업데이트 알림
       onProfileUpdate({
         ...updateData,
         regions: selectedRegions,
       });
 
-      // 원래 닉네임 업데이트
       setOriginalNickname(nickname);
-
-      // 중복 확인 상태 초기화
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
 
-      alert("프로필이 성공적으로 업데이트 됐어요.");
+      showToast("프로필이 성공적으로 업데이트되었습니다.", successGif, "info");
     } catch (error) {
-      console.error("프로필 업데이트 오류: ", error);
-      alert("프로필 업데이트 중 오류가 발생했어요: " + error.message);
+      showToast(
+        "프로필 업데이트 중 오류가 발생했습니다: " + error.message,
+        warnGif,
+        "error"
+      );
     } finally {
       setUpdating(false);
     }
@@ -261,8 +269,13 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
     <Box component="form" onSubmit={handleSubmit}>
       {/* 닉네임 필드 */}
       <FormFieldWrapper label="닉네임" required>
-        {/* 텍스트 필드와 버튼 배치 - 가로 배열 */}
-        <Box sx={{ display: "flex", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: { xs: 1.5, sm: 1 },
+          }}
+        >
           <TextField
             fullWidth
             value={nickname}
@@ -294,10 +307,10 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             onClick={checkNicknameDuplicate}
             disabled={checkingNickname || !nickname.trim()}
             sx={{
-              height: "56px",
-              minWidth: "120px",
-              bgcolor: "var(--primary-100)", // 색상 변경
-              borderRadius: "8px", // 각진 모서리
+              height: { xs: "48px", sm: "56px" },
+              minWidth: { xs: "100%", sm: "120px" },
+              bgcolor: "var(--primary-100)",
+              borderRadius: "8px",
               "&:hover": {
                 bgcolor: "var(--primary-200)",
               },
@@ -332,16 +345,30 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
 
       {/* 성별 필드 */}
       <FormFieldWrapper label="성별" required>
-        <RadioGroup row value={sex} onChange={(e) => setSex(e.target.value)}>
+        <RadioGroup
+          row
+          value={sex}
+          onChange={(e) => setSex(e.target.value)}
+          sx={{
+            flexWrap: "wrap",
+            justifyContent: { xs: "space-around", sm: "flex-start" },
+          }}
+        >
           <FormControlLabel value="남성" control={<Radio />} label="남성" />
           <FormControlLabel value="여성" control={<Radio />} label="여성" />
         </RadioGroup>
       </FormFieldWrapper>
 
-      {/* 지역 필드 - 수정된 버전 */}
+      {/* 지역 필드 */}
       <FormFieldWrapper label="지역" required>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-          {/* 지역 선택 버튼 - 다른 입력 필드와 높이 맞춤 */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
+          {/* 지역 선택 버튼 */}
           <Box
             onClick={() => setRegionDialogOpen(true)}
             sx={{
@@ -349,9 +376,9 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
               alignItems: "center",
               justifyContent: "space-between",
               px: 3,
-              height: "56px", // 다른 입력 필드와 높이 맞춤
+              height: "56px",
               width: "100%",
-              maxWidth: "170px",
+              maxWidth: { xs: "100%", sm: "170px" },
               bgcolor: "#f9f9f9",
               borderRadius: "8px",
               cursor: "pointer",
@@ -367,7 +394,7 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
             </Box>
           </Box>
 
-          {/* 선택된 지역 표시 - 연한 파란색 배경의 X 버튼 */}
+          {/* 선택된 지역 표시 */}
           <Box display="flex" flexWrap="wrap" gap={1}>
             {selectedRegions.map((item) => (
               <Chip
@@ -439,7 +466,8 @@ export default function ProfileForm({ profileData, onProfileUpdate }) {
         disabled={updating}
         sx={{
           py: 1.5,
-          background: "linear-gradient(90deg, #ffbad0 0%, #5b8def 100%)",
+          mt: { xs: 3, sm: 4 },
+          background: "var(--primary-gradient)",
           borderRadius: "8px",
           color: "white",
           fontWeight: 600,

@@ -194,14 +194,19 @@ export async function fetchLectureApplyForm(lectureId) {
  */
 
 export const applyLecture = async (payload) => {
+  const response = await axiosInstance.post(`/api/application/apply`, payload);
+  return response.data;
+};
+
+/**
+ * 매칭된 수강생 목록 조회 API
+ */
+export const getMatchedMentees = async () => {
   try {
-    const response = await axiosInstance.post(
-      `/api/application/apply`,
-      payload
-    );
+    const response = await axiosInstance.get("/api/application/mentees");
     return response.data;
   } catch (error) {
-    console.error("수업 신청 실패", error);
+    console.error("매칭된 수강생 목록 조회 에러:", error);
     throw error;
   }
 };
