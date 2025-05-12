@@ -2,8 +2,6 @@ import {
   Modal,
   Box,
   Stack,
-  Typography,
-  Avatar,
   Skeleton,
   useMediaQuery,
   useTheme,
@@ -35,24 +33,67 @@ export default function LectureApplyModalSkeleton({ open, onClose }) {
           variant="text"
           width={120}
           height={30}
-          sx={{ mb: 4, mx: "auto" }}
+          animation="wave"
+          sx={{ mb: 4, mx: "auto", bgcolor: "var(--bg-200)" }}
         />
 
         <Stack direction="row" spacing={2} mb={2}>
-          <Skeleton variant="text" width={80} height={20} />
-          <Skeleton variant="text" width={200} height={20} />
+          <Skeleton
+            variant="text"
+            width={80}
+            height={20}
+            animation="wave"
+            sx={{ bgcolor: "var(--bg-200)" }}
+          />
+          <Skeleton
+            variant="text"
+            width={200}
+            height={20}
+            animation="wave"
+            sx={{ bgcolor: "var(--bg-200)" }}
+          />
         </Stack>
 
         <Stack direction="row" alignItems="center" spacing={2} mb={1}>
-          <Skeleton variant="circular" width={40} height={40} />
+          <Skeleton
+            variant="circular"
+            width={40}
+            height={40}
+            animation="wave"
+            sx={{ bgcolor: "var(--bg-200)" }}
+          />
           <Box sx={{ flexGrow: 1 }}>
-            <Skeleton variant="text" width="60%" height={20} />
-            <Skeleton variant="text" width="40%" height={16} />
+            <Skeleton
+              variant="text"
+              width="60%"
+              height={20}
+              animation="wave"
+              sx={{ bgcolor: "var(--bg-200)" }}
+            />
+            <Skeleton
+              variant="text"
+              width="40%"
+              height={16}
+              animation="wave"
+              sx={{ bgcolor: "var(--bg-200)" }}
+            />
           </Box>
-          <Skeleton variant="text" width={40} height={20} />
+          <Skeleton
+            variant="text"
+            width={40}
+            height={20}
+            animation="wave"
+            sx={{ bgcolor: "var(--bg-200)" }}
+          />
         </Stack>
 
-        <Skeleton variant="text" width={80} height={20} sx={{ mt: 3, mb: 1 }} />
+        <Skeleton
+          variant="text"
+          width={80}
+          height={20}
+          animation="wave"
+          sx={{ mt: 3, mb: 1, bgcolor: "var(--bg-200)" }}
+        />
         <Stack direction="row" spacing={1} mb={2}>
           {Array.from({ length: 4 }).map((_, idx) => (
             <Skeleton
@@ -60,20 +101,34 @@ export default function LectureApplyModalSkeleton({ open, onClose }) {
               variant="rectangular"
               width={60}
               height={32}
-              sx={{ borderRadius: 2 }}
+              animation="wave"
+              sx={{ borderRadius: 2, bgcolor: "var(--bg-200)" }}
             />
           ))}
         </Stack>
 
-        <Skeleton variant="text" width={120} height={20} sx={{ mb: 1 }} />
-        <Skeleton variant="text" width="80%" height={16} sx={{ mb: 1.5 }} />
+        <Skeleton
+          variant="text"
+          width={120}
+          height={20}
+          animation="wave"
+          sx={{ mb: 1, bgcolor: "var(--bg-200)" }}
+        />
+        <Skeleton
+          variant="text"
+          width="80%"
+          height={16}
+          animation="wave"
+          sx={{ mb: 1.5, bgcolor: "var(--bg-200)" }}
+        />
         {Array.from({ length: 2 }).map((_, idx) => (
           <Skeleton
             key={idx}
             variant="rectangular"
             width="100%"
             height={46}
-            sx={{ borderRadius: 2, mb: 1 }}
+            animation="wave"
+            sx={{ borderRadius: 2, mb: 1, bgcolor: "var(--bg-200)" }}
           />
         ))}
 
@@ -81,19 +136,22 @@ export default function LectureApplyModalSkeleton({ open, onClose }) {
           variant="text"
           width={100}
           height={20}
-          sx={{ mt: 3, mb: 1 }}
+          animation="wave"
+          sx={{ mt: 3, mb: 1, bgcolor: "var(--bg-200)" }}
         />
         <Skeleton
           variant="rectangular"
           width="100%"
           height={140}
-          sx={{ borderRadius: 2 }}
+          animation="wave"
+          sx={{ borderRadius: 2, bgcolor: "var(--bg-200)" }}
         />
         <Skeleton
           variant="text"
           width="30%"
           height={18}
-          sx={{ ml: "auto", mt: 1 }}
+          animation="wave"
+          sx={{ ml: "auto", mt: 1, bgcolor: "var(--bg-200)" }}
         />
 
         <Box display="flex" gap={2} mt={4}>
@@ -101,13 +159,15 @@ export default function LectureApplyModalSkeleton({ open, onClose }) {
             variant="rectangular"
             width="50%"
             height={52}
-            sx={{ borderRadius: 2 }}
+            animation="wave"
+            sx={{ borderRadius: 2, bgcolor: "var(--bg-200)" }}
           />
           <Skeleton
             variant="rectangular"
             width="50%"
             height={52}
-            sx={{ borderRadius: 2 }}
+            animation="wave"
+            sx={{ borderRadius: 2, bgcolor: "var(--bg-200)" }}
           />
         </Box>
       </Box>

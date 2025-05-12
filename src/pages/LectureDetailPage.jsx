@@ -26,45 +26,21 @@ export default function LectureDetailPage() {
   const [toastIcon, setToastIcon] = useState(null);
   const { userId } = useUserStore();
 
-  // 강의 데이터 가져오기
   useEffect(() => {
     const fetchLectureData = async () => {
       try {
         setLoading(true);
-
         const response = await getLecture(lectureId);
 
         if (response.success && response.data) {
           const lectureData = response.data;
 
-          // mentorId 기반으로 멘토 정보 병렬 요청
-          const [profileRes, mentorRes] = await Promise.all([
-            axiosInstance.get("/api/account/profile"),
-            axiosInstance.get("/api/account/mentor/profile"),
-          ]);
+          // 공개 멘토 프로필 API로 변경
+          const publicProfileRes = await axiosInstance.get(
+            `/api/account/mentor/${lectureData.mentorId}/public-profile`
+          );
+          const mergedMentor = publicProfileRes?.data?.data;
 
-          const mentorProfile = profileRes?.data?.data || {};
-          const mentorDetail = mentorRes?.data?.data || {};
-
-          // 병합된 mentor 객체 생성
-          const mergedMentor = {
-            mentorId: mentorDetail.mentorId || lectureData.mentorId,
-            nickname: mentorProfile.nickname,
-            profileImage: mentorProfile.profileImage,
-            age: mentorProfile.age,
-            sex: mentorProfile.sex,
-            mbti: mentorProfile.mbti,
-            regions: mentorProfile.regionCode || [],
-            isCertified: mentorDetail.isCertified || false,
-            education: mentorDetail.education,
-            major: mentorDetail.major,
-            content: mentorDetail.content,
-            appealFileUrl: mentorDetail.appealFileUrl,
-            tag: mentorDetail.tag,
-            rating: lectureData.averageRating || 0,
-          };
-
-          // lecture.mentor에 병합 적용
           const formattedLecture = formatLectureData({
             ...lectureData,
             mentorInfo: mergedMentor,
@@ -77,6 +53,7 @@ export default function LectureDetailPage() {
           );
         }
       } catch (err) {
+        console.error(err);
         setToastIcon(warnGif);
         setToastMessage("강의 정보를 불러오는데 실패했어요.");
         setToastOpen(true);
@@ -134,7 +111,7 @@ export default function LectureDetailPage() {
       updatedAt: data.updatedAt,
       availableTimeSlots: timeSlots,
       regions,
-      mentor, // 병합된 mentor 정보 그대로 넘김
+      mentor,
       reviews: [],
       authorUserId: data.authorUserId,
       mentorId: data.mentorId,

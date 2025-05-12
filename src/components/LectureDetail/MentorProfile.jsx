@@ -1,12 +1,21 @@
 // 📄 src/components/LectureDetail/MentorProfile.jsx
 
-import { Box, Typography, Chip, Avatar, Divider, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Chip,
+  Avatar,
+  Divider,
+  Alert,
+  Tooltip,
+} from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { useEffect, useState } from "react";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 export default function MentorProfile({ mentor }) {
   const [mentorRating, setMentorRating] = useState({
@@ -156,22 +165,63 @@ export default function MentorProfile({ mentor }) {
           gap={1}
           mt={1}
         >
-          {regions.map((r, idx) => (
+          {/* 최대 3개까지 Chip 렌더링 */}
+          {regions.slice(0, 3).map((r, idx) => (
             <Chip
-              key={idx}
+              key={`region-${idx}`}
               label={
                 r.displayName ||
                 [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ")
               }
+              icon={
+                <LocationOnIcon
+                  sx={{ fontSize: 14, color: "var(--action-yellow)" }}
+                />
+              }
               size="small"
               sx={{
-                backgroundColor: "var(--action-primary-bg)",
-                color: "var(--primary-200)",
+                backgroundColor: "var(--action-yellow-bg)",
+                color: "var(--action-yellow)",
                 fontWeight: 500,
                 borderRadius: "8px",
+                fontSize: 12,
               }}
             />
           ))}
+
+          {/* 초과된 지역은 +N Chip + Tooltip */}
+          {regions.length > 3 && (
+            <Tooltip
+              arrow
+              placement="top"
+              title={
+                <Box display="flex" flexDirection="column">
+                  {regions.slice(3).map((r, i) => (
+                    <Typography
+                      key={`hidden-region-${i}`}
+                      variant="body2"
+                      sx={{ fontSize: 13, color: "white" }}
+                    >
+                      {r.displayName ||
+                        [r.sido, r.sigungu, r.dong].filter(Boolean).join(" ")}
+                    </Typography>
+                  ))}
+                </Box>
+              }
+            >
+              <Chip
+                label={`+${regions.length - 3}`}
+                size="small"
+                sx={{
+                  backgroundColor: "var(--bg-200)",
+                  color: "var(--text-300)",
+                  fontWeight: 500,
+                  borderRadius: "8px",
+                  fontSize: 12,
+                }}
+              />
+            </Tooltip>
+          )}
         </Box>
       )}
 
