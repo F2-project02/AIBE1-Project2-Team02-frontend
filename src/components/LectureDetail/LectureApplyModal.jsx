@@ -70,6 +70,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
           const data = await fetchLectureApplyForm(lectureId);
           setFormData(data);
         } catch (err) {
+          console.error("Failed to fetch lecture apply form:", err);
         } finally {
           setLoading(false);
         }
