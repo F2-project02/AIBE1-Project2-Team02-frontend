@@ -1,16 +1,11 @@
-import {
-  Box,
-  Typography,
-  Chip,
-  Avatar,
-  Divider,
-  Alert,
-} from "@mui/material";
+// 📄 src/components/LectureDetail/MentorProfile.jsx
+
+import { Box, Typography, Chip, Avatar, Divider, Alert } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getRatingByMentor } from "../../lib/api/reviewApi";
 
 export default function MentorProfile({ mentor }) {
@@ -21,7 +16,7 @@ export default function MentorProfile({ mentor }) {
 
   useEffect(() => {
     const fetchMentorRating = async () => {
-      if (!mentor || !mentor.mentorId) return;
+      if (!mentor?.mentorId) return;
       try {
         const response = await getRatingByMentor({ id: mentor.mentorId });
         if (response.success && response.data) {
@@ -60,18 +55,15 @@ export default function MentorProfile({ mentor }) {
     education = "",
     major = "",
     appealFileUrl,
-    introduction = "멘토 소개를 작성하지 않았어요.",
+    content = "멘토 소개를 작성하지 않았어요.",
     analysisComment,
     regions = [],
   } = mentor;
 
   const rating = mentorRating.averageRating;
   const reviewCount = mentorRating.count;
-  const containsHtml =
-    typeof introduction === "string" && introduction.includes("<");
-  const createMarkup = (html) => ({
-    __html: typeof html === "string" ? html : "",
-  });
+  const containsHtml = typeof content === "string" && content.includes("<");
+  const createMarkup = (html) => ({ __html: html });
 
   return (
     <Box>
@@ -231,14 +223,14 @@ export default function MentorProfile({ mentor }) {
               "& ul, & ol": { mb: 2, pl: 3 },
               "& li": { mb: 1 },
             }}
-            dangerouslySetInnerHTML={createMarkup(introduction)}
+            dangerouslySetInnerHTML={createMarkup(content)}
           />
         ) : (
           <Typography
             variant="body2"
             sx={{ whiteSpace: "pre-line", color: "var(--text-200)" }}
           >
-            {introduction}
+            {content}
           </Typography>
         )}
       </Box>
@@ -252,7 +244,7 @@ export default function MentorProfile({ mentor }) {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center", 
+              justifyContent: "center",
               gap: 1.2,
               px: 3,
               py: 2,
@@ -275,7 +267,7 @@ export default function MentorProfile({ mentor }) {
               fontSize={14}
               fontWeight={600}
             >
-              멘토가 등록한 포트폴리오 보러가기 🚀
+              멘토가 등록한 포트폴리오 보러가기
             </Typography>
           </Box>
         </Box>
