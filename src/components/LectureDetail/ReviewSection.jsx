@@ -5,17 +5,24 @@ import {
   Box,
   Typography,
   Alert,
-  CircularProgress,
   Rating,
   Stack,
   Divider,
 } from "@mui/material";
+import CustomToast from "../../components/common/CustomToast";
 import ReviewCard from "./ReviewCard";
 import ReviewForm from "./ReviewForm";
 import { useUserStore } from "../../store/useUserStore";
 import axiosInstance from "../../lib/axiosInstance";
+import ReviewSectionSkeleton from "./skeleton/ReviewSectionSkeleton";
+
 
 export default function ReviewSection({ lecture }) {
+  const [toast, setToast] = useState({
+    open:   false,
+    message:"",
+    type:   "info",
+  });
   const [reviews, setReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
@@ -59,7 +66,6 @@ export default function ReviewSection({ lecture }) {
         if (responseData.success && responseData.data && responseLecData.success) {
           console.log("Reviews data received:", responseData.data);
           console.log("Lecture reviews data received:", responseLecData.data);
-          // setReviews(responseLecData.data || []);
           setAverageRating(responseData.data.averageRating || 0);
           setReviewCount(responseData.data.reviewCount || 0);
           const userReview = responseLecData.data.filter(
@@ -69,10 +75,6 @@ export default function ReviewSection({ lecture }) {
             r => r.writerId !== userId
           );
           setReviews([ ...userReview, ...otherReviews ]);
-          // const hasReview = (responseLecData.data || []).some(
-          //   (r) => r.writerId === userId
-          // );
-          // setUserHasReviewed(hasReview);
         } else {
           console.warn("No reviews data in response:", response);
           // 리뷰가 없는 것은 오류가 아닐 수 있음
@@ -105,7 +107,6 @@ export default function ReviewSection({ lecture }) {
   // 리뷰 추가 핸들러
   const handleReviewAdded = (newReview) => {
     // 새 리뷰를 목록에 추가하고 평점 업데이트
-    //setReviews((prevReviews) => [newReview, ...prevReviews]);
     setReviews(prevReviews => [
       newReview,
       ...prevReviews.filter(r => r.writerId !== userId)
@@ -138,7 +139,6 @@ export default function ReviewSection({ lecture }) {
         const responseLecData = responseLec.data;
 
       if (responseData.success && responseData.data && responseLecData.success) {
-        //setReviews(responseLecData.data || []);
         setAverageRating(responseData.data.averageRating || 0);
         setReviewCount(responseData.data.reviewCount || 0);
 
@@ -150,10 +150,6 @@ export default function ReviewSection({ lecture }) {
         );
         setReviews([ ...userReview, ...otherReviews ]);
         setUserHasReviewed(userReview.length > 0);
-        // const hasReview = (responseLecData.data || []).some(
-        //   (r) => r.writerId === userId
-        // );
-        // setUserHasReviewed(hasReview);
       }
     } catch (err) {
       console.error("Error refreshing reviews:", err);
@@ -185,6 +181,21 @@ export default function ReviewSection({ lecture }) {
         </Typography>
       </Stack>
 
+      {/* 로딩 상태 */}
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <ReviewSectionSkeleton />
+        </Box>
+      )}
+
+      {/* 에러 상태 */}
+      {error && !loading && (
+        <Alert severity="error" sx={{ my: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+
       {/* 리뷰 작성 폼 */}
       {canWriteReview && (
         <Box
@@ -200,25 +211,13 @@ export default function ReviewSection({ lecture }) {
             lectureId={lecture?.lectureId}
             mentorId={lecture?.mentorId}
             onReviewAdded={handleReviewAdded}
+            showToast={setToast}
           />
         </Box>
       )}
 
       <Divider sx={{ my: 3 }} />
 
-      {/* 로딩 상태 */}
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress size={40} />
-        </Box>
-      )}
-
-      {/* 에러 상태 */}
-      {error && !loading && (
-        <Alert severity="error" sx={{ my: 2 }}>
-          {error}
-        </Alert>
-      )}
 
       {/* 리뷰 목록 */}
       {!loading && !error && (
@@ -229,6 +228,7 @@ export default function ReviewSection({ lecture }) {
                 key={review.reviewId || index}
                 review={review}
                 onReviewUpdated={handleReviewUpdated}
+                showToast={setToast}
               />
             ))
           ) : (
@@ -249,6 +249,12 @@ export default function ReviewSection({ lecture }) {
           )}
         </Box>
       )}
+      <CustomToast
+        open={toast.open}
+        onClose={() => setToast({ ...toast, open: false })}
+        message={toast.message}
+        type={toast.type}
+      />
     </Box>
   );
 }
