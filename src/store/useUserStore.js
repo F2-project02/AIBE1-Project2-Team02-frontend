@@ -39,11 +39,4 @@ export const useUserStore = create((set) => ({
       ...state,
       role: newRole,
     })),
-
-  // 프로필 이미지 업데이트 함수 추가
-  updateProfileImage: (imageUrl) =>
-    set((state) => ({
-      ...state,
-      profileImage: imageUrl || "/images/default-profile.svg",
-    })),
 }));
