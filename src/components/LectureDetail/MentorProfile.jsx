@@ -12,7 +12,7 @@ import {
   Link,
   Tooltip,
 } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import SchoolIcon from "@mui/icons-material/School";
@@ -108,7 +108,12 @@ export default function MentorProfile({ mentor }) {
         </Typography>
         {isCertified && (
           <Tooltip title="인증된 멘토입니다">
-            <ShieldIcon fontSize="small" sx={{ color: "var(--primary-100)" }} />
+              <SecurityIcon
+                sx={{
+                  fontSize: 16,
+                  fill: "url(#shield-gradient)",
+                }}
+              />
           </Tooltip>
         )}
       </Box>

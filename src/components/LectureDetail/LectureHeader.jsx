@@ -14,7 +14,7 @@ import {
   FormControlLabel,
   Tooltip,
 } from "@mui/material";
-import ShieldIcon from "@mui/icons-material/VerifiedUser";
+import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
 import LectureEditControls from "./LectureEditControls";
 import useLecturePermission from "../../hooks/useLecturePermission";
@@ -250,9 +250,11 @@ export default function LectureHeader({ lecture }) {
               {mentorNickname}
             </Typography>
             {mentorIsCertified && (
-              <ShieldIcon
-                fontSize="small"
-                sx={{ color: "var(--primary-100)" }}
+              <SecurityIcon
+                sx={{
+                  fontSize: 16,
+                  fill: "url(#shield-gradient)",
+                }}
               />
             )}
           </Stack>
