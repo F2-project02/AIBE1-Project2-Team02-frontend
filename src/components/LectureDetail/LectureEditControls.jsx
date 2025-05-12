@@ -81,7 +81,7 @@ export default function LectureEditControls({ lecture }) {
 
   return (
     <>
-      <Box sx={{ display: "flex", gap: 1 }}>
+      <Box sx={{ display: "flex", gap: 2 }}>
         <Button
           variant="outlined"
           size="small"
@@ -89,12 +89,11 @@ export default function LectureEditControls({ lecture }) {
           onClick={handleEdit}
           sx={{
             borderRadius: "8px",
-            fontWeight: 600,
+            fontWeight: 500,
             color: "var(--text-300)",
-            borderColor: "var(--bg-300)",
+            border: "none",
             "&:hover": {
               backgroundColor: "var(--bg-200)",
-              borderColor: "var(--bg-300)",
             },
           }}
         >
@@ -107,7 +106,7 @@ export default function LectureEditControls({ lecture }) {
           onClick={handleOpenDeleteDialog}
           sx={{
             borderRadius: "8px",
-            fontWeight: 600,
+            fontWeight: 500,
             backgroundColor: "var(--action-red)",
             color: "var(--bg-100)",
             boxShadow: "none",

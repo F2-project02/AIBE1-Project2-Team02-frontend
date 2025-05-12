@@ -104,7 +104,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
     };
     try {
       await applyLecture(payload);
-      showToast("수업이 신청 되었어요!", heartsmileGif);
+      showToast("수업이 신청됐어요! 당신의 도전을 응원해요!", heartsmileGif);
       setTimeout(() => {
         onClose();
       }, 3000);
