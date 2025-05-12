@@ -122,7 +122,7 @@ export default function MessageReplyModal({
               value={content}
               onChange={(e) => setContent(e.target.value)}
               inputRef={textFieldRef}
-              inputProps={{ maxLength: 200 }} // 최대 글자 수 제한
+              inputProps={{ maxLength: 200 }}
               sx={{
                 borderRadius: "12px",
                 "& .MuiOutlinedInput-root": {

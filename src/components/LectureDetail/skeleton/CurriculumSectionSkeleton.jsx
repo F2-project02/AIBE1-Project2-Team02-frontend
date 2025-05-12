@@ -10,8 +10,8 @@ export default function CurriculumSectionSkeleton() {
         variant="text"
         width={100}
         height={30}
-        sx={{ mb: 2 }}
         animation="wave"
+        sx={{ mb:2, bgcolor: "var(--bg-200)" }}
       />
 
       {/* 커리큘럼 항목 4줄 정도 */}
@@ -21,8 +21,8 @@ export default function CurriculumSectionSkeleton() {
           variant="text"
           width="80%"
           height={22}
-          sx={{ mb: 1.5 }}
           animation="wave"
+          sx={{ mb: 1.5, bgcolor: "var(--bg-200)" }}
         />
       ))}
     </Box>
