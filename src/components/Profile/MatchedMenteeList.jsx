@@ -65,7 +65,11 @@ export default function MatchedMenteeList() {
         setLoading(true);
         const response = await getMatchedMentees();
         if (response.success && response.data) {
+          // 백엔드에서 이미 필터링된 결과를 받으므로 추가 필터링 불필요
           setMentees(response.data);
+
+          // 디버깅용 로그 (나중에 제거 가능)
+          console.log("서버에서 받은 데이터:", response.data);
         } else {
           setError("수강생 목록을 불러오는데 실패했습니다.");
         }
@@ -194,7 +198,7 @@ export default function MatchedMenteeList() {
               <Box display="flex" flexWrap="wrap" gap={0.5} mb={2}>
                 {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
                   <Chip
-                    key={idx}
+                    key={`${mentee.matchId}-${idx}`}
                     label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
                     size="small"
                     sx={{
@@ -280,7 +284,7 @@ export default function MatchedMenteeList() {
                 <Box display="flex" flexWrap="wrap" gap={0.5} mb={2}>
                   {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
                     <Chip
-                      key={idx}
+                      key={`${mentee.matchId}-${idx}`}
                       label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
                       size="small"
                       sx={{
@@ -414,7 +418,7 @@ export default function MatchedMenteeList() {
                   <Box display="flex" flexWrap="wrap" gap={0.5}>
                     {JSON.parse(mentee.matchedTimeSlots).map((slot, idx) => (
                       <Chip
-                        key={idx}
+                        key={`${mentee.matchId}-${idx}`}
                         label={`${slot.dayOfWeek} ${slot.startTime}-${slot.endTime}`}
                         size="small"
                         sx={{
