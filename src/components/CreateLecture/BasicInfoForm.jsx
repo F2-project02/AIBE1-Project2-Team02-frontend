@@ -179,7 +179,10 @@ export default function BasicInfoForm({ onNext, showToast }) {
       <FormFieldWrapper label="과외 소개" required>
         <TiptapEditor
           value={formData.description}
-          onChange={(content) => setFormField("description", content)}
+          onChange={(content) => {
+            console.log("에디터 내용 변경:", content);
+            setFormField("description", content);
+          }}
           placeholder="과외의 특징과 목표 등을 자세히 설명해주세요."
         />
       </FormFieldWrapper>
