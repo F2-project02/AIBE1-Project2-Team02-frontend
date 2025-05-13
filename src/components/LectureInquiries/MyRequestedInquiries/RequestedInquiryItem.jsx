@@ -102,12 +102,12 @@ export default function RequestedInquiryItem({ data }) {
           {nickname}
         </Typography>
         {isCertified && (
-              <SecurityIcon
-              sx={{
-                fontSize: 16,
-                fill: "url(#shield-gradient)",
-              }}
-            />
+          <SecurityIcon
+            sx={{
+              fontSize: 16,
+              fill: "url(#shield-gradient)",
+            }}
+          />
         )}
         <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
         <Typography variant="body2" fontWeight={500}>
