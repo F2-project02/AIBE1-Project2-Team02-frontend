@@ -6,14 +6,22 @@ import {
   markAllAsRead,
 } from "../../lib/api/notificationApi";
 import formatNotificationDate from "../../utils/formatNotificationDate";
+import NotificationSkeleton from "./NotificationSkeleton";
 
 export default function NotificationDropdown({ anchorEl, onClose, open }) {
   const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (open) {
-      getRecentNotifications().then(setNotifications);
-      markAllAsRead();
+      setLoading(true);
+      getRecentNotifications()
+        .then(setNotifications)
+        .finally(() => {
+          setLoading(false);
+          markAllAsRead();
+        });
     }
   }, [open]);
 
@@ -22,12 +30,21 @@ export default function NotificationDropdown({ anchorEl, onClose, open }) {
       anchorEl={anchorEl}
       open={open}
       onClose={onClose}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
       PaperProps={{
         sx: {
           mt: 1,
           borderRadius: "12px",
           width: 360,
-          maxHeight: 500,
+          minHeight: 570,
+          maxHeight: 570,
           bgcolor: "var(--bg-200)",
           overflowY: "auto",
           boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
@@ -57,7 +74,11 @@ export default function NotificationDropdown({ anchorEl, onClose, open }) {
         </Typography>
       </Box>
 
-      {notifications.length === 0 ? (
+      {loading ? (
+        Array(4)
+          .fill(null)
+          .map((_, i) => <NotificationSkeleton key={i} />)
+      ) : notifications.length === 0 ? (
         <Box px={2} py={3}>
           <Typography variant="body2" color="text.secondary" align="center">
             알림이 없습니다.
