@@ -65,7 +65,7 @@ export default function MentorProfile({ mentor }) {
     major = "",
     appealFileUrl,
     content = "멘토 소개를 작성하지 않았어요.",
-    analysisComment,
+    tag,
     regions = [],
   } = mentor;
 
@@ -242,7 +242,7 @@ export default function MentorProfile({ mentor }) {
           </Typography>
         </Box>
         <Typography fontSize={13} fontWeight={400}>
-          {analysisComment || "아직 후기가 많이 쌓이지 않아 분석할 수 없어요."}
+          {tag || "아직 후기가 많이 쌓이지 않아 분석할 수 없어요."}
         </Typography>
       </Box>
 
