@@ -53,39 +53,42 @@ export default function ApplicationsList() {
   };
 
   return (
-    <Stack spacing={2} pb={3}>
-      {applicantsLoading ? (
-        Array(4)
-          .fill(null)
-          .map((_, i) => <ApplicationItemSkeleton key={i} />)
-      ) : applicants.length > 0 ? (
-        <>
-          {displayedApplicants.map((item) => (
-            <ApplicationItem
-              key={item.applicationId}
-              data={item}
-              showToast={showToast}
-            />
-          ))}
+    <Box sx={{ width: "100%" }}>
+      <Stack spacing={2} pb={3}>
+        {applicantsLoading ? (
+          Array(4)
+            .fill(null)
+            .map((_, i) => <ApplicationItemSkeleton key={i} />)
+        ) : applicants.length > 0 ? (
+          <>
+            {displayedApplicants.map((item) => (
+              <ApplicationItem
+                key={item.applicationId}
+                data={item}
+                showToast={showToast}
+              />
+            ))}
 
-          {applicants.length > 4 && (
-            <MoreButton isExpanded={isExpanded} onClick={handleToggle} />
-          )}
-        </>
-      ) : (
-        <Box
-          sx={{
-            p: 3,
-            backgroundColor: "var(--bg-100)",
-            borderRadius: 1,
-            textAlign: "center",
-          }}
-        >
-          <Typography variant="body1" color="var(--text-300)">
-            아직 신청자가 없어요
-          </Typography>
-        </Box>
-      )}
+            {applicants.length > 4 && (
+              <MoreButton isExpanded={isExpanded} onClick={handleToggle} />
+            )}
+          </>
+        ) : (
+          <Box
+            sx={{
+              py: 3,
+              backgroundColor: "var(--bg-100)",
+              borderRadius: 1,
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="body1" color="var(--text-300)">
+              아직 신청자가 없어요
+            </Typography>
+          </Box>
+        )}
+      </Stack>
+
       <CustomToast
         open={toastOpen}
         onClose={() => setToastOpen(false)}
@@ -93,6 +96,6 @@ export default function ApplicationsList() {
         iconSrc={toastIcon}
         type={toastType}
       />
-    </Stack>
+    </Box>
   );
 }

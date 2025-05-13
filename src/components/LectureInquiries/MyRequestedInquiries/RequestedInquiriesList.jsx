@@ -63,7 +63,7 @@ export default function RequestedInquiriesList() {
             justifyContent: "center",
             alignItems: "center",
             flexDirection: "column",
-            bgcolor: "#f9f9f9",
+            bgcolor: "#fefefe",
             borderRadius: 2,
             border: "1px dashed var(--bg-300)",
             color: "var(--text-300)",

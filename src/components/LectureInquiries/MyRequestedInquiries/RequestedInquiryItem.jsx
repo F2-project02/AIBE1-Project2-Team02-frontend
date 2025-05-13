@@ -83,9 +83,9 @@ export default function RequestedInquiryItem({ data }) {
     <Card
       onClick={handleCardClick}
       sx={{
-        width: 400,
+        width: "100%",
+        maxWidth: 400,
         minHeight: 220,
-        px: 2,
         py: 3,
         display: "flex",
         flexDirection: "column",
@@ -189,12 +189,14 @@ export default function RequestedInquiryItem({ data }) {
           variant="body1"
           fontWeight={600}
           sx={{
+            flexShrink: 1,
+            minWidth: 0,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
             textOverflow: "ellipsis",
-            height: "3rem",
+            mr: 1, // Chip과 간격 확보
           }}
         >
           {lectureTitle}
@@ -205,6 +207,8 @@ export default function RequestedInquiryItem({ data }) {
             label={statusMap[status].label}
             size="small"
             sx={{
+              flexShrink: 0,
+              maxWidth: "50%", // 너무 넓은 경우도 방지
               bgcolor: statusMap[status].bg,
               color: statusMap[status].color,
               fontWeight: 600,

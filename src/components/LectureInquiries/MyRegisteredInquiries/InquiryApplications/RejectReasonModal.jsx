@@ -45,12 +45,12 @@ export default function RejectReasonModal({
     }
     try {
       await rejectApplication({ applicationId, reason });
-      showToast("반려 되었어요.", cryingfaceGif);
+      showToast("반려 되었어요. 바이바이!", cryingfaceGif);
       setTimeout(() => {
         onRejectSubmitted?.(applicationId);
       }, 2000);
     } catch (error) {
-      showToast("반려 실패했어요.", warnGif, "error");
+      showToast("반려에 실패했어요.", warnGif, "error");
       console.error("신청 반려 실패", error);
     }
   };
