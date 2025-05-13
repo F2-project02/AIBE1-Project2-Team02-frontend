@@ -10,11 +10,9 @@ import {
   CircularProgress,
   MenuItem,
   Chip,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
-import ProfileRegionModal from "./ProfileRegionModal";
+import UnifiedRegionFilter from "../Search/RegionFilter";
 import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
 import warnGif from "../../assets/warn.gif";
 import successGif from "../../assets/party.gif";
@@ -57,10 +55,10 @@ export default function ProfileForm({
   const [checkingNickname, setCheckingNickname] = useState(false);
   const [birthDateError, setBirthDateError] = useState("");
   const [selectedRegions, setSelectedRegions] = useState([]);
-  const [regionDialogOpen, setRegionDialogOpen] = useState(false);
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [regionModalOpen, setRegionModalOpen] = useState(false);
+  const [savedProvince, setSavedProvince] = useState("");
+  const [savedDistrict, setSavedDistrict] = useState("");
+  const [savedTab, setSavedTab] = useState(0);
 
   // 프로필 데이터 로드 시 초기화
   useEffect(() => {
@@ -82,7 +80,7 @@ export default function ProfileForm({
 
   const handleRegionSelect = (regions) => {
     setSelectedRegions(regions);
-    setRegionDialogOpen(false);
+    setRegionModalOpen(false);
   };
 
   // 닉네임 변경 시 중복확인 상태 초기화
@@ -379,7 +377,7 @@ export default function ProfileForm({
         >
           {/* 지역 선택 버튼 */}
           <Box
-            onClick={() => setRegionDialogOpen(true)}
+            onClick={() => setRegionModalOpen(true)}
             sx={{
               display: "flex",
               alignItems: "center",
@@ -432,12 +430,18 @@ export default function ProfileForm({
       </FormFieldWrapper>
 
       {/* 지역 선택 모달 */}
-      <ProfileRegionModal
-        open={regionDialogOpen}
-        onClose={() => setRegionDialogOpen(false)}
-        onSubmit={handleRegionSelect}
-        selectedRegions={selectedRegions}
-        setSelectedRegions={setSelectedRegions}
+      <UnifiedRegionFilter
+        open={regionModalOpen}
+        onClose={() => setRegionModalOpen(false)}
+        onSubmit={(items) => setSelectedRegions(items)}
+        selectedDongs={selectedRegions}
+        setSelectedDongs={setSelectedRegions}
+        savedProvince={savedProvince}
+        setSavedProvince={setSavedProvince}
+        savedDistrict={savedDistrict}
+        setSavedDistrict={setSavedDistrict}
+        savedTab={savedTab}
+        setSavedTab={setSavedTab}
       />
 
       {/* MBTI 필드 */}

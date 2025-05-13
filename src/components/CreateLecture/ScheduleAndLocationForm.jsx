@@ -10,8 +10,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import RegionSelectionModal from "./RegionSelectionModal";
-import RegionSelectionMobile from "./RegionSelectionMobile";
+import UnifiedRegionFilter from "../Search/RegionFilter";
 import GradientButton from "../Button/GradientButton";
 import SelectableButtonGroup from "../common/SelectableButtonGroup";
 import FormFieldWrapper from "./FormFieldWrapper";
@@ -28,20 +27,15 @@ export default function ScheduleAndLocationForm({
   showToast,
 }) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { formData, setTimeSlots, setRegions } = useLectureStore();
   const [selectedDay, setSelectedDay] = useState(null);
   const [showRegionModal, setShowRegionModal] = useState(false);
+  const [savedTab, setSavedTab] = useState(0);
 
   const [selectedDongs, setSelectedDongs] = useState(formData.regions);
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
-
-  const handleSelectedDongsChange = (newDongs) => {
-    setSelectedDongs(newDongs);
-    setRegions(newDongs);
-  };
 
   // 요일 선택
   const selectDay = (day) => {
@@ -231,31 +225,19 @@ export default function ScheduleAndLocationForm({
       </Box>
 
       {/* 지역 선택 모달 */}
-      {isMobile ? (
-        <RegionSelectionMobile
-          open={showRegionModal}
-          onClose={() => setShowRegionModal(false)}
-          onSubmit={handleAddRegions}
-          selectedDongs={selectedDongs}
-          setSelectedDongs={setSelectedDongs}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
-        />
-      ) : (
-        <RegionSelectionModal
-          open={showRegionModal}
-          onClose={() => setShowRegionModal(false)}
-          onSubmit={handleAddRegions}
-          selectedDongs={selectedDongs}
-          setSelectedDongs={setSelectedDongs}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
-        />
-      )}
+      <UnifiedRegionFilter
+        open={showRegionModal}
+        onClose={() => setShowRegionModal(false)}
+        onSubmit={handleAddRegions}
+        selectedDongs={selectedDongs}
+        setSelectedDongs={setSelectedDongs}
+        savedProvince={selectedProvince}
+        setSavedProvince={setSelectedProvince}
+        savedDistrict={selectedDistrict}
+        setSavedDistrict={setSelectedDistrict}
+        savedTab={0}
+        setSavedTab={setSavedTab}
+      />
     </Box>
   );
 }
