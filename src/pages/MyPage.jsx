@@ -20,6 +20,7 @@ import MyPageSidebarSkeleton from "../components/Profile/skeletons/MyPageSidebar
 import MentorFormViewSkeleton from "../components/Profile/skeletons/MentorFormViewSkeleton";
 import DeleteAccountFormSkeleton from "../components/Profile/skeletons/DeleteAccountFormSkeleton";
 import ProfileImageUploaderSkeleton from "../components/Profile/skeletons/ProfileImageUploaderSkeleton";
+import MatchedMenteeListSkeleton from "../components/Profile/skeletons/MatchedMenteeListSkeleton";
 
 export default function MyPage() {
   const [profileData, setProfileData] = useState(null);
@@ -116,11 +117,7 @@ export default function MyPage() {
         case "mentor":
           return <MentorFormViewSkeleton />;
         case "mentees":
-          return (
-            <Box sx={{ p: 4 }}>
-              <CircularProgress />
-            </Box>
-          );
+          return <MatchedMenteeListSkeleton />;
         case "delete":
           return <DeleteAccountFormSkeleton />;
         default:
@@ -135,6 +132,7 @@ export default function MyPage() {
             <ProfileImageUploader
               imagePreview={imagePreview}
               onImageUpdate={handleProfileImageUpdate}
+              showToast={showToast}
             />
             {profileData && (
               <ProfileForm
@@ -150,7 +148,7 @@ export default function MyPage() {
           <MentorFormView onProfileUpdate={() => {}} showToast={showToast} />
         );
       case "mentees":
-        return <MatchedMenteeList />;
+        return <MatchedMenteeList showToast={showToast} />;
       case "delete":
         return <DeleteAccountForm showToast={showToast} />;
       default:
@@ -183,7 +181,7 @@ export default function MyPage() {
         {/* 사이드바 영역 */}
         <Box
           sx={{
-            width: { xs: "100%", md: 240 },
+            width: { xs: "100%", md: 200 },
             mb: { xs: 3, md: 0 },
           }}
         >

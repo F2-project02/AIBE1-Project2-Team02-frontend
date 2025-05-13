@@ -16,13 +16,11 @@ import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import { getLectures } from "../lib/api/lectureApi";
 
 // 🔍 모달 및 필터 컴포넌트
-import CategoryFilterModal from "../components/Search/CategoryFilterModal";
-import CategoryFilterMobile from "../components/Search/CategoryFilterMobile";
+import CategoryFilter from "../components/Search/CategoryFilter";
 import PriceFilterModal from "../components/Search/PriceFilterModal";
 import RatingFilterModal from "../components/Search/RatingFilterModal";
 import CertifiedMentorFilterModal from "../components/Search/CertifiedMentorFilterModal";
-import RegionSelectionModal from "../components/Search/RegionSelectionModal";
-import RegionSelectionMobile from "../components/Search/RegionSelectionMobile";
+import RegionFilter from "../components/Search/RegionFilter";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
@@ -43,7 +41,6 @@ const CourseSearchPage = () => {
   const [isPriceFilterSet, setIsPriceFilterSet] = useState(false);
 
   // 📌 필터 상태 관리
-  const [selectedItems, setSelectedItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(
     initialParent ? [initialParent] : []
   );
@@ -52,15 +49,18 @@ const CourseSearchPage = () => {
   const [ratingRange, setRatingRange] = useState(0);
   const [isCertified, setIsCertified] = useState(false);
 
-  // 🗺️ 지역 필터 상세
+  // 🗺️ 지역 필터 상세 상태 및 선택 진행 상태를 저장하기 위한 변수
   const [selectedDongs, setSelectedDongs] = useState([]);
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [savedRegionProvince, setSavedRegionProvince] = useState("");
+  const [savedRegionDistrict, setSavedRegionDistrict] = useState("");
+  const [savedRegionTab, setSavedRegionTab] = useState(0);
 
-  // 📂 3단 카테고리
-  const [selectedParent, setSelectedParent] = useState(initialParent);
-  const [selectedMiddle, setSelectedMiddle] = useState("");
-  const [selectedSubs, setSelectedSubs] = useState([]);
+  // 📂 카테고리 필터 선택 진행 상태를 저장하기 위한 변수
+  const [savedCategoryParent, setSavedCategoryParent] = useState(
+    initialParent || ""
+  );
+  const [savedCategoryMiddle, setSavedCategoryMiddle] = useState("");
+  const [savedCategoryTab, setSavedCategoryTab] = useState(0);
 
   // 🔍 검색 상태
   const [keyword, setKeyword] = useState(initialKeyword);
@@ -131,8 +131,6 @@ const CourseSearchPage = () => {
 
           // 중복 제거
           params.regions = [...new Set(regionsToSearch)];
-
-          console.log("검색에 사용되는 지역:", params.regions);
         }
 
         // 가격 필터 - 명시적으로 설정된 경우 항상 적용
@@ -242,25 +240,24 @@ const CourseSearchPage = () => {
     setPage(1);
   };
 
-  // 카테고리 선택 핸들러
-  const handleCategorySelect = (categories) => {
-    setSelectedCategory(categories);
-    setCategoryDialogOpen(false);
-    setPage(1);
-  };
-
   // 🔄 필터 초기화
   const handleResetFilters = () => {
     setSelectedCategory([]);
-    setSelectedItems([]);
     setSelectedRegions([]);
     setSelectedDongs([]);
     setPriceRange([0, 300000]);
     setRatingRange(0);
     setIsCertified(false);
-    setSelectedParent("");
-    setSelectedMiddle("");
-    setSelectedSubs([]);
+
+    // 지역 필터 상태 초기화
+    setSavedRegionProvince("");
+    setSavedRegionDistrict("");
+    setSavedRegionTab(0);
+
+    // 카테고리 필터 상태도 초기화
+    setSavedCategoryParent("");
+    setSavedCategoryMiddle("");
+    setSavedCategoryTab(0);
   };
 
   // 필터 섹션 컴포넌트 (아코디언 형태)
@@ -312,8 +309,8 @@ const CourseSearchPage = () => {
       </Box>
     );
   };
-  // 적용된 필터 표시 컴포넌트
 
+  // 적용된 필터 표시 컴포넌트
   const ActiveFilters = ({ filters, onRemove, onClear }) => {
     // 아코디언 상태 관리
     const [expanded, setExpanded] = useState(true); // 기본적으로 펼쳐진 상태
@@ -509,7 +506,15 @@ const CourseSearchPage = () => {
         setSelectedCategory((prev) =>
           Array.isArray(prev) ? prev.filter((item) => item !== value) : []
         );
-        setSelectedItems((prev) => prev.filter((item) => item !== value));
+
+        // 카테고리가 삭제될 때 관련된 상태도 초기화
+        if (
+          value === savedCategoryParent ||
+          value.startsWith(`${savedCategoryParent} >`)
+        ) {
+          setSavedCategoryParent("");
+          setSavedCategoryMiddle("");
+        }
         break;
       case "region":
         setSelectedRegions((prev) => prev.filter((item) => item !== value));
@@ -523,6 +528,7 @@ const CourseSearchPage = () => {
         break;
       case "price":
         setPriceRange([0, 300000]);
+        setIsPriceFilterSet(false);
         break;
       case "rating":
         setRatingRange(0);
@@ -539,15 +545,23 @@ const CourseSearchPage = () => {
   // 모든 필터 초기화 핸들러
   const handleClearAllFilters = () => {
     setSelectedCategory([]);
-    setSelectedItems([]);
     setSelectedRegions([]);
     setSelectedDongs([]);
     setPriceRange([0, 300000]);
     setIsPriceFilterSet(false);
     setRatingRange(0);
     setIsCertified(false);
-    setSelectedParent("");
-    setSelectedMiddle("");
+
+    // 지역 필터 상태 초기화
+    setSavedRegionProvince("");
+    setSavedRegionDistrict("");
+    setSavedRegionTab(0);
+
+    // 카테고리 필터 상태도 초기화
+    setSavedCategoryParent("");
+    setSavedCategoryMiddle("");
+    setSavedCategoryTab(0);
+
     setPage(1);
   };
 
@@ -607,57 +621,38 @@ const CourseSearchPage = () => {
       )}
 
       {/* 모달들 */}
-      {isMobile ? (
-        <CategoryFilterMobile
-          open={categoryDialogOpen}
-          onClose={() => setCategoryDialogOpen(false)}
-          selectedItems={selectedItems}
-          setSelectedItems={setSelectedItems}
-          selectedParent={selectedParent}
-          setSelectedParent={setSelectedParent}
-          selectedMiddle={selectedMiddle}
-          setSelectedMiddle={setSelectedMiddle}
-          onSelect={handleCategorySelect}
-        />
-      ) : (
-        <CategoryFilterModal
-          open={categoryDialogOpen}
-          onClose={() => setCategoryDialogOpen(false)}
-          selectedItems={selectedItems}
-          setSelectedItems={setSelectedItems}
-          selectedParent={selectedParent}
-          setSelectedParent={setSelectedParent}
-          selectedMiddle={selectedMiddle}
-          setSelectedMiddle={setSelectedMiddle}
-          onSelect={handleCategorySelect}
-        />
-      )}
+      <CategoryFilter
+        open={categoryDialogOpen}
+        onClose={() => setCategoryDialogOpen(false)}
+        selectedCategories={selectedCategory}
+        // 진행 중인 선택 상태를 외부에서 관리하기 위한 props 전달
+        savedParent={savedCategoryParent}
+        setSavedParent={setSavedCategoryParent}
+        savedMiddle={savedCategoryMiddle}
+        setSavedMiddle={setSavedCategoryMiddle}
+        savedTab={savedCategoryTab}
+        setSavedTab={setSavedCategoryTab}
+        onSelect={(selected) => {
+          setSelectedCategory(selected);
+          setCategoryDialogOpen(false);
+          setPage(1);
+        }}
+      />
 
-      {isMobile ? (
-        <RegionSelectionMobile
-          open={regionDialogOpen}
-          onClose={() => setRegionDialogOpen(false)}
-          selectedDongs={selectedDongs}
-          setSelectedDongs={setSelectedDongs}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
-          onSubmit={handleRegionSelect}
-        />
-      ) : (
-        <RegionSelectionModal
-          open={regionDialogOpen}
-          onClose={() => setRegionDialogOpen(false)}
-          selectedDongs={selectedDongs}
-          setSelectedDongs={setSelectedDongs}
-          selectedProvince={selectedProvince}
-          setSelectedProvince={setSelectedProvince}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
-          onSubmit={handleRegionSelect}
-        />
-      )}
+      <RegionFilter
+        open={regionDialogOpen}
+        onClose={() => setRegionDialogOpen(false)}
+        selectedDongs={selectedDongs}
+        setSelectedDongs={setSelectedDongs}
+        // 지역 선택 진행 상태를 외부에서 관리하기 위한 props 전달
+        savedProvince={savedRegionProvince}
+        setSavedProvince={setSavedRegionProvince}
+        savedDistrict={savedRegionDistrict}
+        setSavedDistrict={setSavedRegionDistrict}
+        savedTab={savedRegionTab}
+        setSavedTab={setSavedRegionTab}
+        onSubmit={handleRegionSelect}
+      />
 
       <PriceFilterModal
         open={priceDialogOpen}

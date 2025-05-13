@@ -154,7 +154,13 @@ export default function LectureHeader({ lecture }) {
             }}
           />
           {hasPermission && (
-            <Tooltip title={isUpdating ? "변경 중..." : "토글을 눌러 모집 상태를 변경할 수 있어요"}>
+            <Tooltip
+              title={
+                isUpdating
+                  ? "변경 중..."
+                  : "토글을 눌러 모집 상태를 변경할 수 있어요"
+              }
+            >
               <FormControlLabel
                 control={
                   <Switch

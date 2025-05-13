@@ -210,3 +210,18 @@ export const getMatchedMentees = async () => {
     throw error;
   }
 };
+
+/**
+ * 매칭 취소 API
+ */
+export const cancelLectureMatchingByMatchId = async (matchId) => {
+  try {
+    const response = await axiosInstance.post(
+      `/api/application/cancel/match/${matchId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("매칭 취소 오류:", error);
+    throw error;
+  }
+};

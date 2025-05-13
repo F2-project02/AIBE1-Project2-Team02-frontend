@@ -68,6 +68,11 @@ export default function RequestedInquiryItem({ data }) {
       bg: "var(--action-red-bg)",
       color: "var(--action-red)",
     },
+    CANCELLED: {
+      label: "매칭 취소",
+      bg: "var(--action-red-bg)",
+      color: "var(--action-red)",
+    },
   };
 
   const handleCardClick = () => {

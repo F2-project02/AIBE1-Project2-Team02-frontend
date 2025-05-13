@@ -2,7 +2,7 @@
 
 export const dummyReviews = [
   {
-    profileImage: "/images/avatar1.png",
+    profileImage: "/images/default-profile.svg",
     nickname: "이영빈",
     rating: 3.5,
     createdAt: "2024-04-20T12:00:00Z",
@@ -12,7 +12,7 @@ export const dummyReviews = [
     mentorName: "현우진",
   },
   {
-    profileImage: "/images/avatar2.png",
+    profileImage: "/images/default-profile.svg",
     nickname: "조경혜",
     rating: 5.0,
     createdAt: "2024-04-29T10:00:00Z",
@@ -22,7 +22,7 @@ export const dummyReviews = [
     mentorName: "임정우",
   },
   {
-    profileImage: "/images/avatar3.png",
+    profileImage: "/images/default-profile.svg",
     nickname: "고영빈",
     rating: 4.5,
     createdAt: "2024-05-01T09:00:00Z",
@@ -32,17 +32,17 @@ export const dummyReviews = [
     mentorName: "변인영",
   },
   {
-    profileImage: "/images/avatar4.png",
+    profileImage: "/images/default-profile.svg",
     nickname: "여채현",
     rating: 5.0,
     createdAt: "2024-04-22T13:00:00Z",
     content: "뜨개질 수업 정말 재밌었어요! 직접 스웨터도 만들었답니다 :)",
     lectureTitle: "뜨개질 & 자수 단기 특강",
-    mentorName: "송찬의",
+    mentorName: "카리나",
   },
   {
-    profileImage: "/images/avatar5.png",
-    nickname: "마바사아자차카타",
+    profileImage: "/images/default-profile.svg",
+    nickname: "류현진",
     rating: 5.0,
     createdAt: "2024-04-30T08:00:00Z",
     content: "입시 포트폴리오 준비에 정말 큰 도움이 되었습니다!",

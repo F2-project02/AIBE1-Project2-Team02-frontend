@@ -1,17 +1,21 @@
 // src/components/Messages/MessageDeleteModal.jsx
 
 import {
-  Modal,
-  Box,
-  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
   Button,
+  Box,
+  CircularProgress,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useState } from "react";
-import GradientButton from "../Button/GradientButton";
-import warnGif from "../../assets/warn.gif";
+import thinkingFace from "../../assets/thinking.gif";
 import heartsmileGif from "../../assets/heartsmile.gif";
+import warnGif from "../../assets/warn.gif";
 
 export default function MessageDeleteModal({
   open,
@@ -30,79 +34,102 @@ export default function MessageDeleteModal({
     try {
       await onDelete();
       showToast("쪽지가 삭제되었어요!", heartsmileGif);
-      setTimeout(() => {
-        onClose();
-      }, 150);
+      setTimeout(() => onClose(), 150);
     } catch (e) {
-      console.error("삭제 실패", e);
+      console.error("쪽지 삭제 실패", e);
       showToast("쪽지 삭제에 실패했어요.", warnGif, "error");
       setDeleting(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
+    <Dialog
+      open={open}
+      onClose={onClose}
+      PaperProps={{
+        sx: {
+          borderRadius: "16px",
+          backgroundColor: "var(--bg-100)",
+          px: isMobile ? 3 : 4,
+          py: 2,
           width: isMobile ? "90vw" : 360,
-          height: "auto",
-          bgcolor: "#fefefe",
-          borderRadius: isMobile ? 0 : "16px",
-          p: isMobile ? 3 : 4.5,
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          boxShadow: 6,
-          outline: "none",
-          display: "flex",
-          flexDirection: "column",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          fontWeight: 600,
+          fontSize: "1.1rem",
+          textAlign: "center",
+          color: "var(--text-100)",
         }}
       >
-        <Typography
-          variant="h6"
-          textAlign="center"
-          fontWeight={600}
-          fontSize="1.1rem"
-          color="var(--text-100)"
-          mb={3}
-        >
-          쪽지 {selectedCount}개를 삭제하시겠습니까?
-        </Typography>
+        쪽지 {selectedCount}개를 삭제하시겠어요?
+      </DialogTitle>
 
-        <Box display="flex" gap={2} sx={{ flexShrink: 0 }}>
-          <Box sx={{ width: "50%", height: 44 }}>
-            <Button
-              onClick={onClose}
-              variant="outlined"
-              fullWidth
-              sx={{
-                height: "100%",
-                backgroundColor: "var(--bg-100)",
-                borderRadius: "12px",
-                borderColor: "var(--bg-300)",
-                color: "var(--text-400)",
-                fontWeight: 600,
-                ":hover": {
-                  backgroundColor: "var(--bg-200)",
-                },
-              }}
-            >
-              닫기
-            </Button>
-          </Box>
-          <Box sx={{ width: "50%", height: 44 }}>
-            <GradientButton
-              fullWidth
-              size="md"
-              onClick={handleDelete}
-              sx={{ height: "100%", borderRadius: "12px", padding: 0 }}
-            >
-              삭제하기
-            </GradientButton>
-          </Box>
-        </Box>
-      </Box>
-    </Modal>
+      <DialogContent>
+        <Box
+          component="img"
+          src={thinkingFace}
+          alt="고민"
+          sx={{
+            display: "block",
+            mx: "auto",
+            my: 2,
+            width: 80,
+            height: 80,
+            borderRadius: "8px",
+          }}
+        />
+        <DialogContentText
+          sx={{
+            color: "var(--text-300)",
+            textAlign: "center",
+            fontSize: "0.95rem",
+            fontWeight: 500,
+          }}
+        >
+          정말 삭제하시려구요?
+        </DialogContentText>
+      </DialogContent>
+
+      <DialogActions sx={{ justifyContent: "center", mt: 1 }}>
+        <Button
+          onClick={onClose}
+          sx={{
+            color: "var(--text-200)",
+            fontWeight: 500,
+            px: 3,
+            borderRadius: "8px",
+            "&:hover": { backgroundColor: "var(--bg-200)" },
+          }}
+        >
+          취소
+        </Button>
+        <Button
+          onClick={handleDelete}
+          disabled={deleting}
+          variant="contained"
+          sx={{
+            backgroundColor: "var(--action-red)",
+            boxShadow: "none",
+            fontWeight: 500,
+            px: 3,
+            borderRadius: "8px",
+            color: "var(--bg-100)",
+            "&:hover": {
+              boxShadow: "none",
+              backgroundColor: "rgba(204, 105, 105, 0.9)",
+            },
+          }}
+        >
+          {deleting ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "삭제하기"
+          )}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

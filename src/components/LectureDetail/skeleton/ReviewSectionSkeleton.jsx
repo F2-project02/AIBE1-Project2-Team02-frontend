@@ -44,17 +44,6 @@ export default function ReviewSectionSkeleton() {
         animation="wave"
         sx={{ borderRadius: "8px", mb: 2, bgcolor: "var(--bg-200)" }}
       />
-
-      {/* 버튼 위치 */}
-      <Box display="flex" justifyContent="flex-end">
-        <Skeleton
-          variant="rounded"
-          width={100}
-          height={36}
-          animation="wave"
-          sx={{ borderRadius: "8px", bgcolor: "var(--bg-200)" }}
-        />
-      </Box>
     </Box>
   );
 }
