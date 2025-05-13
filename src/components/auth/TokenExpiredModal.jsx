@@ -1,4 +1,5 @@
-// src/components/Profile/DeleteAccountModal.jsx
+// src/components/auth/TokenExpiredModal.jsx
+import React from "react";
 import {
   Dialog,
   DialogActions,
@@ -9,8 +10,16 @@ import {
   Box,
 } from "@mui/material";
 import warnGif from "../../assets/cryingface.gif";
+import { useLoginModalStore } from "../../store/useLoginModalStore";
 
-export default function DeleteAccountModal({ open, onClose, onConfirm }) {
+export default function TokenExpiredModal({ open, onClose }) {
+  const { open: openLoginModal } = useLoginModalStore();
+
+  const handleLogin = () => {
+    onClose();
+    openLoginModal();
+  };
+
   return (
     <Dialog
       open={open}
@@ -32,7 +41,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           textAlign: "center",
         }}
       >
-        정말로 탈퇴하시겠습니까?
+        로그인 세션 만료
       </DialogTitle>
 
       <DialogContent>
@@ -57,7 +66,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             fontWeight: 500,
           }}
         >
-          탈퇴하시면 계정 정보가 모두 삭제되며 복구할 수 없어요.
+          로그인 세션이 만료되었습니다. 다시 로그인해 주세요.
         </DialogContentText>
       </DialogContent>
 
@@ -72,22 +81,22 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             "&:hover": { backgroundColor: "var(--bg-200)" },
           }}
         >
-          취소
+          닫기
         </Button>
         <Button
-          onClick={onConfirm}
+          onClick={handleLogin}
           variant="contained"
           sx={{
-            backgroundColor: "var(--action-red)",
+            backgroundColor: "var(--primary-100)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
             fontWeight: 600,
             px: 3,
             borderRadius: "8px",
             color: "var(--bg-100)",
-            "&:hover": { backgroundColor: "rgba(204, 105, 105, 0.9)" },
+            "&:hover": { backgroundColor: "var(--primary-200)" },
           }}
         >
-          탈퇴하기
+          로그인 페이지로
         </Button>
       </DialogActions>
     </Dialog>

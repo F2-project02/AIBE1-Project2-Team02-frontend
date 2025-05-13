@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Stack, Typography } from "@mui/material";
 import { getLecture } from "../lib/api/lectureApi";
+import axiosInstance from "../lib/axiosInstance";
 import { useUserStore } from "../store/useUserStore";
 
 import LectureHeader from "../components/LectureDetail/LectureHeader";
 import LectureTabs from "../components/LectureDetail/LectureTabs";
 import LectureInfoBox from "../components/LectureDetail/LectureInfoBox";
 import CustomToast from "../components/common/CustomToast";
+import warnGif from "../assets/warn.gif";
 
 // Skeleton components
 import LectureHeaderSkeleton from "../components/LectureDetail/skeleton/LectureHeaderSkeleton";
@@ -19,22 +21,31 @@ export default function LectureDetailPage() {
   const { lectureId } = useParams();
   const [lecture, setLecture] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastIcon, setToastIcon] = useState(null);
   const { userId } = useUserStore();
 
-  // 강의 데이터 가져오기
   useEffect(() => {
     const fetchLectureData = async () => {
       try {
         setLoading(true);
-        setError(null);
-
         const response = await getLecture(lectureId);
 
         if (response.success && response.data) {
-          const formattedLecture = formatLectureData(response.data);
+          const lectureData = response.data;
+
+          // 공개 멘토 프로필 API로 변경
+          const publicProfileRes = await axiosInstance.get(
+            `/api/account/mentor/${lectureData.mentorId}/public-profile`
+          );
+          const mergedMentor = publicProfileRes?.data?.data;
+
+          const formattedLecture = formatLectureData({
+            ...lectureData,
+            mentorInfo: mergedMentor,
+          });
+
           setLecture(formattedLecture);
         } else {
           throw new Error(
@@ -42,8 +53,8 @@ export default function LectureDetailPage() {
           );
         }
       } catch (err) {
-        console.error("Error fetching lecture data:", err);
-        setError("강의 정보를 불러오는데 문제가 발생했어요.");
+        console.error(err);
+        setToastIcon(warnGif);
         setToastMessage("강의 정보를 불러오는데 실패했어요.");
         setToastOpen(true);
       } finally {
@@ -51,9 +62,7 @@ export default function LectureDetailPage() {
       }
     };
 
-    if (lectureId) {
-      fetchLectureData();
-    }
+    if (lectureId) fetchLectureData();
   }, [lectureId]);
 
   const formatLectureData = (data) => {
@@ -87,22 +96,7 @@ export default function LectureDetailPage() {
       sub: data.subcategory || "",
     };
 
-    const mentorInfo = data.mentorInfo || {};
-    const mentor = {
-      nickname: data.mentorNickname || "멘토",
-      profileImage: mentorInfo.profileImage || "/images/default-profile.svg",
-      isCertified: mentorInfo.isCertified || false,
-      rating: data.averageRating || 0,
-      education: mentorInfo.education || "",
-      major: mentorInfo.major || "",
-      sex: mentorInfo.sex || "",
-      mbti: mentorInfo.mbti || "",
-      content: mentorInfo.content || "",
-      appealFileUrl: mentorInfo.appealFileUrl || "",
-      tag: mentorInfo.tag || "",
-      mentorId: data.mentorId || null, // 멘토 ID 추가
-      regions: regions, // 멘토의 활동 지역 정보 추가
-    };
+    const mentor = data.mentorInfo;
 
     return {
       lectureId: data.lectureId,
@@ -168,6 +162,7 @@ export default function LectureDetailPage() {
         open={toastOpen}
         onClose={() => setToastOpen(false)}
         message={toastMessage}
+        iconSrc={toastIcon}
         type="error"
       />
     </Box>

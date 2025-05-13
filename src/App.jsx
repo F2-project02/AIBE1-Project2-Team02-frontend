@@ -1,10 +1,11 @@
 // src/App.jsx – 전체 레이아웃 렌더링 (공통 컴포넌트 포함)
 
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import LoginModal from './components/auth/LoginModal';
-import Layout from './components/layout/Layout';
-import AppRouter from './router/Router';
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/Footer";
+import LoginModal from "./components/auth/LoginModal";
+import TokenExpiredModal from "./components/auth/TokenExpiredModal";
+import Layout from "./components/layout/Layout";
+import AppRouter from "./router/Router";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <AppRouter />
       </Layout>
       <LoginModal />
+      <TokenExpiredModal />
       <Footer />
     </>
   );

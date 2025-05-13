@@ -32,7 +32,7 @@ export default function MyPageSidebar({
   return (
     <Box
       sx={{
-        width: isMobile ? "100%" : 240,
+        width: isMobile ? "100%" : 200,
         mb: isMobile ? 3 : 0,
       }}
     >

@@ -8,12 +8,15 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { uploadProfileImage } from "../../lib/api/profileApi";
+import { useUserStore } from "../../store/useUserStore";
 
 export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
   const [profileImage, setProfileImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const updateProfileImage = useUserStore((state) => state.updateProfileImage);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -36,10 +39,18 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
     try {
       const imageUrl = await uploadProfileImage(profileImage);
       onImageUpdate(imageUrl);
-      alert("프로필 이미지가 성공적으로 업데이트되었습니다");
+      updateProfileImage(imageUrl);
+      showToast(
+        "프로필 이미지가 성공적으로 업데이트되었습니다",
+        "/images/success.gif"
+      );
     } catch (error) {
       console.error("이미지 업로드 오류: ", error);
-      alert("이미지 업로드 중 오류가 발생했어요: " + error.message);
+      showToast(
+        "이미지 업로드 중 오류가 발생했습니다: " + error.message,
+        "/images/error.gif",
+        "error"
+      );
     } finally {
       setUploading(false);
       setProfileImage(null);

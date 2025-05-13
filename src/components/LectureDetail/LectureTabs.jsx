@@ -1,6 +1,6 @@
 // 📄 src/components/LectureDetail/LectureTabs.jsx
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Box, Tabs, Tab } from "@mui/material";
 import LectureInfo from "./LectureInfo";
 import CurriculumSection from "./CurriculumSection";
@@ -23,9 +23,7 @@ const tabList = [
 export default function LectureTabs({ lecture, loading }) {
   const [tabIndex, setTabIndex] = useState(0);
 
-  // 현재 선택된 탭 컴포넌트 렌더링
   const renderTabContent = () => {
-    // 로딩 중인 경우 스켈레톤 표시
     if (loading) {
       switch (tabIndex) {
         case 0:
@@ -41,7 +39,6 @@ export default function LectureTabs({ lecture, loading }) {
       }
     }
 
-    // 로딩 완료된 경우 실제 컴포넌트 표시
     switch (tabIndex) {
       case 0:
         return <LectureInfo lecture={lecture} />;
@@ -78,6 +75,7 @@ export default function LectureTabs({ lecture, loading }) {
         {tabList.map((tab) => (
           <Tab
             key={tab.value}
+            value={tab.value}
             label={tab.label}
             sx={{
               fontWeight: 500,

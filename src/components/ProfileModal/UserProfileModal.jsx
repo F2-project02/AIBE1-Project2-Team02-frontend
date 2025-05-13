@@ -6,14 +6,12 @@ import {
   Chip,
   Divider,
   Button,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   useMediaQuery,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import SecurityIcon from "@mui/icons-material/Security";
 import StarIcon from "@mui/icons-material/Star";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useProfileModalStore } from "../../store/useProfileModalStore";
@@ -39,7 +37,7 @@ export default function UserProfileModal() {
     major,
     analysisComment,
     introduction,
-    fileUrl,
+    appealFileUrl,
   } = profileData;
 
   return (
@@ -93,7 +91,7 @@ export default function UserProfileModal() {
 
           {/* 인증 아이콘 */}
           {isCertified && (
-              <SecurityIcon
+            <SecurityIcon
               sx={{
                 fontSize: 16,
                 fill: "url(#shield-gradient)",
@@ -127,7 +125,7 @@ export default function UserProfileModal() {
             label={mbti}
             size="small"
             sx={{
-              fontWeight: 600,
+              fontWeight: 500,
               backgroundColor: "var(--action-green-bg)",
               color: "var(--action-green)",
               borderRadius: "8px",
@@ -172,10 +170,15 @@ export default function UserProfileModal() {
             <Chip
               key={r}
               label={r}
+              icon={
+                <LocationOnIcon
+                  sx={{ fontSize: 14, color: "var(--action-yellow)" }}
+                />
+              }
               size="small"
               sx={{
-                backgroundColor: "var(--action-primary-bg)",
-                color: "var(--primary-200)",
+                backgroundColor: "var(--action-yellow-bg)",
+                color: "var(--action-yellow)",
                 fontWeight: 500,
                 borderRadius: "8px",
               }}
@@ -211,7 +214,11 @@ export default function UserProfileModal() {
         {isMentor && (
           <>
             <Divider sx={{ my: 2 }} />
-            <Typography color="var(--text-100)" variant="subtitle2" fontWeight={600}>
+            <Typography
+              color="var(--text-100)"
+              variant="subtitle2"
+              fontWeight={600}
+            >
               멘토 소개
             </Typography>
             <Box
@@ -232,30 +239,40 @@ export default function UserProfileModal() {
             </Box>
 
             {/* 포트폴리오 파일 */}
-            {fileUrl && (
-              <Box mt={2}>
-                <ListItem
-                  component="a"
-                  href={fileUrl}
-                  target="_blank"
-                  sx={{
-                    border: "1px solid var(--bg-200)",
-                    borderRadius: 1,
-                    px: 2,
-                    py: 1,
-                    backgroundColor: "#fefefe",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  }}
+            {appealFileUrl && (
+              <Box
+                component="a"
+                href={appealFileUrl}
+                target="_blank"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1.2,
+                  px: 3,
+                  py: 2,
+                  mt: 3,
+                  backgroundColor: "var(--bg-100)",
+                  borderRadius: "12px",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                  textDecoration: "none",
+                  color: "inherit",
+                  fontWeight: 500,
+                  transition: "all 0.2s",
+                  "&:hover": {
+                    backgroundColor: "var(--bg-200)",
+                  },
+                }}
+              >
+                <InsertDriveFileIcon sx={{ color: "var(--primary-100)" }} />
+                <Typography
+                  color={"var(--text-300)"}
+                  fontSize={14}
+                  fontWeight={600}
                 >
-                  <ListItemIcon>
-                    <InsertDriveFileIcon sx={{ color: "var(--primary-300)" }} />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="document_file_name.pdf"
-                    secondary="100kb · Complete"
-                    primaryTypographyProps={{ fontWeight: 500 }}
-                  />
-                </ListItem>
+                  멘토가 등록한 포트폴리오 보러가기
+                </Typography>
               </Box>
             )}
           </>

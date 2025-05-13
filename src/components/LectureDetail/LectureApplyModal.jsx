@@ -152,43 +152,60 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
               수업 신청폼
             </Typography>
 
-            <Stack direction="row" spacing={2} mb={2}>
-              <Typography fontWeight={600}>신청 과외명</Typography>
-              <Typography fontWeight={500}>
+            <Stack direction="row" spacing={2} mb={2} alignItems="flex-start">
+              <Typography
+                fontWeight={600}
+                sx={{ whiteSpace: "pre-line", minWidth: "64px" }}
+              >
+                신청{"\n"}과외명
+              </Typography>
+              <Typography
+                fontWeight={500}
+                sx={{
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  flex: 1,
+                }}
+              >
                 {formData?.lectureTitle || ""}
               </Typography>
             </Stack>
 
-            <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-              <Avatar
-                src={formData?.profileImage || ""}
-                sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
-              />
-              <Box>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight={600}
-                    color="var(--text-100)"
-                  >
-                    {formData?.nickname}
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              spacing={2}
+              mb={2}
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar
+                  src={formData?.profileImage || ""}
+                  sx={{ width: 40, height: 40, bgcolor: "var(--bg-200)" }}
+                />
+                <Box>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight={600}
+                      color="var(--text-100)"
+                    >
+                      {formData?.nickname}
+                    </Typography>
+                    {formData?.isCertified && (
+                      <SecurityIcon
+                        sx={{ fontSize: 14, fill: "url(#shield-gradient)" }}
+                      />
+                    )}
+                  </Stack>
+                  <Typography variant="body2" color="var(--text-400)">
+                    {formData?.education} {formData?.major}
                   </Typography>
-                  {formData?.isCertified && (
-                    <SecurityIcon
-                      sx={{ fontSize: 14, fill: "url(#shield-gradient)" }}
-                    />
-                  )}
-                </Stack>
-                <Typography variant="body2" color="var(--text-400)">
-                  {formData?.education} {formData?.major}
-                </Typography>
-              </Box>
-              <Stack
-                direction="row"
-                spacing={0.5}
-                alignItems="center"
-                ml="auto"
-              >
+                </Box>
+              </Stack>
+
+              {/* 오른쪽 평점 */}
+              <Stack direction="row" spacing={0.5} alignItems="center">
                 <StarIcon sx={{ fontSize: 16, color: "#FFB400" }} />
                 <Typography
                   variant="body2"
