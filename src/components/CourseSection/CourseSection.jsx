@@ -30,8 +30,9 @@ export default function CourseSection() {
         page: 0,
         size: 3,
         sort: "createdAt,desc",
+        isOpen: false,
       };
-      if (category) params.categories = [category]
+      if (category) params.categories = [category];
 
       const response = await getLectures(params);
       if (response.success && response.data) {
