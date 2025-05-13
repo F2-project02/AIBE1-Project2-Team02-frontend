@@ -689,7 +689,7 @@ export default function CategoryFilter({
           />
         </Box>
 
-        {/* 3단 선택 영역 - 높이 320px로 수정해 RegionFilter와 동일하게 */}
+        {/* 3단 선택 영역  */}
         <Box
           display={isMobile ? "block" : "flex"}
           height={isMobile ? "auto" : 300}
@@ -889,7 +889,7 @@ export default function CategoryFilter({
           </Box>
         </Box>
 
-        {/* 선택된 항목 - 높이를 RegionFilter와 동일하게 20%로 설정 */}
+        {/* 선택된 항목  */}
         <Box mt={4}>
           <Typography fontWeight={500} fontSize={16} mb={1}>
             선택 항목{" "}
