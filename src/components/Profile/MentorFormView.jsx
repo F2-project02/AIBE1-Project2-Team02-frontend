@@ -254,7 +254,7 @@ export default function MentorFormView({ showToast }) {
               color="var(--text-300)"
               sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
             >
-              mentoss@gmail.com으로 재학증명서 또는 졸업증명서를 제출한 후에
+              mentoss.hwa2@gmail.com으로 재학증명서 또는 졸업증명서를 제출한 후에
               인증받을 수 있어요.
             </Typography>
           </Box>
