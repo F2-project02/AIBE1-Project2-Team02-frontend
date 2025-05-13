@@ -33,6 +33,7 @@ import MatchedMenteeListSkeleton from "./skeletons/MatchedMenteeListSkeleton";
 import CustomToast from "../../components/common/CustomToast";
 import warnGif from "../../assets/warn.gif";
 import thumbsupGif from "../../assets/thumbsup.gif";
+import thinking from "../../assets/thinking.gif";
 
 export default function MatchedMenteeList() {
   const theme = useTheme();
@@ -71,11 +72,11 @@ export default function MatchedMenteeList() {
           // 디버깅용 로그 (나중에 제거 가능)
           console.log("서버에서 받은 데이터:", response.data);
         } else {
-          setError("수강생 목록을 불러오는데 실패했습니다.");
+          setError("수강생 목록을 불러오는데 실패했어요.");
         }
       } catch (error) {
         console.error("수강생 목록 조회 오류:", error);
-        setError("수강생 목록을 불러오는데 실패했습니다.");
+        setError("수강생 목록을 불러오는데 실패했어요.");
       } finally {
         setLoading(false);
       }
@@ -111,7 +112,7 @@ export default function MatchedMenteeList() {
         );
         setCancelDialogOpen(false);
         setSelectedMentee(null);
-        showToast("매칭이 성공적으로 취소되었습니다", thumbsupGif, "success");
+        showToast("매칭이 성공적으로 취소됐어요.", thumbsupGif, "success");
       } else {
         setError(response.message || "매칭 취소에 실패했습니다.");
       }
@@ -143,7 +144,7 @@ export default function MatchedMenteeList() {
   if (mentees.length === 0) {
     return (
       <Box p={4} textAlign="center">
-        <Typography variant="body1" color="text.secondary">
+        <Typography variant="body1" color="var(--text-300)">
           매칭된 수강생이 없습니다.
         </Typography>
       </Box>
@@ -180,7 +181,7 @@ export default function MatchedMenteeList() {
               />
               <Box>
                 <Typography fontWeight={600}>{mentee.nickname}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="var(--text-300)">
                   {formatDate(mentee.joinedAt)}
                 </Typography>
               </Box>
@@ -190,7 +191,7 @@ export default function MatchedMenteeList() {
               {mentee.lectureTitle}
             </Typography>
 
-            <Typography variant="body2" color="text.secondary" mb={2}>
+            <Typography variant="body2" color="var(--text-300)" mb={2}>
               시간대:
             </Typography>
 
@@ -261,7 +262,7 @@ export default function MatchedMenteeList() {
                 />
                 <Box>
                   <Typography fontWeight={600}>{mentee.nickname}</Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="var(--text-300)">
                     {formatDate(mentee.joinedAt)}
                   </Typography>
                 </Box>
@@ -445,6 +446,7 @@ export default function MatchedMenteeList() {
                   color="error"
                   onClick={() => handleCancelClick(mentee)}
                   sx={{
+                    borderRadius: "8px",
                     borderColor: "var(--action-red)",
                     color: "var(--action-red)",
                     fontSize: 12,
@@ -470,7 +472,7 @@ export default function MatchedMenteeList() {
         variant="h6"
         fontWeight={600}
         mb={3}
-        sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}
+        sx={{ fontSize: "1.25rem" }}
       >
         매칭된 수강생 목록
       </Typography>
@@ -507,20 +509,34 @@ export default function MatchedMenteeList() {
           매칭 취소 확인
         </DialogTitle>
         <DialogContent>
+          <Box
+            component="img"
+            src={thinking}
+            alt="경고"
+            sx={{
+              display: "block",
+              mx: "auto",
+              my: 2,
+              width: 80,
+              height: 80,
+              borderRadius: "8px",
+            }}
+          />
           <DialogContentText
             sx={{
               color: "var(--text-300)",
               fontSize: isMobile ? "0.9rem" : "1rem",
+              textAlign: "center",
             }}
           >
-            {selectedMentee?.nickname}님과의 과외 매칭을 취소하시겠습니까?
+            {selectedMentee?.nickname}님과의 과외 매칭을 취소하시겠어요?
             <br />
-            취소 후에는 복구할 수 없습니다.
+            취소 후에는 복구할 수 없어요.
           </DialogContentText>
         </DialogContent>
         <DialogActions
           sx={{
-            justifyContent: "space-between",
+            justifyContent: "center",
             px: isMobile ? 1 : 2,
             pb: isMobile ? 2 : 3,
           }}
@@ -528,6 +544,7 @@ export default function MatchedMenteeList() {
           <Button
             onClick={() => setCancelDialogOpen(false)}
             sx={{
+              borderRadius: "8px",
               color: "var(--text-300)",
               fontWeight: 500,
               fontSize: isMobile ? "0.875rem" : "0.95rem",
@@ -540,11 +557,14 @@ export default function MatchedMenteeList() {
             variant="contained"
             disabled={cancelLoading}
             sx={{
+              borderRadius: "8px",
               backgroundColor: "var(--action-red)",
-              color: "white",
-              fontWeight: 600,
+              color: "var(--bg-100)",
+              boxShadow: "none",
+              fontWeight: 500,
               fontSize: isMobile ? "0.875rem" : "0.95rem",
               "&:hover": {
+                boxShadow: "none",
                 backgroundColor: "rgba(204, 105, 105, 0.9)",
               },
             }}

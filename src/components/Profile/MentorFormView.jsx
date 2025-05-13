@@ -104,14 +104,14 @@ export default function MentorFormView({ showToast }) {
       if (isMentor) {
         await updateMentorProfile(formData);
         showToast(
-          "멘토 프로필이 성공적으로 업데이트되었습니다.",
+          "멘토 프로필이 성공적으로 업데이트됐어요.",
           mentorsuccessGif
         );
       } else {
         await applyMentorProfile(formData);
         updateRole("MENTOR");
         showToast(
-          "멘토 신청이 완료되었습니다. 멘티와의 첫 만남을 준비해보세요!",
+          "멘토 신청 완료! 멘티와의 첫 만남을 준비해보세요!",
           menteesuccessGif
         );
 
@@ -149,7 +149,7 @@ export default function MentorFormView({ showToast }) {
         <Typography variant="h6" color="warning.main" gutterBottom>
           멘토 정보를 불러올 수 없습니다
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography variant="body2" color="var(--text-300)" sx={{ mb: 2 }}>
           데이터를 불러왔지만 프로필 정보가 존재하지 않습니다.
         </Typography>
         <Button
@@ -177,7 +177,7 @@ export default function MentorFormView({ showToast }) {
         <Typography variant="h6" color="warning.main" gutterBottom>
           멘토 프로필 데이터가 없어요
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography variant="body2" color="var(--text-300)" sx={{ mb: 2 }}>
           데이터를 불러왔지만 프로필 정보가 존재하지 않아요.
         </Typography>
         <Button
@@ -231,7 +231,7 @@ export default function MentorFormView({ showToast }) {
           color="var(--text-300)"
           sx={{
             textAlign: "center",
-            fontSize: { xs: "0.9rem", sm: "1rem" },
+            fontSize: { xs: "0.8rem", sm: "1rem" },
           }}
         >
           멘토 프로필을 완성하고, 나만의 과외 수업을 시작해보세요.
@@ -247,7 +247,7 @@ export default function MentorFormView({ showToast }) {
               p: 2,
               bgcolor: "var(--bg-200)",
               borderRadius: "8px",
-              border: "1px solid var(--bg-300)",
+              border: "none",
             }}
           >
             <Typography
@@ -273,7 +273,7 @@ export default function MentorFormView({ showToast }) {
             error={!!contentError}
             helperText={contentError}
             sx={{
-              bgcolor: "white",
+              bgcolor: "var(--bg-100)",
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
               },
@@ -295,7 +295,7 @@ export default function MentorFormView({ showToast }) {
               alignItems: "center",
               justifyContent: "center",
               textAlign: "center",
-              bgcolor: "white",
+              bgcolor: "var(--bg-100)",
               mb: 2,
               minHeight: { xs: "140px", sm: "180px" },
             }}
@@ -353,7 +353,7 @@ export default function MentorFormView({ showToast }) {
                 borderRadius: "4px",
                 mb: 2,
                 py: 2,
-                bgcolor: "white",
+                bgcolor: "var(--bg-100)",
                 boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.05)",
                 border: "1px solid var(--bg-200)",
                 flexDirection: { xs: "column", sm: "row" },
@@ -420,7 +420,7 @@ export default function MentorFormView({ showToast }) {
                     alignItems: "center",
                     justifyContent: "center",
                     bgcolor: "var(--action-green)",
-                    color: "white",
+                    color: "var(--bg-100)",
                   }}
                 >
                   <CheckIcon fontSize="small" />
@@ -440,8 +440,9 @@ export default function MentorFormView({ showToast }) {
             mt: { xs: 2, sm: 3 },
             background: "var(--primary-gradient)",
             borderRadius: "8px",
-            color: "white",
-            fontWeight: 600,
+            color: "var(--bg-100)",
+            boxShadow: "none",
+            fontWeight: 500,
           }}
         >
           {isMentor ? "프로필 수정하기" : "멘토 신청하기"}
