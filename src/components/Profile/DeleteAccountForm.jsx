@@ -22,13 +22,13 @@ export default function DeleteAccountForm({ showToast }) {
   const handleConfirmDelete = async () => {
     try {
       await deleteAccount();
-      showToast("회원 탈퇴가 완료되었습니다. 홈으로 이동합니다.", sadGif);
+      showToast("정말 감사했어요. 언제든 돌아와주세요!", sadGif);
       logout();
       window.location.href = "/";
     } catch (error) {
       console.error("회원 탈퇴 오류:", error);
       showToast(
-        "회원 탈퇴 중 오류가 발생했습니다: " + error.message,
+        "회원 탈퇴 중 오류가 발생했어요 " + error.message,
         warnGif,
         "error"
       );
@@ -81,8 +81,8 @@ export default function DeleteAccountForm({ showToast }) {
           width: "100%",
           py: 1.5,
           backgroundColor: "var(--action-red)",
-          color: "white",
-          fontWeight: 600,
+          color: "var(--bg-100)",
+          fontWeight: 500,
           borderRadius: "8px",
           "&:hover": {
             backgroundColor: "rgba(204, 105, 105, 0.9)",

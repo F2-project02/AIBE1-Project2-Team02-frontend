@@ -63,16 +63,16 @@ export default function RegisteredLectureItem({ data, onToggle }) {
     <Card
       onClick={handleCardClick}
       sx={{
-        width: 400,
+        width: "100%",
+        maxWidth: { xs: "100%", sm: 400 },
         minHeight: 220,
-        px: 2,
         py: 3,
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
         flexShrink: 0,
         borderRadius: 0,
-        backgroundColor: "unset",
+        backgroundColor: "transparent",
         boxShadow: "none",
         cursor: "pointer",
       }}
@@ -87,12 +87,12 @@ export default function RegisteredLectureItem({ data, onToggle }) {
           {nickname}
         </Typography>
         {isCertified && (
-              <SecurityIcon
-              sx={{
-                fontSize: 16,
-                fill: "url(#shield-gradient)",
-              }}
-            />
+          <SecurityIcon
+            sx={{
+              fontSize: 16,
+              fill: "url(#shield-gradient)",
+            }}
+          />
         )}
         <StarIcon sx={{ fontSize: 16, color: "#FFC107" }} />
         <Typography variant="body2" fontWeight={500}>
@@ -164,31 +164,36 @@ export default function RegisteredLectureItem({ data, onToggle }) {
         justifyContent="space-between"
         alignItems="center"
         mb={1}
+        width="100%"
       >
-        <Typography
-          variant="body1"
-          fontWeight={600}
-          sx={{
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            height: "3rem",
-          }}
-        >
-          {lectureTitle}
-        </Typography>
+        {/* 제목 */}
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Typography
+            variant="body1"
+            fontWeight={600}
+            sx={{
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              height: "3rem",
+            }}
+          >
+            {lectureTitle}
+          </Typography>
+        </Box>
 
-        <Switch
-          checked={!isClosed}
-          onClick={(e) => e.stopPropagation()}
-          onChange={(e) => {
-            handleToggle();
-          }}
-          color="primary"
-          sx={{ ml: 2 }}
-        />
+        {/* 토글 with Tooltip */}
+        <Tooltip title="토글을 눌러 마감 상태를 변경할 수 있어요" arrow>
+          <Switch
+            checked={!isClosed}
+            onClick={(e) => e.stopPropagation()} // 카드 클릭 방지
+            onChange={handleToggle}
+            color="primary"
+            sx={{ ml: 2 }}
+          />
+        </Tooltip>
       </Stack>
 
       {/* 수업료 */}

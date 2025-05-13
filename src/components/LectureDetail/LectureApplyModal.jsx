@@ -113,7 +113,7 @@ export default function LectureApplyModal({ lectureId, onClose, open }) {
       const codeMatch = errorMessage.match(/\[(.*?)\]/);
       const errorCode = codeMatch?.[1];
       if (errorCode === "DUPLICATE_APPLICATION") {
-        showToast("이미 신청한 과외입니다.", warnGif, "error");
+        showToast("이미 신청한 과외는 또 신청할 수 없어요.", warnGif, "error");
       } else {
         showToast("이런, 과외 신청이 실패했어요.", warnGif, "error");
       }

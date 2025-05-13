@@ -157,7 +157,7 @@ export default function MyPage() {
   };
 
   return (
-    <Box sx={{ mt: 4, mb: 8, px: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ mt: 4, mb: 8 }}>
       {/* 상단 프로필 카드 영역 */}
       {loading ? (
         <ProfileCardSkeleton />
