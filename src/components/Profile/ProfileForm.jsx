@@ -10,14 +10,14 @@ import {
   CircularProgress,
   MenuItem,
   Chip,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
 import { updateProfile, checkNickname } from "../../lib/api/profileApi";
-import ProfileRegionModal from "./ProfileRegionModal";
+import UnifiedRegionFilter from "../Search/RegionFilter";
 import FormFieldWrapper from "../CreateLecture/FormFieldWrapper";
 import warnGif from "../../assets/warn.gif";
 import successGif from "../../assets/party.gif";
+import CustomTextField from "../common/CustomTextField";
+import CustomSelect from "../common/CustomSelect";
 
 const mbtiOptions = [
   "ISTJ",
@@ -57,10 +57,10 @@ export default function ProfileForm({
   const [checkingNickname, setCheckingNickname] = useState(false);
   const [birthDateError, setBirthDateError] = useState("");
   const [selectedRegions, setSelectedRegions] = useState([]);
-  const [regionDialogOpen, setRegionDialogOpen] = useState(false);
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [regionModalOpen, setRegionModalOpen] = useState(false);
+  const [savedProvince, setSavedProvince] = useState("");
+  const [savedDistrict, setSavedDistrict] = useState("");
+  const [savedTab, setSavedTab] = useState(0);
 
   // 프로필 데이터 로드 시 초기화
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function ProfileForm({
 
   const handleRegionSelect = (regions) => {
     setSelectedRegions(regions);
-    setRegionDialogOpen(false);
+    setRegionModalOpen(false);
   };
 
   // 닉네임 변경 시 중복확인 상태 초기화
@@ -114,10 +114,10 @@ export default function ProfileForm({
       setIsNicknameAvailable(isAvailable);
 
       if (isAvailable) {
-        showToast("사용 가능한 닉네임입니다.", successGif, "info");
+        showToast("사용 가능한 닉네임이에요.", successGif, "info");
       } else {
         showToast(
-          "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.",
+          "이미 사용 중인 닉네임이네요. 다른 닉네임을 입력해주세요.",
           warnGif,
           "error"
         );
@@ -125,7 +125,7 @@ export default function ProfileForm({
     } catch (error) {
       console.error("닉네임 중복 확인 오류:", error);
       showToast(
-        "닉네임 확인 중 오류가 발생했습니다: " + error.message,
+        "닉네임 확인 중 오류가 발생했어요: " + error.message,
         warnGif,
         "error"
       );
@@ -201,7 +201,7 @@ export default function ProfileForm({
 
     if (nickname !== originalNickname && !isNicknameAvailable) {
       showToast(
-        "이미 사용 중인 닉네임입니다. 다른 닉네임을 입력해주세요.",
+        "이미 사용 중인 닉네임이네요. 다른 닉네임을 입력해주세요.",
         warnGif,
         "error"
       );
@@ -224,7 +224,7 @@ export default function ProfileForm({
 
     if (!isValidDate(birthDate)) {
       showToast(
-        "유효하지 않은 생년월일입니다. 올바른 날짜를 입력해주세요.",
+        "유효하지 않은 생년월일이에요. 올바른 날짜를 입력해주세요.",
         warnGif,
         "error"
       );
@@ -258,10 +258,10 @@ export default function ProfileForm({
       setIsNicknameChecked(true);
       setIsNicknameAvailable(true);
 
-      showToast("프로필이 성공적으로 업데이트되었습니다.", successGif, "info");
+      showToast("프로필이 성공적으로 업데이트됐어요!", successGif, "info");
     } catch (error) {
       showToast(
-        "프로필 업데이트 중 오류가 발생했습니다: " + error.message,
+        "프로필 업데이트 중 오류가 발생했어요: " + error.message,
         warnGif,
         "error"
       );
@@ -281,12 +281,10 @@ export default function ProfileForm({
             gap: { xs: 1.5, sm: 1 },
           }}
         >
-          <TextField
-            fullWidth
+          <CustomTextField
             value={nickname}
             onChange={handleNicknameChange}
             placeholder="닉네임을 입력해주세요."
-            required
             error={
               nickname.length > 12 ||
               (nickname !== originalNickname &&
@@ -303,25 +301,22 @@ export default function ProfileForm({
                 : ""
             }
             inputProps={{ maxLength: 12 }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "8px",
-              },
-            }}
           />
 
-          {/* 중복 확인 버튼 */}
           <Button
             variant="contained"
             onClick={checkNicknameDuplicate}
             disabled={checkingNickname || !nickname.trim()}
             sx={{
-              height: { xs: "48px", sm: "56px" },
+              height: 48,
               minWidth: { xs: "100%", sm: "120px" },
               bgcolor: "var(--primary-100)",
               borderRadius: "8px",
+              fontWeight: 600,
+              boxShadow: "none",
               "&:hover": {
                 bgcolor: "var(--primary-200)",
+                boxShadow: "none",
               },
             }}
           >
@@ -336,19 +331,13 @@ export default function ProfileForm({
 
       {/* 생년월일 필드 */}
       <FormFieldWrapper label="생년월일" required>
-        <TextField
-          fullWidth
+        <CustomTextField
           value={birthDate}
           onChange={handleBirthDateChange}
-          placeholder="생년월일을 입력하세요. (YYYYMMDD)"
+          placeholder="YYYYMMDD"
           error={!!birthDateError}
           helperText={birthDateError}
           inputProps={{ maxLength: 8 }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-            },
-          }}
         />
       </FormFieldWrapper>
 
@@ -361,60 +350,75 @@ export default function ProfileForm({
           sx={{
             flexWrap: "wrap",
             justifyContent: { xs: "space-around", sm: "flex-start" },
+            maxWidth: "640px",
           }}
         >
-          <FormControlLabel value="남성" control={<Radio />} label="남성" />
-          <FormControlLabel value="여성" control={<Radio />} label="여성" />
+          <FormControlLabel
+            value="남성"
+            control={
+              <Radio
+                sx={{
+                  color: "var(--primary-100)",
+                  "&.Mui-checked": {
+                    color: "var(--primary-100)",
+                  },
+                }}
+              />
+            }
+            label="남성"
+          />
+          <FormControlLabel
+            value="여성"
+            control={
+              <Radio
+                sx={{
+                  color: "var(--primary-100)",
+                  "&.Mui-checked": {
+                    color: "var(--primary-100)",
+                  },
+                }}
+              />
+            }
+            label="여성"
+          />
         </RadioGroup>
       </FormFieldWrapper>
 
       {/* 지역 필드 */}
-      <FormFieldWrapper label="지역" required>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-          }}
-        >
-          {/* 지역 선택 버튼 */}
+      <FormFieldWrapper label="거주 지역" required>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
           <Box
-            onClick={() => setRegionDialogOpen(true)}
+            onClick={() => setRegionModalOpen(true)}
             sx={{
+              height: 48,
+              px: 2,
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              px: 3,
-              height: "56px",
-              width: "100%",
-              maxWidth: { xs: "100%", sm: "170px" },
-              bgcolor: "#f9f9f9",
+              width: { xs: "100%", sm: "180px" },
+              bgcolor: "var(--bg-200)",
               borderRadius: "8px",
               cursor: "pointer",
-              color: "#666",
-              border: "1px solid #e0e0e0",
+              color: "var(--text-300)",
+              border: "1px solid var(--bg-200)",
+              fontSize: 14,
+              fontWeight: 500,
             }}
           >
-            <Box fontWeight={400} color="#757575">
-              지역
-            </Box>
-            <Box fontWeight={300} color="#9e9e9e" ml="auto">
-              ›
-            </Box>
+            <Box>지역 선택</Box>
           </Box>
 
           {/* 선택된 지역 표시 */}
-          <Box display="flex" flexWrap="wrap" gap={1}>
+          <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
             {selectedRegions.map((item) => (
               <Chip
                 key={item.regionCode}
                 label={item.displayName}
-                onDelete={() => {
-                  const newRegions = selectedRegions.filter(
-                    (region) => region.regionCode !== item.regionCode
-                  );
-                  setSelectedRegions(newRegions);
-                }}
+                onDelete={() =>
+                  setSelectedRegions((prev) =>
+                    prev.filter((r) => r.regionCode !== item.regionCode)
+                  )
+                }
                 variant="outlined"
                 sx={{
                   borderColor: "var(--primary-100)",
@@ -429,61 +433,73 @@ export default function ProfileForm({
             ))}
           </Box>
         </Box>
-      </FormFieldWrapper>
 
-      {/* 지역 선택 모달 */}
-      <ProfileRegionModal
-        open={regionDialogOpen}
-        onClose={() => setRegionDialogOpen(false)}
-        onSubmit={handleRegionSelect}
-        selectedRegions={selectedRegions}
-        setSelectedRegions={setSelectedRegions}
-      />
+        {/* 지역 선택 모달 */}
+        <UnifiedRegionFilter
+          open={regionModalOpen}
+          onClose={() => setRegionModalOpen(false)}
+          onSubmit={(items) => setSelectedRegions(items)}
+          selectedDongs={selectedRegions}
+          setSelectedDongs={setSelectedRegions}
+          savedProvince={savedProvince}
+          setSavedProvince={setSavedProvince}
+          savedDistrict={savedDistrict}
+          setSavedDistrict={setSavedDistrict}
+          savedTab={savedTab}
+          setSavedTab={setSavedTab}
+        />
+      </FormFieldWrapper>
 
       {/* MBTI 필드 */}
       <FormFieldWrapper label="MBTI">
-        <TextField
-          fullWidth
-          select
-          value={mbti}
-          onChange={(e) => setMbti(e.target.value)}
-          SelectProps={{
-            displayEmpty: true,
-          }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
+        <Box sx={{ width: { xs: "100%", sm: "180px" } }}>
+          <CustomSelect
+            value={mbti}
+            onChange={(e) => setMbti(e.target.value)}
+            sx={{
+              bgcolor: "var(--bg-200)",
               borderRadius: "8px",
-            },
-          }}
-        >
-          <MenuItem value="">
-            <em>MBTI를 선택하세요</em>
-          </MenuItem>
-          {mbtiOptions.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
+              fontSize: 14,
+              fontWeight: 500,
+              color: "var(--text-300)",
+              px: 2,
+              height: 48,
+            }}
+          >
+            <MenuItem value="" disabled>
+              MBTI를 선택하세요
             </MenuItem>
-          ))}
-        </TextField>
+            {mbtiOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </CustomSelect>
+        </Box>
       </FormFieldWrapper>
 
-      {/* 등록 버튼 */}
-      <Button
-        fullWidth
-        type="submit"
-        variant="contained"
-        disabled={updating}
-        sx={{
-          py: 1.5,
-          mt: { xs: 3, sm: 4 },
-          background: "var(--primary-gradient)",
-          borderRadius: "8px",
-          color: "white",
-          fontWeight: 600,
-        }}
-      >
-        {updating ? <CircularProgress size={24} color="inherit" /> : "등록하기"}
-      </Button>
+      {/* 제출 버튼 */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
+          type="submit"
+          disabled={updating}
+          sx={{
+            mt: 4,
+            py: 1.5,
+            width: { xs: "100%", md: "240px" },
+            background: "var(--primary-gradient)",
+            borderRadius: "8px",
+            color: "var(--bg-100)",
+            fontWeight: 600,
+          }}
+        >
+          {updating ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "등록하기"
+          )}
+        </Button>
+      </Box>
     </Box>
   );
 }

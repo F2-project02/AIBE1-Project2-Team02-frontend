@@ -43,7 +43,9 @@ export default function ApplicationItem({ data, showToast }) {
         sx={{
           borderRadius: "12px",
           boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.04)",
-          width: 400,
+          width: "100%", 
+          maxWidth: { xs: "100%" }, 
+          minWidth: { xs: 327, sm: 480 },
           p: 2,
         }}
       >
@@ -96,7 +98,7 @@ export default function ApplicationItem({ data, showToast }) {
         )}
 
         {/* 버튼 */}
-        <Box display="flex" justifyContent="flex-end" gap={1}>
+        <Box display="flex" justifyContent="flex-end" gap={1} mt={2}>
           <Button
             variant="outlined"
             size="small"
@@ -104,7 +106,7 @@ export default function ApplicationItem({ data, showToast }) {
               setOpenReject(true);
             }}
             sx={{
-              borderRadius: "10px",
+              borderRadius: "8px",
               minWidth: 80,
               fontWeight: 500,
               color: "var(--text-300)",
@@ -119,7 +121,7 @@ export default function ApplicationItem({ data, showToast }) {
             sx={{
               minWidth: 80,
               fontWeight: 500,
-              borderRadius: "10px",
+              borderRadius: "8px",
             }}
             onClick={() => {
               setOpenApproveModal(true);

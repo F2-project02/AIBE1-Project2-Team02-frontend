@@ -3,7 +3,7 @@ import { Button, Box } from "@mui/material";
 
 export default function MoreButton({ isExpanded, onClick }) {
   return (
-    <Box display="flex" justifyContent="center" mb={2} mx={2}>
+    <Box display="flex" justifyContent="center" mb={2}>
       <Button
         fullWidth
         variant="outlined"
@@ -13,7 +13,7 @@ export default function MoreButton({ isExpanded, onClick }) {
           borderColor: "var(--bg-300)",
           color: "var(--text-400)",
           fontWeight: 600,
-          height: 30,
+          maxHeight: 36,
           p: 1.5,
           ":hover": {
             backgroundColor: "var(--bg-200)",

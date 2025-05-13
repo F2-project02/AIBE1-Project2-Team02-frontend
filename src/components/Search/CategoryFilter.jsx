@@ -274,7 +274,7 @@ export default function CategoryFilter({
   const handleSubClick = (sub) => {
     // 스크롤 위치 유지를 위해 현재 스크롤 위치 저장
     if (subScrollRef.current) {
-      subScrollRef.current.scrollTop = subScrollRef.current.scrollTop;
+      // No action needed here
     }
 
     setTempSelectedItems((prev) => {
@@ -350,7 +350,7 @@ export default function CategoryFilter({
       : items;
 
   // 이 항목 선택 삭제
-  const handleDeleteItem = (item) => {
+  const handleDelete = (item) => {
     setTempSelectedItems((prev) => prev.filter((i) => i !== item));
   };
 
@@ -589,7 +589,7 @@ export default function CategoryFilter({
                   <Chip
                     key={item}
                     label={item}
-                    onDelete={() => toggleItem(item)}
+                    onDelete={() => handleDelete(item)}
                     sx={{
                       fontSize: 13,
                       borderColor: "var(--primary-100)",

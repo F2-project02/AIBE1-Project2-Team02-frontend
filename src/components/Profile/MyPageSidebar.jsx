@@ -23,10 +23,30 @@ export default function MyPageSidebar({
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const tabItems = [
-    { id: "profile", label: "내 정보 수정", icon: <PersonIcon /> },
-    { id: "mentor", label: "멘토 프로필", icon: <SchoolIcon /> },
-    { id: "mentees", label: "수강생 목록", icon: <PeopleIcon /> },
-    { id: "delete", label: "회원탈퇴", icon: <PersonOffIcon /> },
+    {
+      id: "profile",
+      label: "내 정보 수정",
+      mobileLabel: "내 정보\n수정",
+      icon: <PersonIcon />,
+    },
+    {
+      id: "mentor",
+      label: "멘토 프로필",
+      mobileLabel: "멘토\n프로필",
+      icon: <SchoolIcon />,
+    },
+    {
+      id: "mentees",
+      label: "수강생 목록",
+      mobileLabel: "수강생\n목록",
+      icon: <PeopleIcon />,
+    },
+    {
+      id: "delete",
+      label: "회원탈퇴",
+      mobileLabel: "회원\n탈퇴",
+      icon: <PersonOffIcon />,
+    },
   ];
 
   return (
@@ -113,10 +133,12 @@ export default function MyPageSidebar({
                         ? "var(--primary-200)"
                         : "var(--text-300)",
                     fontSize: isMobile ? "0.75rem" : "1rem",
-                    textAlign: isMobile ? "center" : "left",
+                    textAlign: "center",
+                    lineHeight: 1.3,
+                    whiteSpace: "pre-line", // 줄바꿈 적용
                   }}
                 >
-                  {tab.label}
+                  {isMobile ? tab.mobileLabel : tab.label}
                 </Typography>
               </Box>
             )}

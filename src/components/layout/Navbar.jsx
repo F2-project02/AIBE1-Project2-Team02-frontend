@@ -1,7 +1,7 @@
 // src/components/layout/Navbar.jsx
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   IconButton,
@@ -24,6 +24,10 @@ import CustomToast from "../common/CustomToast";
 import { useUserStore } from "../../store/useUserStore";
 import { useLoginModalStore } from "../../store/useLoginModalStore";
 
+import NotificationDropdown from "../Notifications/NotificationDropdown";
+import Badge from "@mui/material/Badge";
+import { getUnreadCount } from "../../lib/api/notificationApi";
+
 export default function Navbar() {
   const { isLoggedIn, profileImage, logout } = useUserStore();
   const { open } = useLoginModalStore();
@@ -33,10 +37,15 @@ export default function Navbar() {
   const menuOpen = Boolean(anchorEl);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
+  const [notificationAnchor, setNotificationAnchor] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastIcon, setToastIcon] = useState(null);
   const [toastType, setToastType] = useState("info");
+
+  const location = useLocation();
 
   const showToast = (message, icon = null, type = "info") => {
     setToastMessage(message);
@@ -58,6 +67,21 @@ export default function Navbar() {
     showToast("다음에 또 만나요! 안녕히가세요!", byeGif, "info");
     navigate("/");
   };
+
+  const handleNotificationClick = (e) => {
+    setNotificationAnchor(e.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchor(null);
+    setUnreadCount(0);
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      getUnreadCount().then(setUnreadCount);
+    }
+  }, [location.pathname, isLoggedIn]);
 
   return (
     <Box
@@ -119,9 +143,17 @@ export default function Navbar() {
               </Typography>
             ) : (
               <>
-                <IconButton>
-                  <NotificationsIcon sx={{ color: "var(--text-100)" }} />
+                <IconButton onClick={handleNotificationClick}>
+                  <Badge badgeContent={unreadCount} color="error">
+                    <NotificationsIcon sx={{ color: "var(--text-100)" }} />
+                  </Badge>
                 </IconButton>
+
+                <NotificationDropdown
+                  anchorEl={notificationAnchor}
+                  open={Boolean(notificationAnchor)}
+                  onClose={handleNotificationClose}
+                />
 
                 <IconButton onClick={handleAvatarClick}>
                   <Avatar
