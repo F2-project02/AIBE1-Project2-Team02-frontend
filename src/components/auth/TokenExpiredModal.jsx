@@ -66,7 +66,7 @@ export default function TokenExpiredModal({ open, onClose }) {
             fontWeight: 500,
           }}
         >
-          로그인 세션이 만료되었습니다. 다시 로그인해 주세요.
+          로그인 세션이 만료됐어요. 다시 로그인해 주세요.
         </DialogContentText>
       </DialogContent>
 

@@ -10,7 +10,11 @@ import {
 import { uploadProfileImage } from "../../lib/api/profileApi";
 import { useUserStore } from "../../store/useUserStore";
 
-export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
+export default function ProfileImageUploader({
+  imagePreview,
+  onImageUpdate,
+  showToast,
+}) {
   const [profileImage, setProfileImage] = useState(null);
   const [uploading, setUploading] = useState(false);
   const theme = useTheme();
@@ -41,13 +45,13 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
       onImageUpdate(imageUrl);
       updateProfileImage(imageUrl);
       showToast(
-        "프로필 이미지가 성공적으로 업데이트되었습니다",
+        "프로필 이미지가 성공적으로 업데이트됐어요!",
         "/images/success.gif"
       );
     } catch (error) {
       console.error("이미지 업로드 오류: ", error);
       showToast(
-        "이미지 업로드 중 오류가 발생했습니다: " + error.message,
+        "이미지 업로드 중 오류가 발생했어요: " + error.message,
         "/images/error.gif",
         "error"
       );
@@ -108,12 +112,10 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
             borderRadius: "8px",
             borderColor: "var(--text-400)",
             color: "var(--text-400)",
-            px: { xs: 2, sm: 3 },
+            px: 2,
             py: 1,
-            minWidth: { xs: "160px", sm: "180px" },
             fontWeight: 500,
             "&:hover": {
-              borderColor: "var(--text-300)",
               backgroundColor: "var(--bg-200)",
             },
           }}
@@ -133,7 +135,7 @@ export default function ProfileImageUploader({ imagePreview, onImageUpdate }) {
             fontSize: { xs: "0.8rem", sm: "0.9rem" },
             borderRadius: "8px",
             backgroundColor: "var(--primary-100)",
-            color: "white",
+            color: "var(--bg-100)",
             px: { xs: 2, sm: 3 },
             py: 1,
             minWidth: { xs: "160px", sm: "180px" },

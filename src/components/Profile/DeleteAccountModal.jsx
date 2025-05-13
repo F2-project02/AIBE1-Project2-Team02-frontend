@@ -10,7 +10,11 @@ import {
 } from "@mui/material";
 import warnGif from "../../assets/cryingface.gif";
 
-export default function DeleteAccountModal({ open, onClose, onConfirm }) {
+export default function DeleteAccountModal({
+  open,
+  onClose,
+  onConfirm,
+}) {
   return (
     <Dialog
       open={open}
@@ -32,7 +36,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           textAlign: "center",
         }}
       >
-        정말로 탈퇴하시겠습니까?
+        정말 떠나시려구요?
       </DialogTitle>
 
       <DialogContent>
@@ -57,7 +61,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
             fontWeight: 500,
           }}
         >
-          탈퇴하시면 계정 정보가 모두 삭제되며 복구할 수 없어요.
+          탈퇴하면 계정 정보가 모두 삭제되고 복구할 수 없어요.
         </DialogContentText>
       </DialogContent>
 
@@ -80,7 +84,7 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
           sx={{
             backgroundColor: "var(--action-red)",
             boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            fontWeight: 600,
+            fontWeight: 500,
             px: 3,
             borderRadius: "8px",
             color: "var(--bg-100)",

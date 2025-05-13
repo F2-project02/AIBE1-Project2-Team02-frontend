@@ -11,6 +11,7 @@ import { useState } from "react";
 import GradientButton from "../../../Button/GradientButton";
 import partyGif from "../../../../assets/party.gif";
 import warnGif from "../../../../assets/warn.gif";
+import thinkingGif from "../../../../assets/thinking.gif";
 
 export default function ApproveConfirmModal({
   open,
@@ -27,12 +28,12 @@ export default function ApproveConfirmModal({
     setApproving(true);
     try {
       await onApprove();
-      showToast("과외 신청 수락 되었어요!", partyGif);
+      showToast("매칭 완료! 좋은 멘토가 되어주세요!", partyGif);
       setTimeout(() => {
         onClose();
       }, 150);
     } catch (e) {
-      showToast("과외 신청 수락이 실패했어요.", warnGif, "error");
+      showToast("과외 신청 수락에 문제가 생겼어요", warnGif, "error");
       setApproving(false);
     }
   };
@@ -42,10 +43,9 @@ export default function ApproveConfirmModal({
       <Box
         sx={{
           width: isMobile ? "90vw" : 360,
-          height: "auto",
           bgcolor: "#fefefe",
-          borderRadius: isMobile ? 0 : "16px",
-          p: isMobile ? 3 : 4.5,
+          borderRadius: "16px",
+          p: isMobile ? 3 : 4,
           position: "absolute",
           top: "50%",
           left: "50%",
@@ -54,50 +54,67 @@ export default function ApproveConfirmModal({
           outline: "none",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
         }}
       >
+        {/* 이미지 영역 */}
+        <Box
+          component="img"
+          src={thinkingGif}
+          alt="고민 중"
+          sx={{ width: 80, height: 80, mb: 2, borderRadius: "8px" }}
+        />
+
+        {/* 타이틀 */}
         <Typography
           variant="h6"
-          textAlign="center"
           fontWeight={600}
           fontSize="1.1rem"
+          textAlign="center"
           color="var(--text-100)"
-          mb={3}
+          mb={1}
         >
-          해당 신청을 수락하시겠습니까?
+          해당 신청을 수락하시겠어요?
         </Typography>
 
-        <Box display="flex" gap={2} sx={{ flexShrink: 0 }}>
-          <Box sx={{ width: "50%", height: 44 }}>
-            <Button
-              onClick={onClose}
-              variant="outlined"
-              fullWidth
-              sx={{
-                height: "100%",
-                backgroundColor: "var(--bg-100)",
-                borderRadius: "12px",
-                borderColor: "var(--bg-300)",
-                color: "var(--text-400)",
-                fontWeight: 600,
-                ":hover": {
-                  backgroundColor: "var(--bg-200)",
-                },
-              }}
-            >
-              닫기
-            </Button>
-          </Box>
-          <Box sx={{ width: "50%", height: 44 }}>
-            <GradientButton
-              fullWidth
-              size="md"
-              onClick={handleConfirm}
-              sx={{ height: "100%", borderRadius: "12px", padding: 0 }}
-            >
-              수락하기
-            </GradientButton>
-          </Box>
+        {/* 설명문 */}
+        <Typography
+          variant="body2"
+          fontWeight={500}
+          color="var(--text-300)"
+          textAlign="center"
+          mb={3}
+        >
+          매칭은 마이페이지에서 취소할 수 있어요.
+        </Typography>
+
+        {/* 버튼 */}
+        <Box display="flex" gap={2} width="100%">
+          <Button
+            onClick={onClose}
+            fullWidth
+            variant="outlined"
+            sx={{
+              borderRadius: "8px",
+              backgroundColor: "var(--bg-100)",
+              borderColor: "var(--bg-100)",
+              color: "var(--text-300)",
+              fontWeight: 500,
+              ":hover": {
+                backgroundColor: "var(--bg-200)",
+              },
+            }}
+          >
+            닫기
+          </Button>
+
+          <GradientButton
+            fullWidth
+            onClick={handleConfirm}
+            sx={{ borderRadius: "8px", padding: 0, fontWeight: 500 }}
+          >
+            수락하기
+          </GradientButton>
         </Box>
       </Box>
     </Modal>
