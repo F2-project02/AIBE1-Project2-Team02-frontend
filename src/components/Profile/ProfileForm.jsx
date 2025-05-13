@@ -189,8 +189,8 @@ export default function ProfileForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (nickname.length > 15) {
-      showToast("닉네임은 15자 이하로 입력해주세요.", warnGif, "error");
+    if (nickname.length > 12) {
+      showToast("닉네임은 12자 이하로 입력해주세요.", warnGif, "error");
       return;
     }
 
@@ -288,21 +288,21 @@ export default function ProfileForm({
             placeholder="닉네임을 입력해주세요."
             required
             error={
-              nickname.length > 15 ||
+              nickname.length > 12 ||
               (nickname !== originalNickname &&
                 !isNicknameAvailable &&
                 isNicknameChecked)
             }
             helperText={
-              nickname.length > 15
-                ? "닉네임은 최대 15자까지 입력 가능합니다."
+              nickname.length > 12
+                ? "닉네임은 최대 12자까지 입력 가능합니다."
                 : nickname !== originalNickname &&
                   !isNicknameAvailable &&
                   isNicknameChecked
                 ? "이미 사용 중인 닉네임입니다"
                 : ""
             }
-            inputProps={{ maxLength: 15 }}
+            inputProps={{ maxLength: 12 }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: "8px",
