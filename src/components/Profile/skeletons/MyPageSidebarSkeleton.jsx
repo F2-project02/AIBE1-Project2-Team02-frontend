@@ -2,7 +2,7 @@
 import { Box, List, ListItem, Skeleton } from "@mui/material";
 
 export default function MyPageSidebarSkeleton() {
-  const menuItems = [1, 2, 3];
+  const menuItems = [1, 2, 3, 4];
 
   return (
     <Box sx={{ width: 240 }}>
