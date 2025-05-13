@@ -103,10 +103,7 @@ export default function MentorFormView({ showToast }) {
 
       if (isMentor) {
         await updateMentorProfile(formData);
-        showToast(
-          "멘토 프로필이 성공적으로 업데이트됐어요.",
-          mentorsuccessGif
-        );
+        showToast("멘토 프로필이 성공적으로 업데이트됐어요.", mentorsuccessGif);
       } else {
         await applyMentorProfile(formData);
         updateRole("MENTOR");
@@ -250,13 +247,24 @@ export default function MentorFormView({ showToast }) {
               border: "none",
             }}
           >
-            <Typography
-              color="var(--text-300)"
-              sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
-            >
-              mentoss.hwa2@gmail.com으로 재학증명서 또는 졸업증명서를 제출한 후에
-              인증받을 수 있어요.
-            </Typography>
+            {mentorProfile &&
+            (mentorProfile.education || mentorProfile.major) ? (
+              <Typography
+                color="var(--text-300)"
+                sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+              >
+                {mentorProfile.education && `${mentorProfile.education} `}
+                {mentorProfile.major && `${mentorProfile.major}`}
+              </Typography>
+            ) : (
+              <Typography
+                color="var(--text-300)"
+                sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+              >
+                mentoss@gmail.com으로 재학증명서 또는 졸업증명서를 제출한 후에
+                인증받을 수 있어요.
+              </Typography>
+            )}
           </Box>
         </FormFieldWrapper>
 
