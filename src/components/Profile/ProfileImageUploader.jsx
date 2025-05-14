@@ -9,6 +9,8 @@ import {
 } from "@mui/material";
 import { uploadProfileImage } from "../../lib/api/profileApi";
 import { useUserStore } from "../../store/useUserStore";
+import successGif from "../../assets/party.gif";
+import warnGif from "../../assets/warn.gif";
 
 export default function ProfileImageUploader({
   imagePreview,
@@ -44,17 +46,10 @@ export default function ProfileImageUploader({
       const imageUrl = await uploadProfileImage(profileImage);
       onImageUpdate(imageUrl);
       updateProfileImage(imageUrl);
-      showToast(
-        "프로필 이미지가 성공적으로 업데이트됐어요!",
-        "/images/success.gif"
-      );
+      showToast("프로필 이미지가 성공적으로 업데이트됐어요!", successGif);
     } catch (error) {
       console.error("이미지 업로드 오류: ", error);
-      showToast(
-        "이미지 업로드 중 오류가 발생했어요: " + error.message,
-        "/images/error.gif",
-        "error"
-      );
+      showToast("이미지 업로드 중 오류가 발생했어요", warnGif);
     } finally {
       setUploading(false);
       setProfileImage(null);
