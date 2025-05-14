@@ -8,6 +8,7 @@ import { useLoginModalStore } from "../../store/useLoginModalStore";
 import LogoutConfirmDialog from "../common/LogoutConfirmDialog";
 import CustomToast from "../common/CustomToast";
 import menuItems from "./menuItems";
+import byeGIF from "../../assets/bye.gif";
 import warnGif from "../../assets/warn.gif";
 
 export default function MobileMenu({ onClose, onLogoutWithToast }) {
@@ -40,7 +41,7 @@ export default function MobileMenu({ onClose, onLogoutWithToast }) {
 
   const handleLogout = () => {
     logout();
-    onLogoutWithToast?.();
+    onLogoutWithToast?.("다음에 또 만나요! 안녕히가세요!", byeGIF, "info");
     onClose?.();
     navigate("/");
   };
