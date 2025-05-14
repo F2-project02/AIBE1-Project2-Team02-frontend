@@ -1,6 +1,5 @@
 <img src="public/Readme/1.png" />
 <img src="public/Readme/2.png" />
-<img src="public/Readme/3.png" />
 <img src="public/Readme/4.png" />
 <img src="public/Readme/5.png" />
 <img src="public/Readme/6.png" />
