@@ -62,6 +62,16 @@ export default function ProfileForm({
   const [savedDistrict, setSavedDistrict] = useState("");
   const [savedTab, setSavedTab] = useState(0);
 
+  const formatRegionName = (region) => {
+    if (!region) return "";
+
+    let text = region.sido || "";
+    if (region.sigungu) text += " " + region.sigungu;
+    if (region.dong) text += " " + region.dong;
+
+    return text || region.regionCode;
+  };
+
   // 프로필 데이터 로드 시 초기화
   useEffect(() => {
     if (profileData) {
@@ -71,8 +81,8 @@ export default function ProfileForm({
       setSex(profileData.sex || "남성");
       setMbti(profileData.mbti || "");
 
-      if (profileData.regions && profileData.regions.length > 0) {
-        setSelectedRegions(profileData.regions);
+      if (profileData.regionCode && profileData.regionCode.length > 0) {
+        setSelectedRegions(profileData.regionCode);
       }
 
       setIsNicknameChecked(true);
@@ -413,7 +423,7 @@ export default function ProfileForm({
             {selectedRegions.map((item) => (
               <Chip
                 key={item.regionCode}
-                label={item.displayName}
+                label={item.displayName || formatRegionName(item)}
                 onDelete={() =>
                   setSelectedRegions((prev) =>
                     prev.filter((r) => r.regionCode !== item.regionCode)
