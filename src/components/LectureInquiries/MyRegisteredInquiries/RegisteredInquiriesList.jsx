@@ -89,14 +89,14 @@ export default function RegisteredInquiriesList() {
             sx={{
               width: "100%",
               maxWidth: { xs: "100%", sm: 400 },
-              minHeight: 220,
+              minHeight: 160,
               py: 3,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               flexDirection: "column",
-              bgcolor: "#fefefe",
-              borderRadius: 2,
+              bgcolor: "var(--bg-100)",
+              borderRadius: 1,
               border: "1px dashed var(--bg-300)",
               color: "var(--text-300)",
               fontWeight: 500,
@@ -104,12 +104,12 @@ export default function RegisteredInquiriesList() {
               cursor: "pointer",
               transition: "all 0.2s",
               "&:hover": {
-                backgroundColor: "var(--bg-100)",
+                backgroundColor: "var(--bg-200)",
               },
             }}
           >
             <Typography variant="body1" fontWeight={600}>
-              등록된 과외가 없습니다.
+              아직 등록된 과외가 없네요.
             </Typography>
             <Typography variant="body2" color="var(--text-400)" mt={1}>
               과외를 등록해보세요!
