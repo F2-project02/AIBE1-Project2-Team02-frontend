@@ -224,7 +224,12 @@ export default function Navbar() {
       >
         <MobileMenu
           onClose={handleToggleMenu}
-          onLogoutWithToast={() => setToastOpen(true)}
+          onLogoutWithToast={(msg, icon, type) => {
+            setToastMessage(msg);
+            setToastIcon(icon);
+            setToastType(type);
+            setToastOpen(true);
+          }}
         />
       </Drawer>
 
