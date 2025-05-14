@@ -87,9 +87,9 @@ export default function RegisteredInquiriesList() {
           <Box
             onClick={() => navigate("/register")}
             sx={{
-              width: 400,
+              width: "100%",
+              maxWidth: { xs: "100%", sm: 400 },
               minHeight: 220,
-              px: 2,
               py: 3,
               display: "flex",
               justifyContent: "center",
