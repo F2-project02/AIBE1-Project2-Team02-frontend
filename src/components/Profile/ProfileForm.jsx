@@ -81,16 +81,8 @@ export default function ProfileForm({
       setSex(profileData.sex || "남성");
       setMbti(profileData.mbti || "");
 
-      console.log("지역 정보 설정 전:", selectedRegions);
-
       if (profileData.regionCode && profileData.regionCode.length > 0) {
-        console.log("지역 정보 설정에 사용될 데이터:", profileData.regionCode);
         setSelectedRegions(profileData.regionCode);
-
-        // 확인을 위한 타임아웃
-        setTimeout(() => {
-          console.log("지역 정보 설정 후:", selectedRegions);
-        }, 100);
       }
 
       setIsNicknameChecked(true);
