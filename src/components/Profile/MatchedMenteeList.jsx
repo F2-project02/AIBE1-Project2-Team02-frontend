@@ -520,6 +520,7 @@ export default function MatchedMenteeList() {
               width: 80,
               height: 80,
               borderRadius: "8px",
+              textAlign: "center",
             }}
           />
           <DialogContentText
