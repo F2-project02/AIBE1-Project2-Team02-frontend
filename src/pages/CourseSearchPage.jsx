@@ -92,6 +92,7 @@ const CourseSearchPage = () => {
           keyword: search,
           page: page - 1,
           size: 10,
+          isOpen: false,
         };
 
         // 카테고리 필터
