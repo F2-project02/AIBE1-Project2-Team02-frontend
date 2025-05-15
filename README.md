@@ -1,18 +1,3 @@
-<img src="public/Readme/1.png" />
-<img src="public/Readme/2.png" />
-<img src="public/Readme/4.png" />
-<img src="public/Readme/5.png" />
-<img src="public/Readme/6.png" />
-<img src="public/Readme/7.png" />
-<img src="public/Readme/8.png" />
-<img src="public/Readme/9.png" />
-
-<br />
-
----
-
-<br />
-
 # 📦 Project Setup (React + Vite + JavaScript)
 
 ## 🚀 프로젝트 시작하기
